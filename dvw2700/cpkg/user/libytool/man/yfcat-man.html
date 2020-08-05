@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>yfcat-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>yfcat(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>yfcat - 파일로부터 지정된 형식 변환을 수행</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+int yfcat(const char *<a href="#">pathname</a>, const char *<a href="#">fmt</a>, ...);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 <a href="#">pathname</a>에 지정된 파일을 읽기 속성으로 연 후 <a href="#">fmt</a>에 전달된 형식 변환 지정자에 따라 <i>Pointer</i> 로 넘겨진 추가적인 인자에 변환을 수행한다. 일반적인 <b>fopen</b>과 <b>fscanf</b> 그리고 <b>fclose</b>라는 일련의 호출로 구현하는 방법을 단일 함수화 한 것이다. 
+<dl>
+	<dt><a href="#">pathname</a></dt>
+	<dd>절대 경로 또는 상대경로로 지정된 파일이름이다.</dd>
+	<dt><a href="#">fmt</a></dt>
+	<dd>형식 변환자를 포함하는 문자열이다. 표준 라이브러리의 형식화된 입력 함수들의 변환 기준과 같다.</dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>실제로 성공적으로 형식 변환을 수행한 횟수를 리턴한다. 변환 수행 중에 입력의 끝을 만나거나 읽기 오류가 발생했을 시 <b>EOF</b>을 리턴한다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>cat /proc/net/route
+</b>Iface   Destination     Gateway         Flags   RefCnt  Use     Metric  Mask            MTU     Window  IRTT
+eth0    <b>00000000</b>        0118A8C0        0003    0       0       0       00000000        0       0       0
+eth0    0000FEA9        00000000        0001    0       0       1000    0000FFFF        0       0       0
+eth0    0018A8C0        00000000        0001    0       0       1       00FFFFFF        0       0       0
+$ <b>cat /etc/resolv.conf
+</b>nameserver 168.126.63.1
+nameserver <b>168.126.63.2</b>
+$ <b>cat /etc/product_info
+</b>MODEL GAPD-7000
+VERSION 1.03.00rc1
+DATE <b>2014-07-04 20:45:40</b>
+$ <b>./a.out</b>
+00000000
+168.126.63.2
+2014-07-04 20:45:40
+</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+    <span style="color:Blue;">char</span> buffer[256];
+    <span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span> dest;
+    <span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> dns[4];
+
+    yfcat(<span style="color:#A31515;">"/proc/net/route"</span>, <span style="color:#A31515;">"%*[^\n] %*s %x"</span>, &amp;dest);
+    printf(<span style="color:#A31515;">"%08x\n"</span>, dest);
+
+    yfcat(<span style="color:#A31515;">"/etc/resolv.conf"</span>, <span style="color:#A31515;">"%*[^\n] %*s %hhd.%hhd.%hhd.%hhd"</span>,
+          &amp;dns[0], &amp;dns[1], &amp;dns[2], &amp;dns[3]);
+    printf(<span style="color:#A31515;">"%u.%u.%u.%u\n"</span>, dns[0], dns[1], dns[2], dns[3]);
+
+    <span style="color:Blue;">if</span> (yfcat(<span style="color:#A31515;">"/var/product_info"</span>, <span style="color:#A31515;">"%*[^\n] %*[^\n] %*s %[^\n]"</span>, buffer) &gt; 0)
+        printf(<span style="color:#A31515;">"%s\n"</span>, buffer);
+
+    <span style="color:Blue;">return</span> 0;
+}</pre>
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<% getIndex("no-cache"); %>
+<title>WDS Settings</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<!--script>
+function addClick()
+{
+  var str = document.formWlWdsAdd.mac.value;
+
+  if (!document.formWlWdsAdd.wlanWdsEnabled.checked)
+	return true;
+
+  if ( str.length == 0)
+  	return true;
+
+  if ( str.length < 12) {
+	alert(wlwds_macaddr_nocomplete);
+	document.formWlWdsAdd.mac.focus();
+	return false;
+  }
+  // add for "All MAC Address field can't reject 00:00:00:00:00:00/ff:ff:ff:ff:ff:ff MAC Address" issue
+  with(document.formWlWdsAdd)
+  {
+	if(!checkMacAddr(mac,"mac address invalid!"))
+		return false;
+  } 
+  return true;
+}
+
+
+function deleteClick()
+{
+  if ( !confirm(wlwds_delete_chick) ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function deleteAllClick()
+{
+   if ( !confirm(wlwds_delete_allchick) ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function disableDelButton()
+{
+	disableButton(document.formWlWdsDel.deleteSelWdsMac);
+	disableButton(document.formWlWdsDel.deleteAllWdsMac);
+}
+
+function enableWds()
+{
+  enableTextField(document.formWlWdsAdd.mac);
+  enableTextField(document.formWlWdsAdd.comment);
+  enableButton(document.formWlWdsAdd.showWep);
+  enableButton(document.formWlWdsAdd.showAp);
+}
+
+function disableWds()
+{
+  disableTextField(document.formWlWdsAdd.mac);
+  disableTextField(document.formWlWdsAdd.comment);
+  
+  	disableButton(document.formWlWdsAdd.showWep);
+  	disableButton(document.formWlWdsAdd.showAp);
+}
+
+function updateState()
+{
+  wlanDisabled = <% getIndex("wlanDisabled"); %> ;
+  wlanMode = <% getIndex("wlanMode"); %>;
+  var wdstxrate = document.getElementById("wds_txrate");
+  var wds_txrate = document.formWlWdsAdd.txRate;
+//  if(wlanDisabled || wlanMode == 0 || wlanMode ==1){
+  if(wlanDisabled || (wlanMode != 2 && wlanMode !=3) ){
+	disableWds();
+	disableTextField(document.formWlWdsAdd.wlanWdsEnabled);
+	disableButton(document.formWlWdsAdd.reset);
+	disableButton(document.formWlWdsAdd.addWdsMac);
+	disableButton(document.formWlWdsDel.reset);
+	disableWds();
+	disableDelButton();
+	wds_txrate.disabled = true;
+	//wdstxrate.disabled = true;
+
+  }else{
+	  if (document.formWlWdsAdd.wlanWdsEnabled.checked){
+	 	enableWds();
+	 	wds_txrate.disabled = false;
+		//wdstxrate.disabled = false;
+	  }else{
+	  	disableWds();
+	  	wds_txrate.disabled = true;
+		//wdstxrate.disabled = true;
+	  }
+}
+}
+
+function showApClick(url)
+{
+  if (document.formWlWdsAdd.wlanWdsEnabled.checked)
+	openWindow(url, 'showWdsStatistics',620,440 );
+}
+
+function showWepClick(url)
+{
+  if (document.formWlWdsAdd.wlanWdsEnabled.checked)
+ 	{
+		//openWindow(url, 'showWdsWep',620,340 );
+		document.location.href = url;
+	}
+}
+
+function Load_Setting()
+{
+	if ( <% getIndex("wlanWdsEnabled"); %> ) {
+		document.formWlWdsAdd.wlanWdsEnabled.checked = true;
+		updateState();
+	}
+}
+</script-->
+<script>
+function chk_sel_wds_use()
+{
+	if (document.getElementById("wds_use").value == "0")
+		return 0;
+	else
+		return 1;
+}
+
+function sel_wds_use()
+{
+	if (chk_sel_wds_use()) {
+		document.getElementById("mac1").disabled = false;
+		document.getElementById("mac2").disabled = false;
+		document.getElementById("mac3").disabled = false;
+		document.getElementById("mac4").disabled = false;
+		document.getElementById("mac5").disabled = false;
+		document.getElementById("mac6").disabled = false;
+		document.getElementById("scan").disabled = false;
+		document.getElementById("add").disabled = false;
+		document.getElementById("del_sel").disabled = false;
+		document.getElementById("del_all").disabled = false;
+	} else {
+		document.getElementById("mac1").disabled = true;
+		document.getElementById("mac2").disabled = true;
+		document.getElementById("mac3").disabled = true;
+		document.getElementById("mac4").disabled = true;
+		document.getElementById("mac5").disabled = true;
+		document.getElementById("mac6").disabled = true;
+		document.getElementById("scan").disabled = true;
+		document.getElementById("add").disabled = true;
+		document.getElementById("del_sel").disabled = true;
+		document.getElementById("del_all").disabled = true;
+	}
+}
+
+function init()
+{
+	sel_wds_use();
+}
+</script>
+</head>
+
+<body>
+<blockquote>
+<form action=/boafrm/formWlWds method=POST name="formWlWdsAdd">
+	<h2>WDS</h2>
+	<font size=2><script>dw(wlwds_header_explain)</script></font>
+	<hr size=1 noshade align=top><br>
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+		<tr>
+			<td width="30%" height="40"><font size=2><b>On/Off</b></font></td>
+			<td width="70%" height="40">
+				<select name="wds_use" id="wds_use" onchange="sel_wds_use()">
+					<option value="0" selected>Disabled</option>
+					<option value="1">Enabled</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="30%"><font size=2><b>MAC Address</b></font></td>
+			<td width="70%">
+				<input type="text" name="mac1" id="mac1" size="1" maxlength="2">:
+				<input type="text" name="mac2" id="mac2" size="1" maxlength="2">:
+				<input type="text" name="mac3" id="mac3" size="1" maxlength="2">:
+				<input type="text" name="mac4" id="mac4" size="1" maxlength="2">:
+				<input type="text" name="mac5" id="mac5" size="1" maxlength="2">:
+				<input type="text" name="mac6" id="mac6" size="1" maxlength="2">
+				<font size=2>&nbsp;&nbsp;</font>
+				<input type="button" name="scan" id="scan" value="Scan">
+			</td>
+		</tr>
+	</table>
+	<p>
+		<input type="button" name="add" id="add" value="Add">
+	</p>
+	<p>
+		<font size=2><b>Current WDS AP List</b></font>
+		<table width="500">
+			<tr class="tbl_head">
+				<td align=center><font size=2><b>ID</b></font></td>
+				<td align=center><font size=2><b>MAC Address</b></font></td>
+				<td align=center><font size=2><b>Select</b></font></td>
+			</tr>
+			<!--tr class="tbl_body">
+				<td align=center><font size=2><b></b></font></td>
+			</tr-->
+		</table>
+	</p>
+	<input type="button" name="del_sel" id="del_sel" value="Delete Selected">&nbsp;&nbsp;&nbsp;
+	<input type="button" name="del_all" id="del_all" value="Delete All">
+</form>
+<script>init();</script>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>연결 해제 설정</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var wlan_idx=<% getIndex("wlan_idx"); %>;
+
+function selectMac(tmpMac)
+{
+	document.formRedirEncrypt.disc_sta_mac.value = tmpMac;
+
+	return true;
+}
+
+function page_change(selectObj)
+{
+
+	if (selectObj.value==1)
+		location.href='boafrm/formWlanRedirect?redirect-url=skb_wlsecurity_disclient.htm&wlan_id=1';
+	else
+		location.href='boafrm/formWlanRedirect?redirect-url=skb_wlsecurity_disclient.htm&wlan_id=0';
+}
+
+function resetForm()
+{
+	document.location.assign("skb_wlsecurity_disclient.htm");
+}
+function LoadSetting()
+{
+	if(wlan_idx)
+		document.formRedirEncrypt.Wlanintf.options[0].selected = true;
+	else
+		document.formRedirEncrypt.Wlanintf.options[1].selected = true;
+}
+
+</script>
+</head>
+
+<body onload="LoadSetting();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>
+<script>
+	if (<% getIndex("wlan_idx"); %> == 1)
+		document.write("연결 해제 설정 - 2.4G");
+	else
+		document.write("연결 해제 설정 - 5G");
+</script>
+</h2>
+
+<table border=0 width="570" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+ 현재 무선 인터넷(RADIUS 인증)으로 연결중인 클라이언트의 연결 해제를 위한 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formRedirWlEncrypt method=POST name="formRedirEncrypt">
+	<table width="400" border="0">
+		<tr>
+			<td width="30%"><font size="2"><b>무선:</b></font></td>
+			<td width="70%">
+				<select name="Wlanintf" id="Wlanintf" onChange="page_change(this)">
+					<option value=1>2.4 GHz</option>
+					<option value=0>5 GHz</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	<table width="580" border="0">
+		<tr>
+			<td colspan="4"><input type="button" value="다시 보기" name="reset"  onclick="resetForm()"></td>
+			<td colspan="5" align="right"><input type="submit" value="전체 차단" name="disc_all" ></td>
+		</tr>
+	</table>
+	<table width="580" border='1' cellspacing="1" cellpadding="2">
+		<tr align="center">
+			<td width="80" class="tbl_title"><font size="2"><b>MAC 주소</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>모드</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>송신<br>kByte</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>수신<br>kByte</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>전송률<br>(Mbps)</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>전원<br>절약</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>남은<br>시간</b></font></td>
+			<td width="80" class="tbl_title"><font size="2"><b>경과<br>시간</b></font></td>
+			<td width="60" class="tbl_title"><font size="2"><b>차단</b></font></td>
+		</tr>
+		<% wirelessClientList("disClient"); %>
+		<% wirelessClientList("disClient", "1"); %>
+		<% wirelessClientList("disClient", "2"); %>
+		<% wirelessClientList("disClient", "3"); %>
+		<% wirelessClientList("disClient", "4"); %>
+
+	</table>
+
+<input type="hidden" value=" " name="disc_sta_mac">
+<input type="hidden" value="/skb_wlsecurity_disclient.htm" name="submit-url">
+
+</form>
+
+</blockquote>
+</body>
+</html>
+

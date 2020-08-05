@@ -1,0 +1,2 @@
+#!/bin/sh
+sysconf conn dhcp $interface $ip ${subnet:-255.255.255.0} ${router:-0.0.0.0} $dns

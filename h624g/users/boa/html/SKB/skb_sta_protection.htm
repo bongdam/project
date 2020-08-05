@@ -1,0 +1,403 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>무선접속 제한 서비스</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<link rel="stylesheet" rev="stylesheet" href="font-awesome.min.css" type="text/css">
+<% getInfo("include_css"); %>
+<script>
+
+var millisecond_to_date = function(t){
+	if (t.length < 10)
+	{
+		return "";
+	}
+	var temp = parseInt(t,10);
+	var thisDate =  new Date(temp);
+	thisDate = new Date(thisDate);
+	var thisYear = thisDate.getFullYear();
+	var thisMonth = thisDate.getMonth() + 1;
+	thisMonth  = "0" + thisMonth;
+	thisMonth = thisMonth.substr(thisMonth.length -2,2);
+	var thisDay = thisDate.getDate();
+	thisDay  = "0" + thisDay;
+	thisDay = thisDay.substr(thisDay.length -2,2);
+	var thisHour = thisDate.getHours();
+	thisHour  = "0" + thisHour;
+	thisHour = thisHour.substr(thisHour.length -2,2);
+	var thisMin = thisDate.getMinutes();
+	thisMin  = "0" + thisMin;
+	thisMin = thisMin.substr(thisMin.length -2,2);
+	var thisSec = thisDate.getSeconds();
+	thisSec  = "0" + thisSec;
+	thisSec = thisSec.substr(thisSec.length -2,2);
+	var rtn = thisYear+"-"+thisMonth+"-"+thisDay + " " + thisHour + ":" + thisMin + ":" + thisSec;
+	return rtn;
+
+};
+
+function init_timer()
+{
+	var clock = document.getElementById("time");
+	var now = <% getInfo("local_linux_time"); %>;
+	now = now + 1000;
+	clock.innerHTML = "현재시간 : " + millisecond_to_date(now);
+	timeIvt = setInterval(function(){
+		now = now + 1000;
+		clock.innerHTML = "현재시간 : " + millisecond_to_date(now);
+	},1000);
+}
+
+function ntp_restart()
+{
+	document.formwlprotection.ntp_update.value = "ntp_update";
+	document.formwlprotection.submit();
+}
+
+function select_sta_mac(f)
+{
+	var e = document.getElementById("choice_mac");
+	f.mac_area.value = e.options[e.selectedIndex].value;
+}
+
+function form_apply()
+{
+	var week_ck = false;
+	var str = document.formwlprotection.mac_area.value;
+	var tmpMac = "";
+	var start_t = document.getElementById("start_hour");
+	var start_m = document.getElementById("start_min");
+	var end_t = document.getElementById("end_hour");
+	var end_m = document.getElementById("end_min");
+
+    str = trim(str);
+
+	if ( !(str.length == 12 || str.length == 17) ) {
+		alert("MAC 주소가 올바르지 않습니다. 16진수 12자리 또는 콜론(:)을 포함한 17자리를 입력해주십시오.");
+		return;
+	}
+
+	if (str.length == 17) {
+        if (str.charAt(2)!=':' || str.charAt(5)!=':' || str.charAt(8)!=':' || str.charAt(11)!=':' || str.charAt(14)!=':' ) {
+			alert("MAC 주소가 올바르지 않습니다. 16진수 12자리 또는 콜론(:)을 포함한 17자리를 입력해주십시오.");
+			document.formwlprotection.mac_area.focus();
+			return;
+        }
+    }
+
+    for (var i = 0; i < str.length; i++) {
+        if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			    (str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+			    (str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+			    (str.charAt(i) == ':') ) {
+            if(str.charAt(i) != ':')
+	            tmpMac += str.charAt(i);
+	        continue;
+        }
+	    alert("MAC 주소가 올바르지 않습니다. 16진수를 입력해주십시오.(0-9 또는 a-f).");
+	    document.formwlprotection.mac_area.focus();
+		return;
+    }
+
+    var cols = str.charAt(0)+str.charAt(1);
+    var bindata = parseInt(cols, 16);
+    if (bindata & 1) {
+		alert("단말주소(MAC)이 올바르게 입력해주세요.");
+		return;
+    }
+
+    if (tmpMac == "000000000000") {
+    	alert("MAC 주소가 올바르지 않습니다. 16진수를 입력해주십시오.(0-9 또는 a-f).");
+		document.formwlprotection.mac_area.focus();
+		return;
+    }
+
+
+	for (var i = 0; i < 8; i++ ) {
+		if (document.getElementById("week"+i).checked == true)
+			week_ck = true;
+	}
+
+	if (week_ck == false) {
+		alert("요일을 선택해 주세요");
+		return;
+	}
+
+	document.formwlprotection.sta_name.value = trim(document.formwlprotection.sta_name.value);
+
+	var comment_val = document.formwlprotection.sta_name.value;
+    if ( IsHtmlComment(comment_val)) {
+		alert("단말 이름에 Html 주석문을 입력할 수 없습니다!");
+		document.formwlprotection.sta_name.focus();
+		return;
+  	}
+
+    for (var i = 0; i < comment_val.length; i++) {
+        if (comment_val.charAt(i) == ',') {
+	    	alert("단말이름에 ',' 를 사용 할 수 없습니다.");
+	    	return;
+	    }
+    }
+
+  	var s_h = parseInt(start_t.options[start_t.selectedIndex].value);
+  	var s_m = parseInt(start_m.options[start_m.selectedIndex].value);
+  	var e_h = parseInt(end_t.options[end_t.selectedIndex].value);
+  	var e_m = parseInt(end_m.options[end_m.selectedIndex].value);
+
+	if (s_h > e_h) {
+		alert("시작 시간이 끝 시간 보다 클 수 없습니다.");
+		return;
+	}
+
+	if (s_h == e_h) {
+		if (s_m >= e_m) {
+			alert("시작 시간이 끝 시간 보다 같거나 클 수 없습니다.");
+			return;
+		}
+	}
+
+	document.formwlprotection.mac_area.value = tmpMac;
+	document.formwlprotection.submit();
+}
+
+function form_adapt()
+{
+	var list_del = false;
+	var list_apply = false;
+	var entryNum =  <% getIndex("wlprotection_num"); %>;
+
+/*	for (var i = 0; i < entryNum; i++ ) {
+		if (document.getElementById("select" + i).checked == true)
+			list_del = true;
+	}
+
+	for (var i = 0; i < entryNum; i++ ) {
+		if (document.getElementById("cpeuse" + i).checked == true)
+			list_apply = true;
+	}
+
+	if (list_del == false && list_apply == false) {
+		alert("삭제 또는 사용을 선택해 주세요");
+		return;
+	}
+*/
+	document.formwlprodelete.submit();
+}
+
+function form_all_del()
+{
+	if (!confirm("모든 리스트를 삭제 하시겠습니까?"))
+		return;
+
+	document.formwlprodelete.deleteAll.value = "deleteAll";
+	document.formwlprodelete.submit();
+}
+
+function updateDay()
+{
+    if (document.getElementById("week7").checked == true) {
+	    for (var i = 0; i < 7; i++ ) {
+		    document.getElementById("week"+i).checked = false;
+            document.getElementById("week"+i).disabled = true;
+	    }
+    } else {
+        for (var i = 0; i < 7; i++ )
+            document.getElementById("week"+i).disabled = false;
+    }
+}
+
+function updateDel(num)
+{
+	if (document.getElementById("cpeuse"+num).checked)
+		document.getElementById("select"+num).checked = false;
+}
+
+function updateSet(num)
+{
+	if (document.getElementById("select"+num).checked)
+		document.getElementById("cpeuse"+num).checked = false;
+}
+
+</script>
+</head>
+
+<body onload="init_timer();">
+<script language="javascript">
+var ntp_check = <% getIndex("ntp_fail_flag"); %>;
+if (ntp_check == 0)
+	alert('시간이 동기화 되지 않아 서비스를 이용 할 수 없습니다.');
+</script>
+<blockquote>
+<h2>
+인터넷 접속 제한 서비스
+</h2>
+<table border=0 width="700" cellspacing=4 cellpadding=0 >
+<tr>
+	<td><font size=2>인터넷 접속 제한 서비스 설정을 할 수 있는 페이지입니다.</font></td>
+</tr>
+<tr>
+	<td><hr size=1 noshade align=top><br></td>
+</tr>
+</table>
+
+<form method=POST action=/boafrm/formwlprotection name="formwlprotection">
+<input type="hidden" value="" name="ntp_update">
+<input type="hidden" value="/skb_sta_protection.htm" name="submit-url">
+<fieldset  style="border-right: #000000 1px solid; padding-right: 10px; border-top: #000000 1px solid; padding-left: 10px; padding-bottom: 5px; border-left: #000000 1px solid; width: 700px; padding-top: 0px; border-bottom: #000000 1px solid; "><legend><b>인터넷 접속 제한 서비스</b></legend>
+<div style="width:245px; font-weight:bold; float:right;">
+	<span id="time"></span>&nbsp;
+	<i class="fa fa-refresh" aria-hidden="true" onclick="ntp_restart();" style="cursor:pointer;"></i>
+</div>
+
+<table border="0" style="width:100%;">
+	<tr>
+		<td style="font-weight:bold">단말이름</td>
+		<td><input type="text" name="sta_name" id="sta_name" value="" maxlength="15"></td>
+		<td style="font-weight:bold">허용/차단</td>
+		<td><input type="radio" name="rule" id="rule1" value="1">허용<input type="radio" name="rule" id="rule0" value="2" checked>차단</td>
+	</tr>
+	<tr>
+		<td style="font-weight:bold">단말주소(MAC)</td>
+		<td><input type="text" name="mac_area" id="mac_area" value="" maxlength="17"></td>
+		<td style="font-weight:bold">단말 찾기 :</td>
+		<td><select name="choice_mac" id="choice_mac" onChange="select_sta_mac(this.form);">
+			<% macList(); %>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="font-weight:bold">요일</td>
+		<td colspan="3">
+		    <input type="checkbox" name="week0" id="week0" value="1">일
+		    <input type="checkbox" name="week1" id="week1" value="2">월
+		    <input type="checkbox" name="week2" id="week2" value="4">화
+		    <input type="checkbox" name="week3" id="week3" value="8">수
+		    <input type="checkbox" name="week4" id="week4" value="16">목
+		    <input type="checkbox" name="week5" id="week5" value="32">금
+		    <input type="checkbox" name="week6" id="week6" value="64">토
+		    <input type="checkbox" name="week7" id="week7" value="127" onClick="updateDay();">매일
+        </td>
+	</tr>
+	<tr>
+		<td style="font-weight:bold">시간</td>
+		<td colspan="3">
+			<select name="start_hour" id="start_hour">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+			</select>&nbsp;<b>:&nbsp;</b>
+			<select name="start_min" id="start_min">
+				<option value="0">0</option>
+				<option value="10">10</option>
+				<option value="20">20</option>
+				<option value="30">30</option>
+				<option value="40">40</option>
+				<option value="50">50</option>
+			</select>&nbsp;<b>~&nbsp;</b>
+			<select name="end_hour" id="end_hour">
+				<option value="0">0</option>
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+				<option value="6">6</option>
+				<option value="7">7</option>
+				<option value="8">8</option>
+				<option value="9">9</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+			</select>&nbsp;<b>:&nbsp;</b>
+			<select name="end_min" id="end_min">
+				<option value="0">0</option>
+				<option value="10">10</option>
+				<option value="20">20</option>
+				<option value="30">30</option>
+				<option value="40">40</option>
+				<option value="50">50</option>
+			</select> &nbsp;<b>(00:00 ~ 23:50)</b>
+		</td>
+	</tr>
+</table>
+</fieldset>
+<br>
+<input type="button" value="저장" name="btn_apply" onclick="form_apply();"> &nbsp;<input type="reset" value="취소" name="reset">
+</form>
+<br>
+<form method=POST action=/boafrm/formwlprodelete name="formwlprodelete">
+<input type="hidden" value="/skb_sta_protection.htm" name="submit-url">
+<input type="hidden" value="" name="deleteAll">
+<table style="width:720px">
+	<thead>
+		<tr class="tbl_head">
+			<th colspan="7">인터넷 접속 제한 목록</th>
+		</tr>
+		<tr class="tbl_head">
+			<th>No</th>
+			<th>사용</th>
+			<th>단말이름</th>
+			<th>단말주소(MAC)</th>
+			<th>요일(시간)</th>
+			<th>허용/차단</th>
+			<th>삭제</th>
+		</tr>
+	</thead>
+	<tbody id="tbdy" style="background-color:#ddd;text-align:center;">
+		<% sta_protection_list(); %>
+	</tbody>
+</table>
+<input type="button" value="적용" name="btn_apply" onclick="form_adapt();">
+</form>
+
+<br>
+<table border="0" style="width:100%;">
+<span>
+	허용 : 설정된 시간만 인터넷 이용이 가능하며 나머지 시간은 인터넷 이용 차단<br>
+	차단 : 설정된 시간만 인터넷 이용이 차단되며 나머지 시간은 인터넷 이용 가능<br>
+	동일 단말(MAC)에 대해서는 한가지 규칙만(허용 또는 차단) 설정 가능합니다.<br>
+	적용 : 리스트에서 "사용/삭제" 항목을 선택하시고, "적용"하셔서 사용하실 수 있습니다.<br>
+<span style="color:red;">
+	인터넷 접속 제한 서비스 시간에는 인터넷을 사용할 수 없으며, LTE/3G로 전환 시 데이터가 소진 될 수 있습니다.
+</span>
+</table>
+
+</blockquote>
+</body>
+</html>

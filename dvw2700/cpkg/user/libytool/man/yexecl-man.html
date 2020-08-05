@@ -1,0 +1,84 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>yexecl-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>yexecl(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>yexecl - 형식화된 Command Line을 실행</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+int yexecl(char *<a href="#">pathname</a>, const char *<a href="#">arg</a>, ...);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 자식 프로세스를 <a href="#">fork(2)</a>한 후 지정된 파일을 실행한다. 실행 파일이 종료될 때 까지 <a href="#">waitpid(2)</a>로 기다린다. 형식화된<b><i>(Formatted) Command Line</i></b>을 생성한 후 <a href="yexecv-man.html">yexecv</a>에서 정의된 규칙에 의해 명령줄을 Parsing 한다. 그리고 첫 번째 인자로 지정된 파일을 실행한다.
+<dl>
+	<dt><a href="#">pathname</a></dt>
+	<dd>NULL이면 표준 입출력은 부모로 부터 상속된다. 또는 <b>Redirection</b> 지시자('&gt;')와 파일 또는 디바이스명의 조합으로 전달할 수 있다.</dd>
+	<dt><a href="#">arg</a></dt>
+	<dd>형식화된 Command Line을 넘겨준다.</dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>실행 파일의 종료 코드를 리턴한다. 또는 errno 일 수 있다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+<p>단일 Job을 실행한다. 즉 Pipe로 연결하여 여러 Job을 동시에 실행할 수는 없다.</p>
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>./a.out
+</b>Chain INPUT (policy ACCEPT 13063 packets, 1997K bytes)
+ pkts bytes target     prot opt in     out     source               destination
+
+Hello World!
+</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+	yexecl(NULL, <span style="color:#A31515;">"iptables -t %s -nvL INPUT"</span>, <span style="color:#A31515;">"filter"</span>);
+
+	yexecl(<span style="color:#A31515;">"&gt;/dev/null 2&gt;&amp;1"</span>, <span style="color:#A31515;">"iptables -t %s -F MINIUPNPD"</span>, <span style="color:#A31515;">"nat"</span>);
+
+	yexecl(NULL, <span style="color:#A31515;">"sh -c \"echo Hello World!\""</span>);
+
+	<span style="color:Blue;">return</span> 0;
+}</pre>
+
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+</body>
+</html>

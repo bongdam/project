@@ -1,0 +1,23 @@
+diff --git a/pppd_plugin/src/pptp.c b/pppd_plugin/src/pptp.c
+index 1522d19..2c9d408 100644
+--- a/pppd_plugin/src/pptp.c
++++ b/pppd_plugin/src/pptp.c
+@@ -57,7 +57,7 @@
+ 
+ extern char** environ;
+ 
+-char pppd_version[] = PPPD_VERSION;
++//char pppd_version[] = PPPD_VERSION;
+ extern int new_style_driver;
+ 
+ 
+@@ -326,7 +326,8 @@ static int get_call_id(int sock, pid_t gre, pid_t pppd,
+     return 0;
+ }
+ 
+-void plugin_init(void)
++//void plugin_init(void)
++void pptp_plugin_init(void)
+ {
+     /*if (!ppp_available() && !new_style_driver)
+     {

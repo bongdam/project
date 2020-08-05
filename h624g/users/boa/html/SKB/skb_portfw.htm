@@ -1,0 +1,263 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Port Forwarding</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function addClick()
+{
+	var sys_gateway = "<% getInfo("ip-rom"); %>";
+	var sys_netmask = "<% getInfo("mask-rom"); %>";
+	var bcast = 255 - getDigit(sys_netmask, 4);
+	var lan_ipaddr = inet_aton(sys_gateway);
+	var lan_netmask = inet_aton(sys_netmask);
+	var set_portfwip = inet_aton(document.formPortFwAdd.ip.value);
+
+  	if (document.formPortFwAdd.ip.value=="" && document.formPortFwAdd.fromPort.value=="" &&
+		document.formPortFwAdd.toPort.value=="" && document.formPortFwAdd.comment.value=="" &&
+		document.formPortFwAdd.t_fromPort.value=="" ){
+		alert('입력된 정보가 없습니다.');
+		return false;
+  	}
+
+  	if ((lan_ipaddr & lan_netmask) != (set_portfwip & lan_netmask)) {
+  		alert('현재 서브넷에 맞는 IP 주소를 설정해 주세요.');
+  		return false;
+  	}
+
+  	if ( checkIpAddr(document.formPortFwAdd.ip, 'IP 주소가 올바르지 않습니다') == false )
+		return false;
+
+	if (  bcast == getDigit(document.formPortFwAdd.ip.value, 4) ) {
+		alert('DHCP IP 할당 내역에 맞게 설정 해 주세요.');
+		return false;
+	}
+
+	if ( sys_gateway == document.formPortFwAdd.ip.value) {
+		alert('AP의 게이트웨이 주소는 설정할 수 없습니다.');
+		return false;
+	}
+
+  	if (document.formPortFwAdd.fromPort.value=="") {
+		alert("포트 범위가 비어있습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		document.formPortFwAdd.fromPort.focus();
+		return false;
+  	}
+
+  	if ( validateKey( document.formPortFwAdd.fromPort.value ) == 0 ) {
+		alert("포트 번호가 올바르지 않습니다! 숫자를 입력해야 합니다. (0-9)");
+		document.formPortFwAdd.fromPort.focus();
+		return false;
+  	}
+
+  	d1 = getDigit(document.formPortFwAdd.fromPort.value, 1);
+
+  	if (d1 > 65535 || d1 < 1) {
+		alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		document.formPortFwAdd.fromPort.focus();
+		return false;
+  	}
+
+    if (d1 == 80 || d1 == 6000 || d1 == 67 || d1 == 68 || d1 == 53 || d1 == 12380 || d1 == 123 || d1 == 161 || d1 == 876 || d1 == 8080) {
+        alert("AP Router에서 사용 중인 서비스 포트는 입력할 수 없습니다.");
+        document.formPortFwAdd.fromPort.focus();
+        return false;
+    }
+
+  	if (document.formPortFwAdd.toPort.value!="") {
+  		if ( validateKey( document.formPortFwAdd.toPort.value ) == 0 ) {
+			alert("포트 번호가 올바르지 않습니다! 숫자를 입력해야 합니다. (0-9)");
+			document.formPortFwAdd.toPort.focus();
+			return false;
+  		}
+
+		d2 = getDigit(document.formPortFwAdd.toPort.value, 1);
+
+ 		if (d2 > 65535 || d2 < 1) {
+			alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+			document.formPortFwAdd.toPort.focus();
+			return false;
+  		}
+
+		if (d1 > d2 ) {
+			alert("포트 범위가 올바르지 않습니다! 첫번째 포트 값이 두번째 포트 값보다 작아야 합니다.");
+			document.formPortFwAdd.fromPort.focus();
+			return false;
+		}
+
+		if (d2 == 80 || d2 == 6000 || d2 == 67 || d2 == 68 || d2 == 53 || d2 == 12380 || d2 == 123 || d2 == 161 || d2 == 876 || d2 == 8080) {
+        	alert("AP Router에서 사용 중인 서비스 포트는 입력할 수 없습니다.");
+        	document.formPortFwAdd.toPort.focus();
+        	return false;
+    	}
+
+    	if ( (d1 < 80 && d2 > 80) || (d1 < 6000 && d2 > 6000) || (d1 < 67 && d2 > 68) || (d1 < 53 && d2 > 53) || (d1 < 8080 && d2 > 8080) ||
+    	(d1 < 12380 && d2 > 12380) || (d1 < 123 && d2 > 123) || (d1 < 161 && d2 > 161) || (d1 < 876 && d2 > 876)) {
+        	alert("AP Router에서 사용 중인 서비스 포트는 입력할 수 없습니다.");
+        	document.formPortFwAdd.fromPort.focus();
+        	return false;
+    	}
+   	}
+
+	if ( validateKey( document.formPortFwAdd.t_fromPort.value ) == 0 ) {
+		alert("포트 번호가 올바르지 않습니다! 숫자를 입력해야 합니다. (0-9)");
+		document.formPortFwAdd.t_fromPort.focus();
+		return false;
+  	}
+
+	d3 = getDigit(document.formPortFwAdd.t_fromPort.value, 1);
+
+ 	if (d3 > 65535 || d3 < 1) {
+		alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		document.formPortFwAdd.t_fromPort.focus();
+		return false;
+  	}
+
+	if (d3 == 80 || d3 == 6000 || d3 == 67 || d3 == 68 || d3 == 53 || d3 == 12380 || d3 == 123 || d3 == 161 || d3 == 876) {
+        alert("AP Router에서 사용 중인 서비스 포트는 입력할 수 없습니다.");
+        document.formPortFwAdd.t_fromPort.focus();
+        return false;
+    }
+
+   	return true;
+}
+
+
+function deleteClick(i)
+{
+  document.formPortFwDel.elements["select"].name = "select"+i;
+  if ( !confirm('선택된 목록을 정말로 삭제하시겠습니까?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function deleteAllClick()
+{
+   if ( !confirm('Do you really want to delete the all entries?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function disableDelButton()
+{
+	disableButton(document.formPortFwDel.deleteSelPortFw);
+	disableButton(document.formPortFwDel.deleteAllPortFw);
+}
+
+function updateState()
+{
+
+	var is_disable = false;
+
+  	document.formPortFwAdd.ip.disabled = is_disable;
+  	document.formPortFwAdd.protocol.disabled = is_disable;
+  	document.formPortFwAdd.fromPort.disabled = is_disable;
+  	document.formPortFwAdd.toPort.disabled = is_disable;
+  	document.formPortFwAdd.t_fromPort.disabled = is_disable;
+  	document.formPortFwAdd.comment.disabled = is_disable;
+  	document.formPortFwAdd.addPortFw.disabled = is_disable;
+
+  	var portFw_num = <% write(getIndex("portFwNum")); %> ;
+  	for(i=1 ; i <= portFw_num; i++){
+		get_by_id("deleteSelPortFw"+i).disabled = is_disable;
+  	}
+}
+
+</script>
+</head>
+
+<body>
+<blockquote>
+<h2>포트 포워딩</h2>
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<tr><font size=2>
+ 특정 포트로 들어오는 네트워크 데이터를 해당 IP 주소로 연결시켜주는 설정을 할 수 있는 페이지입니다.
+</font></tr>
+<tr><hr size=1 noshade align=top></tr>
+
+<form action=/boafrm/formPortFw method=POST name="formPortFwAdd">
+<tr>
+    <td width="140"><p><font size=2><b>서비스 포트</b></font></p></td>
+    <td><p><font size=2><b>프로토콜</b></font></p></td>
+    <td><p><font size=2><b>내부 IP 주소</b></font></p></td>
+    <td><p><font size=2><b>포트</b></font></p></td>
+    <td><p><font size=2><b>설명</b></font></p></td>
+</tr>
+<tr>
+    <td><input type="text" name="fromPort" size="4" maxlength="5"><b>
+        -</b><input type="text" name="toPort" size="4" maxlength="5"></td>
+    <td>
+        <select name="protocol">
+            <option select value="0">TCP+UDP</option>
+            <option value="1">TCP</option>
+            <option value="2">UDP</option>
+          </select>
+    </td>
+    <td> <input type="text" name="ip" size="10" maxlength="15"> </td>
+    <td><input type="text" name="t_fromPort" size="4" maxlength="5"></td>
+    <td> <input type="text" name="comment" size="6" maxlength="14"> </td>
+</tr>
+<tr>
+	<td colspan='5'>
+  		<p><input type="submit" value="적용" name="addPortFw" onClick="return addClick()">&nbsp;&nbsp;
+     	<input type="reset" value="취소" name="reset"></p>
+  		<input type="hidden" value="/skb_portfw.htm" name="submit-url">
+	</td>
+</tr>
+<!--<tr><td><font size=2><b>
+	<input type="checkbox" name="enabled" value="ON" ONCLICK=updateState()>&nbsp;&nbsp;Enable Port Forwarding</b><br>
+    </td>
+</tr>
+
+<tr><td>
+  <p><font size=2><b>IP Address:</b> <input type="text" name="ip" size="10" maxlength="15">&nbsp;
+  <b>Protocol:</b> <select name="protocol">
+    <option select value="0">Both</option>
+    <option value="1">TCP</option>
+    <option value="2">UDP</option>
+  </select>&nbsp;<b>Port Range:</b> <input type="text" name="fromPort" size="3"><b>-</b>
+      <input type="text" name="toPort" size="3">
+    <b>Comment:</b> <input type="text" name="comment" size="6" maxlength="20"></font>
+
+  <p><input type="submit" value="Apply Changes" name="addPortFw" onClick="return addClick()">&nbsp;&nbsp;
+     <input type="reset" value="Reset" name="reset"></p>
+  <input type="hidden" value="/skb_portfw.htm" name="submit-url">
+</td></tr>
+  <script> updateState(); </script>-->
+</form>
+</table>
+
+
+<br>
+<form action=/boafrm/formPortFw method=POST name="formPortFwDel">
+<table border=0 width=500>
+  <tr><font size=2><b>포트 포워딩 리스트:</b></font></tr>
+  <% portFwList(); %>
+</table>
+
+<!-- <br><input type="submit" value="Delete Selected" name="deleteSelPortFw" onClick="return deleteClick()">&nbsp;&nbsp;
+     <input type="submit" value="Delete All" name="deleteAllPortFw" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+     <input type="reset" value="Reset" name="reset">
+ <script>
+	if ( <% getIndex("portFwNum"); %> == 0 )
+		disableDelButton();
+ </script>-->
+  	 <input type="hidden" value="ON" name="select">
+     <input type="hidden" value="/skb_portfw.htm" name="submit-url">
+</form>
+<script> updateState(); </script>
+</blockquote>
+</body>
+</html>
+

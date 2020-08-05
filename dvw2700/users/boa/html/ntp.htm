@@ -1,0 +1,163 @@
+﻿<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2004. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>시간 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script type="text/javascript" src="util_qos.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function saveChanges(){
+	var f_time = document.time;
+	if (f_time.enabled.checked) {
+		if(f_time.ntpServerId[1].checked == true){
+		  f_time.ntpServerIp2.value = trim(f_time.ntpServerIp2.value);
+			if(f_time.ntpServerIp2.value == "" || f_time.ntpServerIp2.value.length < 5){
+				alert("NTP 서버 IP 주소가 올바르지 않습니다!");
+				f_time.ntpServerIp2.focus();
+				return false;
+			}
+		} else if (f_time.ntpServerId[0].checked == true){
+		  f_time.ntpServerIp1.value = trim(f_time.ntpServerIp1.value);
+			if(f_time.ntpServerIp1.value == "" || f_time.ntpServerIp1.value.length < 5){
+				alert("NTP 서버 IP 주소가 올바르지 않습니다!");
+				f_time.ntpServerIp1.focus();
+				return false;
+			}
+		}
+	} else {
+		alert('컴퓨터 시간을 적용하였습니다.');
+	}
+
+	f_time.save.value="적용";
+	f_time.cur_date.disabled = false;
+	f_time.hour.disabled = false;
+	f_time.tmpsave.disabled = true;
+	f_time.set.disabled = true;
+	f_time.refresh.disabled = true;
+	f_time.submit();
+
+	return true;
+}
+function updateState()
+{
+	var f_time = document.time;
+	if(f_time.enabled.checked){
+		enableTextField(f_time.ntpServerIp1);
+		enableTextField(f_time.ntpServerIp2);
+		f_time.ntpServerId[0].disabled = false;
+		f_time.ntpServerId[1].disabled = false;
+	}
+	else{
+		disableTextField(f_time.ntpServerIp1);
+		disableTextField(f_time.ntpServerIp2);
+		f_time.ntpServerId[0].disabled = true;
+		f_time.ntpServerId[1].disabled = true;
+	}
+}
+
+/** Copy time from the host computer.*/
+function copy_computer_time()
+{
+	var date = new Date();
+	var month = date.getMonth()+1;
+	document.time.cur_date.value = date.getFullYear() + '/' + month+'/'+date.getDate();
+
+	document.time.hour.value = date.getHours() + ':' + date.getMinutes() + ':'+	date.getSeconds();
+}
+function init()
+{
+	var cf = document.time;
+	var ntpEnabled = <%getIndex("ntpEnabled");%>;
+	var ntpServerId = <%getIndex("ntpServerId");%>;
+
+	if (ntpEnabled) {
+		cf.ntpServerId[0].disabled = false;
+		cf.ntpServerId[1].disabled = false;
+		cf.enabled.checked = true;
+	} else {
+		cf.ntpServerId[0].disabled = true;
+		cf.ntpServerId[1].disabled = true;
+		cf.enabled.checked = false;
+	}
+
+	if (ntpServerId == 0) {
+		cf.ntpServerId[0].checked = true;
+	} else if(ntpServerId == 1) {
+		cf.ntpServerId[1].checked = true;
+	}
+	updateState();
+}
+</script>
+</head>
+<body onload="init(); mouse_r_click();">
+<blockquote>
+<h2>시간 설정</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+	해당 타임 서버의 정확한 시간을 시스템에 설정할 수 있는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formNtp method=POST name="time">
+<table border="0" width=520>
+	<tr>
+		<td width ="25%">
+			<font size=2> <b> 현재 시간 : </b> </font>
+		</td>
+		<td width ="75%">
+			<font size =2>
+				<input type="text" name="cur_date" value="<% getInfo("year"); %>/<% getInfo("month");%>/<%getInfo("day");%>" size="10" maxlength="8" disabled>&nbsp;&nbsp;
+				<input type="text" name="hour" value='<% getInfo("hour"); %>:<% getInfo("minute"); %>:<% getInfo("second"); %>' size="8" maxlength="6" disabled>
+			</font>
+        </td>
+	</tr>
+
+	<tr>
+		<td width ="25%">&nbsp;</td>
+		<td width ="75%"><input type="button" class="button_submit" id="copy_computer_time_button" value="컴퓨터 시간 복사" onclick="copy_computer_time();"/></td>
+	</tr>
+
+	<tr><td height=10> </td> </tr>
+
+	<tr><td colspan="2"><font size=2><b>
+		<input type="checkbox" name="enabled" value="ON" onclick="updateState();">&nbsp;&nbsp;NTP 업데이트 사용
+	</b></font><br></td></tr>
+	<tr>
+		<td width ="25%">
+			<font size=2> <b> NTP 서버 : </b> </font>
+		</td>
+		<td width ="75%">
+			<input type="radio" value="0" name="ntpServerId">
+			<input type="text" name="ntpServerIp1" size="20" maxlength="30" value="<% getInfo("ntp_server_ip1"); %>" >
+		</td>
+	</tr>
+	<tr>
+		<td width ="25%"> <font size=2><b> </b></font>
+		</td>
+		<td width ="75%">
+			<input type="radio" value="1" name="ntpServerId">
+			<input type="text" name="ntpServerIp2" size="20" maxlength="30" value="<% getInfo("ntp_server_ip2"); %>" >
+		</td>
+	</tr>
+</table>
+  <input type="hidden" value="/ntp.htm" name="submit-url">
+  <input type="hidden" value="" name="save">
+  <p><input type="submit" value="적용" name="tmpsave" onClick="return saveChanges()">
+&nbsp;&nbsp;
+  <input type="reset" value="취소" name="set" >
+&nbsp;&nbsp;
+  <input type="button" value="다시 보기" name="refresh" onClick="javascript: window.location.reload()">
+</form>
+<script>
+	updateState();
+</script>
+</blockquote>
+</body>
+
+</html>

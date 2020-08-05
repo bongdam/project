@@ -1,0 +1,24 @@
+#ifndef _CWMP_DEFINE_H__
+#define _CWMP_DEFINE_H__
+
+#define DV_SSL_CTX_CLIENT	(0x0000001) /* client context */
+#define DV_SSL_CTX_SERVER	(0x0000002) /* default server context */
+
+#define DV_SSL_CTX_SSLv2 	(0x000100)
+#define DV_SSL_CTX_SSLv3 	(0x000200)
+#define DV_SSL_CTX_SSLv23 	(0x000400)
+#define DV_SSL_CTX_TLSv1 	(0x000800)
+#define DV_SSL_CTX_TLSv1_1 	(0x001000)
+#define DV_SSL_CTX_TLSv1_2 	(0x002000)
+
+#define DV_SSL_CTX_NO_SSLv2 	(0x010000)
+#define DV_SSL_CTX_NO_SSLv3 	(0x020000)
+#define DV_SSL_CTX_NO_TLSv1	(0x040000)
+#define DV_SSL_CTX_NO_TLSv1_1 	(0x080000)
+#define DV_SSL_CTX_NO_TLSv1_2 	(0x100000)
+
+#define DV_SSL_CIPHER_LIST		"HIGH:!aNULL:!eNULL:!RC4:!SHA:!MD5:!DES:!EXPORT"
+#define DV_SSL_CIPHER_LIST_WITH_SHA	"HIGH:!aNULL:!eNULL:!RC4:!MD5:!DES:!EXPORT"
+#define DV_SSL_CIPHER_LIST_WITH_SHA_TR	"RSA+SHA256:DHE+SHA256:!DSS:!RC4:!3DES:!NULL:!SEED"	//APACRTL-564
+
+#endif

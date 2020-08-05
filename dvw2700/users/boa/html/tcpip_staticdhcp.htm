@@ -1,0 +1,252 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>고정 IP 할당</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script type="text/javascript" src="util_qos.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var sdmz_enabe;
+var sdmz_mac_str;
+var old_static_dhcp_onoff;
+var macTbl_window=false;
+
+function macTblClick(url) {
+	var nWidth = "600";
+	var nHeight = "400";
+	if(window.screenX == undefined) {
+		var curX = window.screenLeft;
+		var curY = window.screenTop;
+	} else {
+		var curX = window.screenX;
+		var curY = window.screenY;
+	}
+	var nLeft = curX + (window.outerWidth-nWidth)/2;
+	var nTop = curY + (window.outerHeight-nHeight)/2;
+	var strOption = "";
+	strOption += "left=" + nLeft + ",top=" + nTop + ",width=" + nWidth + ",height=" + nHeight + ",";
+	strOption += "toolbar=no,menubar=no,location=no,resizable=yes,status=yes";
+	var winObj = window.open(url, "macTbl", strOption);
+	if (winObj == null) {
+		alert("팝업 차단을 해제해주세요.");
+		return false;
+	}
+	winObj.focus();
+}
+
+window.onbeforeunload = function() {
+	if( macTbl_window )
+		macTbl_window.close();
+}
+
+function addClick()
+{
+	var sys_gateway = "<% getInfo("ip-rom"); %>";
+	var sys_netmask = "<% getInfo("mask-rom"); %>";
+	var bcast = 255 - getDigit(sys_netmask, 4);
+
+	if(old_static_dhcp_onoff!=get_by_id("static_dhcp").value && get_by_id("static_dhcp").value==0) {
+		document.formStaticDHCP.submit();
+		return;
+	}
+	if(get_by_id("ip_addr").value == "" || get_by_id("mac_addr").value == "") {
+		alert("IP 주소와 MAC 주소 모두 설정되어 있어야 합니다.");
+		return false;
+	}
+
+  var tempMac="";
+  var sdmzMac="";
+
+  var str = document.formStaticDHCP.mac_addr.value;
+
+  if (document.formStaticDHCP.ip_addr.value != "")
+		document.formStaticDHCP.ip_addr.value = trim_string(document.formStaticDHCP.ip_addr.value);
+
+  if (document.formStaticDHCP.mac_addr.value != "")
+		document.formStaticDHCP.mac_addr.value = trim_string(document.formStaticDHCP.mac_addr.value);
+
+   if ( checkIpAddr(document.formStaticDHCP.ip_addr, 'IP 주소가 올바르지 않습니다! ') == false ) {
+		return false;
+	}
+
+	if (  bcast == getDigit(document.formStaticDHCP.ip_addr.value, 4) ) {
+		alert('DHCP IP 할당 내역에 맞게 설정 해 주세요.');
+		return false;
+	}
+	if ( sys_gateway == document.formStaticDHCP.ip_addr.value) {
+		alert('AP의 게이트웨이 주소는 설정할 수 없습니다.');
+		return false;
+	}
+
+   if ( str.length < 12 || str.length >17) {
+	alert("MAC 주소가 올바르지 않습니다. 16진수 12자리 또는 콜론(:)을 포함한 17자리를 입력하여 주십시오.");
+	document.formStaticDHCP.mac_addr.focus();
+	return false;
+  }
+
+  for (var i=0; i<str.length; i++) {
+	if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+			(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') || str.charAt(i) == ':' ){
+			if(str.charAt(i) != ':')
+				tempMac+=str.charAt(i);
+			continue;
+	 }
+
+	alert("MAC 주소가 올바르지 않습니다. 16진수를 입력하여 주십시오. (0-9 or a-f)");
+	document.formStaticDHCP.mac_addr.focus();
+	return false;
+  }
+  if (sdmz_enabe == 1) {
+	for (i=0; i<sdmz_mac_str.length; i++) {
+		if(sdmz_mac_str.charAt(i) == ':' || sdmz_mac_str.charAt(i) == '-')
+			continue;
+		sdmzMac += sdmz_mac_str.charAt(i);
+	}
+	if (sdmzMac.toLowerCase() == tempMac.toLowerCase()) {
+		alert("입력 된 MAC["+str+"] 주소는 \"SDMZ\"와 같이 사용할 수 없습니다. \"SDMZ\"의 설정을 해지한 후, 다시 설정 해 주세요.");
+		return false;
+	}
+  }
+  get_by_id("mac_addr").value = tempMac;
+
+  document.formStaticDHCP.submit();
+
+  return true;
+}
+
+function deleteClick(i)
+{
+  document.formStaticDHCP.elements["select"].name = "select"+i;
+
+  if ( !confirm('선택한 목록을 삭제하시겠습니까?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function disableDelButton()
+{
+	disableButton(document.formStaticDHCP.deleteSelRsvIP);
+}
+
+function init()
+{
+	sdmz_enabe = <% write(getIndex("sdmzEnabled")); %>;
+	sdmz_mac_str = "<% getInfo("x_SDMZ_HOST"); %>";
+
+	old_static_dhcp_onoff = "<% getInfo("static_dhcp_onoff"); %>";
+	if (old_static_dhcp_onoff == "1") {
+		get_by_id("static_dhcp").value = 1;
+	} else {
+		get_by_id("static_dhcp").value = 0;
+	}
+
+	static_dhcp_onoff_select(get_by_id("static_dhcp").value);
+}
+
+function static_dhcp_onoff_select(value)
+{
+	if(value == true || value == 1)
+	{
+		get_by_id("static_dhcp").value = 1;
+		get_by_id("static_dhcp_onoff").checked = true;
+	}
+	else
+	{
+		get_by_id("static_dhcp").value = 0;
+		get_by_id("static_dhcp_onoff").checked = false;
+	}
+
+	static_dhcp_tbl_onoff_disabled(get_by_id("static_dhcp").value);
+}
+
+function static_dhcp_tbl_onoff_disabled(value)
+{
+	var is_disable;
+	var RsvdIp_num;
+
+	if(value == 1)
+	{
+		is_disable = false;
+	}
+	else
+	{
+		is_disable = true;
+	}
+
+	get_by_id("ip_addr").disabled = is_disable;
+	get_by_id("mac_addr").disabled = is_disable;
+	get_by_id("hostname").disabled = is_disable;
+	//get_by_id("addRsvIP").disabled = is_disable;
+	//get_by_id("reset_tbl").disabled = is_disable;
+	get_by_id("macSearch").disabled = is_disable;
+
+
+	RsvdIp_num = <% write(getIndex("staticDhcpNum")); %> ;
+
+	for(i=1 ; i <= RsvdIp_num ; i++){
+		get_by_id("deleteSelRsvIP"+i).disabled = is_disable;
+	}
+
+}
+
+function resetForm()
+{
+	document.location.assign("portfilter.htm");
+}
+
+</script>
+</head>
+<body onload="init(); mouse_r_click();">
+<blockquote>
+<h2>고정 IP 할당</h2>
+
+<form action=/boafrm/formStaticDHCP method=POST name="formStaticDHCP">
+<input type="hidden" name="page" value="tcpip_staticdhcp.htm">
+<table width="700" border="0" cellpadding="4" cellspacing="0">
+	<tr><font size=2>
+    	고정 IP 할당을 위한 설정페이지입니다.
+  	</tr>
+  	<tr><hr size=1 noshade align=top></tr>
+
+<tr>
+	<td align="left" width="20%" class="" colspan="2"><font size=2><b>
+	  <input type='hidden' id='static_dhcp' name='static_dhcp' value='<% getInfo("static_dhcp_onoff"); %>'>
+		<input id="static_dhcp_onoff" type="checkbox" onclick='static_dhcp_onoff_select(this.checked);'>&nbsp;고정 IP 사용</b>
+	</td>
+ </tr>
+</table>
+<br>
+<br>
+  <table border="0" width=640>
+  <tr><font size=2><b>고정 IP 리스트:</b></font></tr>
+  <% dhcpRsvdIp_List();%>
+  <tr>
+	<td align="center"><font size=2><input type="text" id="ip_addr" name="ip_addr" size="20" maxlength="15" value=""></font></td>
+	<td align="center"><font size=2><input type="text" id="mac_addr" name="mac_addr" size="20" maxlength="17" value=""></font></td>
+	<td align="center"><font size=2><input type="text" id="hostname" name="hostname" size="20" maxlength="19" value=""></font></td>
+	<td align="center"><input type="button" value="적용" name="addRsvIP1" onClick="return addClick()"></td>
+	<td align="center"><input type="hidden" value="적용" name="addRsvIP"></td>
+  </tr>
+  <tr>
+	 <td>&nbsp;</td>
+	 <td align="center"><input type="button" id="macSearch" name="macSearch" value="MAC search" onClick="macTblClick('/mactbl.htm')" ></td>
+	 <td colspan="2">&nbsp;</td>
+  </tr>
+  </table>
+  <br>
+
+  <input type="hidden" value="ON" name="select">
+  <input type="hidden" value="/tcpip_staticdhcp.htm" name="submit-url">
+</form>
+
+</blockquote>
+</body>
+</html>

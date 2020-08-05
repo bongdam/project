@@ -1,0 +1,217 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<style type='text/css'>
+.mn24 {
+	font-family: verdana, 돋움;
+	font-size: 12px; color:3399CC;
+}
+</style>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT>
+function Load_Setting()
+{
+	var login_fail = <% getIndex("login_fail_flag"); %>;
+	var web_language = <% getIndex("login_fail_flag"); %>;
+
+	if (self != parent)
+	    top.location.assign("login.htm");
+
+   if (top.document.location.href.toString() != window.document.location.href.toString())
+	   	top.location.assign("login.htm");
+
+	document.getElementById("ID_LOGIN").value = user_login_button;
+	if (login_fail == 1)
+		alert(user_login_wrong_error);
+
+	document.getElementById('language_js').selectedIndex = web_language;
+}
+
+function encode(sr)
+{
+	var cb64 = ''+ 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	var out = '';
+	var sub_len,len;
+	var out_len;
+	var src_len = sr.length;
+	var sr_index = 0;
+	var len = 0;
+
+	out_len = 0;
+	if (src_len < 1 ) return '';
+	if (sr == '') return '';
+
+	for (len = 0; len < src_len; sr_index += 3, len+=3)
+	{
+		sub_len = ( ( len + 3  < src_len ) ? 3: src_len - len);
+		switch(sub_len)
+		{
+			case 3:
+				out += cb64.charAt(sr.charCodeAt(sr_index)>>2);
+				out += cb64.charAt(((sr.charCodeAt(sr_index) & 0x03) << 4) | ((sr.charCodeAt(sr_index+1) & 0xf0) >> 4));
+				out += cb64.charAt(((sr.charCodeAt(sr_index+1) & 0x0f) << 2) | ((sr.charCodeAt(sr_index+2) & 0xc0) >> 6));
+				out += cb64.charAt(sr.charCodeAt(sr_index+2) & 0x3f);
+				break;
+			case 2:
+				out += cb64.charAt(sr.charCodeAt(sr_index)>>2);
+				out += cb64.charAt(((sr.charCodeAt(sr_index) & 0x03) << 4) | ((sr.charCodeAt(sr_index+1) & 0xf0) >> 4));
+				out += cb64.charAt((sr.charCodeAt(sr_index+1) & 0x0f) << 2);
+				out += '=';
+				break;
+			case 1:
+				out += cb64.charAt(sr.charCodeAt(sr_index)>>2);
+				out += cb64.charAt((sr.charCodeAt(sr_index) & 0x03) << 4);
+				out += '=';
+				out += '=';
+				break;
+			default:
+				break;
+               /* do nothing*/
+		}
+	}
+	return out;
+}
+
+function sel_language(F)
+{
+	F.language.value = 'change';
+	F.submit();
+}
+
+function clickApply()
+{
+	if (document.forms[0].username.value == "" || document.forms[0].tmp_passwd.value == "")	{
+		alert(user_login_empty_error);
+		return false;
+	}
+
+    document.forms[0].password.value = encode(document.forms[0].tmp_passwd.value);
+    document.forms[0].tmp_passwd.value = '';
+	document.forms[0].language.value = '';
+    return true;
+}
+</SCRIPT>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<form action=/boafrm/formLogin method=POST name="formLogin">
+<input type="hidden" name="language" value=''>
+<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+	<tr>
+		<td width="100%" height="50" bgcolor="#3399CC"></td>
+	</tr>
+	<tr>
+		<td width="100%" height="25" bgcolor="#A7A7A7" align="right">
+			<select name="language_js" id="language_js" onchange="sel_language(this.form);">
+				<option value="0"><script>dw(language_en)</script></option>
+				<option value="1"><script>dw(language_sc)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td width="100%" height="100%" align="center" valign="middle">
+			<table border="0" cellpadding="0" cellspacing="0" width="400" bgcolor="#A7A7A7">
+				<tr>
+					<td width="400" align="center" bgcolor="white"><p>&nbsp;</p></td>
+				</tr>
+				<tr>
+					<td width="400" align="center" height="40" bgcolor="#3399CC">
+						<font color="white">
+							<b><script>dw(user_login_title)</script></b><br>
+						</font>
+					</td>
+				</tr>
+				<tr>
+					<td width="400" align="center" bgcolor="#3399CC">
+						<hr size=1 noshade align=top>
+					</td>
+				</tr>
+				<tr>
+				    <td width="400"  bgcolor="#3399CC">
+				        <p style="margin-left: 16pt;">
+                        <label class='mn24'><font color="white"><script>dw(user_login_info)</script></font></label>
+    					<table border="0" cellpadding="0" cellspacing="1" width="360" bgcolor="#CCCCCC">
+	    					<tr>
+		    					<td width="360" bgcolor="white">
+			    					<table border="0" cellpadding="0" cellspacing="1" width="360">
+										<tr height="35">
+											    <td width="120" bgcolor="#F8F8F8" class='mn24' align="center">
+											    	<p>&nbsp;&nbsp;<b><script>dw(user_login_name)</script></b></p>
+											    </td>
+											    <td width="150" bgcolor="#F8F8F8" >
+											    	<p>&nbsp;<input type="text" style="width:120px;" name="username"></p>
+											    </td>
+											    <td width="90" bgcolor="#F8F8F8" >
+											    </td>
+										</tr>
+										<tr height="35">
+											<td width="120" bgcolor="#F8F8F8" class='mn24' align="center">
+												<p>&nbsp;&nbsp;<b><script>dw(user_login_password)</script></b></p>
+											</td>
+											<td width="150" bgcolor="#F8F8F8">
+												<p>&nbsp;<input type="password" style="width:120px;" name="tmp_passwd" onkeypress='document.forms[0].password.value = encode(document.forms[0].tmp_passwd.value);'></p>
+											</td>
+											<td width="90" bgcolor="#F8F8F8" >
+												<p align="center"><input type="submit" id="ID_LOGIN" name="ID_LOGIN" value="login" style="width:60px;" onclick="return clickApply();"></p>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td width="400" height="35" bgcolor="#3399CC"></td>
+				</tr>
+				<tr>
+				    <td width="400"  bgcolor="#3399CC">
+				        <p style="margin-left: 16pt;">
+    					<table border="0" cellpadding="0" cellspacing="1" width="360" bgcolor="#CCCCCC">
+	    					<tr>
+		    					<td width="360" bgcolor="white">
+			    					<table border="0" cellpadding="0" cellspacing="1" width="360">
+										<tr height="25">
+											<td width="150" bgcolor="#F8F8F8" class='mn24' align="center">
+												<p>&nbsp;&nbsp;<b><script>dw(p201_macaddr)</script></b></p>
+											</td>
+											<td width="210" bgcolor="#F8F8F8" class='mn24' align="center">
+												<p><% getInfo("p201_macaddr"); %></p>
+											</td>
+										</tr>
+										<tr height="25">
+											<td width="150" bgcolor="#F8F8F8" class='mn24' align="center">
+												<p>&nbsp;&nbsp;<b><script>dw(p201_serial)</script></b></p>
+											</td>
+											<td width="210" bgcolor="#F8F8F8" class='mn24' align="center">
+												<p><% getInfo("p201_serial"); %></p>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td width="400" height="35" bgcolor="#3399CC"></td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td width="100%" height="50" bgcolor="#3399CC">
+	</tr>
+</table>
+<input type="hidden" name="password" value=''>
+</form>
+</blockquote>
+</body>
+</html>

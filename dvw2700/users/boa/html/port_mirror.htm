@@ -1,0 +1,105 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>포트 미러링</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var portMirrorSetting = '<%getInfo("dv_port_mirror");%>';
+var portMirrorEnable;
+var portMirrorFrom;
+var portMirrorTo;
+var portMirrorMode = document.getElementsByName('portMirrorMode');
+
+function saveClick()
+{
+	if ( portMirrorMode[0].checked == true )
+    	alert('미러링 설정이 적용되었습니다.\n\n단말 웹 접속 위해서는 현재 사용중인 LAN 포트를 \n다른 포트로 옮긴 후, 접속 하시면 됩니다.\n\n');
+	else
+		alert('미러링 설정이 적용되었습니다.\n\n');
+	return true;
+}
+
+function loading()
+{
+	if(portMirrorSetting)
+	{
+		var s = portMirrorSetting.split(",");
+		portMirrorEnable = parseInt(s[0], 10);
+		portMirrorFrom = parseInt(s[1], 10);
+		portMirrorTo = parseInt(s[2], 10);
+
+		if(portMirrorEnable == "1") {
+			portMirrorMode[0].checked = true;
+			portMirrorMode[1].checked = false;
+			if (portMirrorTo > 0)
+				portMirrorTo -= 1;
+			document.formPortMirror.port_from.selectedIndex = portMirrorFrom;
+			document.formPortMirror.port_to.selectedIndex = portMirrorTo;
+		} else {
+			portMirrorMode[0].checked = false;
+			portMirrorMode[1].checked = true;
+			document.formPortMirror.port_from.selectedIndex = 0;
+			document.formPortMirror.port_to.selectedIndex = 3;
+		}
+	}
+	updateState();
+}
+
+function updateState()
+{
+  if(portMirrorMode[0].checked) {
+ 	enableTextField(document.formPortMirror.port_from);
+ 	enableTextField(document.formPortMirror.port_to);
+  }
+  else {
+ 	disableTextField(document.formPortMirror.port_from);
+ 	disableTextField(document.formPortMirror.port_to);
+  }
+}
+
+
+</script>
+</head>
+
+<body onload="loading(); mouse_r_click();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+
+<h2>포트 미러링</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+	 특정 포트로 들어오는 네트워크 데이터를 해당 포트로 보내주는 설정을 할 수 있는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formPortMirror method=POST name="formPortMirror">
+<input type="hidden" name="page" value="port_mirror.htm">
+<table border=0 width="550">
+<tr><td colspan="2"><font size=2><b>
+   	<input type="radio" name="portMirrorMode" value="ON"  ONCLICK="updateState()" >&nbsp;사용&nbsp;&nbsp;
+	<input type="radio" name="portMirrorMode" value="OFF" ONCLICK="updateState()" >&nbsp;사용안함&nbsp;&nbsp;</b><br>
+</td></tr>
+<tr><td>
+     <font size=2><b>출발지</b>&nbsp;&nbsp;&nbsp;&nbsp;
+	<select name="port_from"><option value="%PRTNR_WAN0%">WAN<option value="%PRTNR_LAN1%" >LAN1<option value="%PRTNR_LAN2%" >LAN2<option value="%PRTNR_LAN3%" >LAN3<option value="%PRTNR_LAN4%" >LAN4</select> &nbsp;&nbsp;&nbsp;&nbsp;
+     <font size=2><b>목적지</b>&nbsp;&nbsp;&nbsp;&nbsp;
+	<select name="port_to"><option value="%PRTNR_LAN1%" >LAN1<option value="%PRTNR_LAN2%" >LAN2<option value="%PRTNR_LAN3%" >LAN3<option value="%PRTNR_LAN4%" >LAN4</select>
+</td></tr>
+<tr><td>
+   <br>
+     <input type="submit" value=" 적용 " name="save" onClick="return saveClick()">&nbsp;&nbsp;
+        <input type="hidden" value="/port_mirror.htm" name="submit-url">
+</td></tr>
+     <script> updateState(); </script>
+</form>
+</table>
+</blockquote>
+</body>
+</html>

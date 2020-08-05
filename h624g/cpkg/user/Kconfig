@@ -1,0 +1,171 @@
+menu "Davolink custom package(cpkg) for user mode"
+
+config LIB_YTOOL
+	bool "libytool"
+	default y
+	help
+	  Library contains APIs which have been used often and generally.
+	  This is the default implementation choice.  Must choose this one unless
+	  you have a good reason not to.
+
+config LIB_NVRAM
+	bool "nvram"
+	default y
+	help
+	  This option depends on NVRAM device in Linux kernel.
+	  This library is the half part of NVRAM in user mode.
+
+config LIB_SHARED
+	bool "libshared"
+	default y
+	help
+	  Library containis miscellaneous funtions including shell-like utility ones.
+	  This option is intended for importing applications based on broadcom SDK.
+
+config APP_RC
+	bool "rc"
+	default n
+	help
+	  Router control(rc) script has fast, light and efficient implementation to
+	  manage routing services.
+	  This option requires that init implementation of busybox should be
+	  disabled.
+
+config UDHCP_SKB
+	bool "udhcp"
+	depends on !APP_UDHCPD
+	default y
+	help
+	  An embedded DHCP client and server.
+
+config APP_ARPROBE
+	bool "arprobe"
+	default y
+	help
+	  IP conflict check.
+
+config APP_RTNETLNK
+	bool "rtnetlnk"
+	default y
+	help
+	  bound check.
+
+config APP_MINIUPNPD
+	bool "miniupnpd-1.9"
+	default y
+	help
+	  add miniupnpd.
+
+config NVRAM_APMIB
+	bool "nvram_mib"
+	depends on LIB_NVRAM && LIB_YTOOL
+	default y
+	help
+	  This option changes APMIB - Realek proprietary configuration subsystem
+	  into nvram of Broadcom. APMIB library api should be rewritten to work
+	  on nvram.
+
+config APP_HOLEPUNCH
+	bool "holepunch"
+	default y
+	help
+	  Holepunch Service.
+
+config APP_AUTO_REBOOT
+	bool "auto_reboot"
+	default y
+	help
+	  Auto_Reboot Service.
+
+config DVBOX
+	bool "dvbox"
+	default y
+	help
+	  A suite of applets having specific purpose.
+
+config LIB_FURL
+	bool "furl"
+	default y
+	help
+	  This library includes implementations needed to verify, burn and dualize
+	  firmware image.
+
+config ARES
+	bool "ares"
+	default y
+	help
+	  asynchronous DNS requests.
+
+config MPSTAT
+	bool "mpstat"
+	default y
+	help
+	   Per-processor statistics.
+
+config ACLWRITE
+	bool "aclwrite"
+	default y
+	help
+	   Manipulate hardware ACL table.
+
+config TELNET
+	bool "telnetd"
+	default y
+	help
+	   add telnet.
+
+config APP_DVSNMP
+	bool "dvsnmp"
+	default 'y'
+	help
+		Symple Network Management Protocol.
+
+config APP_SWMS
+	bool "swms"
+	default y
+	help
+	   add swms
+
+config APP_DVQOS
+	bool "dvqos"
+	default y
+	help
+	   control qos of wire.
+
+config APP_IGMPQUERIER
+	bool "igmp_querier"
+	default y
+	help
+	   control igmp querier.
+
+config APP_ARPDEFENDER
+	bool "arp_defender"
+	default y
+	help
+	   arp spoofing defender.
+
+config APP_LDAP
+	bool "ldap"
+	default y
+	help
+	  AP CFG Service
+
+config APP_WLCMD
+	bool "wlcmd"
+	default n
+	help
+	  wl command like broadcom
+
+config LIB_CAPTCHA
+	bool "captcha"
+	default y
+	help
+	  check to login validate.
+
+config APP_CHILD_GUARD
+	bool "child_guard"
+	default y
+	help
+	  Child_Guard Service
+
+endmenu

@@ -1,0 +1,336 @@
+﻿<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>로그인</title>
+<script type="text/javascript" src="util_gw.js"></script>
+<% getInfo("include_css"); %>
+<style type='text/css'>
+.mn24 {
+	font-family: verdana, 돋움;
+	font-size: 12px; color:285077;
+}
+</style>
+
+<script type="text/javascript">
+var auto_up_flag = parseInt("<% getInfo("auto_upgrade_info"); %>", 10);
+var nowCount = 0;
+
+function encode(sr)
+{
+   var cb64 = ''+ 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+   var out = '';
+   var sub_len,len;
+   var out_len;
+   var src_len = sr.length;
+   var sr_index = 0;
+   var len = 0;
+   out_len = 0;
+   if (src_len < 1 ) return '';
+   if (sr == '') return '';
+
+   for (len = 0; len < src_len; sr_index += 3, len+=3)
+   {
+
+       sub_len = ( ( len + 3  < src_len ) ? 3: src_len - len);
+
+       switch(sub_len)
+       {
+           case 3:
+               out += cb64.charAt(sr.charCodeAt(sr_index)>>2);
+               out += cb64.charAt(((sr.charCodeAt(sr_index) & 0x03) << 4) | ((sr.charCodeAt(sr_index+1) & 0xf0) >> 4));
+               out += cb64.charAt(((sr.charCodeAt(sr_index+1) & 0x0f) << 2) | ((sr.charCodeAt(sr_index+2) & 0xc0) >> 6));
+               out += cb64.charAt(sr.charCodeAt(sr_index+2) & 0x3f);
+               break;
+           case 2:
+               out += cb64.charAt(sr.charCodeAt(sr_index)>>2);
+               out += cb64.charAt(((sr.charCodeAt(sr_index) & 0x03) << 4) | ((sr.charCodeAt(sr_index+1) & 0xf0) >> 4));
+               out += cb64.charAt((sr.charCodeAt(sr_index+1) & 0x0f) << 2);
+               out += '=';
+               break;
+           case 1:
+               out += cb64.charAt(sr.charCodeAt(sr_index)>>2);
+               out += cb64.charAt((sr.charCodeAt(sr_index) & 0x03) << 4);
+               out += '=';
+               out += '=';
+               break;
+           default:
+               break;
+               /* do nothing*/
+       }
+   }
+   return out;
+}
+
+function frmLoad()
+{
+    var http_obj = document.getElementsByName("username");
+    http_obj[0].focus();
+
+	if(self != parent)
+	    top.location.assign("login.htm");
+
+   if(top.document.location.href.toString() != window.document.location.href.toString())
+	   	top.location.assign("login.htm");
+
+	if(auto_up_flag == 1)
+		show_auto_upgrade();
+}
+
+function clickApply(sel)
+{
+	if (document.forms[0].tmp_captcha.value == "" || document.forms[0].tmp_captcha.value.length == 0) {
+		alert("보안 문자를 입력해 주세요.");
+		document.forms[0].tmp_captcha.focus();
+		return false;
+	}
+
+	document.forms[0].captcha.value = encode(document.forms[0].tmp_captcha.value);
+    document.forms[0].password.value = encode(document.forms[0].tmp_passwd.value);
+	document.forms[0].hidden_action.value = 'Login';
+    document.forms[0].tmp_passwd.value = '';
+
+    return true;
+}
+
+function show_auto_upgrade()
+{
+	if(nowCount %2)
+		auto_upgrade_info.style.color = "white";
+	else
+		auto_upgrade_info.style.color = "red";
+
+	if(nowCount < 1000){
+		nowCount++;
+		setTimeout('show_auto_upgrade()', 500);
+	}
+}
+
+function clickGetCaptCha()
+{
+	document.location.replace("login.htm");
+}
+
+function popimage(sel) {
+
+	if(!sel) {
+		document.getElementById("info_div").style.display = "";
+		document.getElementById("info_div2").style.display = "";
+	} else {
+		document.getElementById("info_div").style.display = "none";
+		document.getElementById("info_div2").style.display = "none";
+	}
+}
+</script>
+</head>
+
+<body onload="frmLoad(); mouse_r_click();" bgcolor="#E6E6E6" text="black" leftmargin="0" marginwidth="0" topmargin="0" marginheight="0">
+<form method=POST action=/boafrm/formLogin name="formLogin">
+<input type="hidden" name="captcha" value="">
+<table border="0" cellpadding="0" cellspacing="0" width="100%" height="100%">
+	<tr>
+		<td width="100%" height="100%" align="center" valign="middle">
+		    <table border="0" cellpadding="0" cellspacing="0" width="400" bgcolor="#A7A7A7">
+		        <tr>
+					<td width="400" align="center" bgcolor="white"><p>&nbsp;</p>
+					</td>
+				</tr>
+				<tr>
+					<td width="400" align="center" class="tbl_title" height="50">
+					    <font color="white">
+					        <b> 로그인 </b><br>
+					    </font>
+					</td>
+				</tr>
+				<tr height="10" bgcolor="white" ><td> &nbsp; </td></tr>
+				<tr>
+				    <td width="400"  bgcolor="white">
+				        <p style="margin-left: 16pt;">
+                        <label class='mn24'>  초기 상태의 사용자 암호는 매뉴얼에 있습니다.  </label>
+    					<table border="0" cellpadding="0" cellspacing="1" width="360" bgcolor="#CCCCCC">
+	    					<tr>
+		    					<td width="360" bgcolor="white">
+			    					<table border="0" cellpadding="0" cellspacing="1" width="360">
+										<tr height="22">
+											    <td width="120" bgcolor="#e2e7ed" class='mn24'><p>&nbsp;&nbsp;사용자 계정</p></td>
+											    <td width="160" bgcolor="#F8F8F8" ><p>&nbsp;
+											    <input type="text" style="width:120px;" name="username">
+											    </p></td>
+											    <td width="80" bgcolor="#F8F8F8" >
+											    </td>
+										</tr>
+										<tr height="22">
+											    <td width="120" bgcolor="#e2e7ed" class='mn24'><p>&nbsp;&nbsp;사용자 암호</p></td>
+											    <td width="160" bgcolor="#F8F8F8" ><p>&nbsp;
+											    <input type="password" style="width:120px;" name="tmp_passwd" onkeypress='document.forms[0].password.value = encode(document.forms[0].tmp_passwd.value);'>
+											    </p></td>
+											    <td width="80" bgcolor="#F8F8F8" >
+											    <p align="center">
+											        <input type="hidden" name="hidden_action" value="Login">
+											        <input type="submit" name='login' value='로그인' style="width:50px;" onclick='return clickApply(0);'>
+											    </p>
+											    </td>
+										</tr>
+									</table>
+									<script language='javascript'>
+										if ( (<% getInfo("local_connection"); %>) == 1) {
+											document.write("<table border='0' cellpadding='0' cellspacing='1' width='360' bgcolor='#ffffff'>");
+											document.write("<tr height='15' valign='middle'>");
+											document.write("<td width='360' bgcolor='white' class='mn24' valign='middle'><center>사용자암호 : CJHV_ap_<font color='red'>XXXX</font></center></td>");
+											document.write("</tr>");
+											document.write("<tr height='15' valign='middle'>");
+											document.write("<td width='360' bgcolor='white' class='mn24' valign='middle'><center><font color='red'>(영문 대문자사용, 공유기 뒷면 MAC주소 참고)</font></center></td>");
+											document.write("</tr>");
+											document.write("<tr>");
+											document.write("<td width='360' bgcolor='white' class='mn24' valign='middle'><center><font color='red'>*자세한 사항은 <input type='button' value='여기' name='logininfo' onClick='popimage(0);'>를 클릭하세요</font></center></td>");
+											document.write("</tr>");
+											document.write("<tr id='info_div'' style='display:none' height='30' valign='middle'>");
+											document.write("<td width='360' bgcolor='white'><center>MAC주소:");
+											document.write("<% getInfo("login_hwaddr"); %></td>");
+											document.write("</tr>");
+											document.write("<tr id='info_div2' style='display:none' valign='middle'>");
+											document.write("<td width='360' bgcolor='white' class='mn24'><center><input type='button' value='닫기' name='closeinfo' onClick='popimage(1);'></center></td>");
+											document.write("</tr>");
+											document.write("</table>");
+										}
+									</script>
+								</td>
+							</tr>
+							<tr>
+								<td width="360" bgcolor="white">
+									<table border="0" cellpadding="0" cellspacing="0" width="360">
+										<tr>
+											<td width="240" align="center" bgcolor="#F0F0F0" valign="middle">
+												<script language='javascript'>
+												var img = "<% captcha_img(); %>";
+												var img_str = (img.split("/")[1]).split(".")[0];
+												document.write("<img src=\""+img+"\" border=\"0\">");
+												document.write("<input type=\"hidden\" id=\"captcha_image\" value=" + img_str + " name=\"images\">");
+												</script>
+											</td>
+											<td width="120" bgcolor="#F0F0F0" rowspan="2">
+												<p align="center">
+												<input type="button" value="새로고침" name="refresh" style="width:69px;" onClick="clickGetCaptCha();">
+												</p>
+											</td>
+										</tr>
+										<tr>
+											<td align="center" bgcolor="#F0F0F0">
+												<input type="text" style="width:120px;" name="tmp_captcha"  id="id_tmp_captcha" value="" maxlength="7">
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</table>
+						</p>
+					</td>
+				</tr>
+				<tr>
+			    <td  bgcolor="white">
+			    <p style="margin-left: 16pt;">
+				<table border="0" cellpadding="3" cellspacing="1" width="364" bgcolor="white" style="table-layout:fixed;word-wrap:break-word;">
+					<colgroup>
+						<col style="width:140px" />
+						<col style="width:224px" />
+					</colgroup>
+			        <tr>
+				        <td height="20" bgcolor="#ffffff" colspan='2'>
+				        </td>
+			        </tr>
+			        <tr>
+	                    <td bgcolor="#5D7B7C" height='2' colspan='2'></td>
+                    </tr>
+					<tr>
+						<td height='4' bgcolor="#ffffff" colspan='2'></td>
+					</tr>
+                    <tr>
+	                    <td bgcolor="#e2e7ed" class='mn24'>
+	                        &nbsp; 외부 IP 주소
+	                    </td>
+	                    <td bgcolor="#ffffff" class='mn24'>
+	                        &nbsp;<% getInfo("wan-ip"); %>
+	                    </td>
+                    </tr>
+                    <tr>
+	                    <td bgcolor="#e2e7ed" class='mn24'>
+	                        &nbsp; DNS 서버
+	                    </td>
+	                    <td bgcolor="white" class='mn24'>
+	                        &nbsp;<% getInfo("wan_dns"); %>
+	                    </td>
+                    </tr>
+                    <tr>
+	                    <td bgcolor="#e2e7ed" class='mn24'>
+	                        &nbsp; 연결 상태
+	                    </td>
+	                    <td bgcolor="white" class='mn24'>
+	                        &nbsp;<% getInfo("wanDhcp-current"); %>
+	                    </td>
+                    </tr>
+                    <tr>
+	                    <td bgcolor="#e2e7ed" class='mn24'>
+	                        &nbsp; 무선 SSID
+	                    </td>
+	                    <td bgcolor="white" class='mn24'>
+	                    	&nbsp;2.4GHz&nbsp;:&nbsp;<% getInfo("login_page_ssid", "24g"); %><br>
+	                    	&nbsp;5GHz&nbsp;:&nbsp;<% getInfo("login_page_ssid", "5g"); %>
+	                    </td>
+                    </tr>
+                    <tr>
+	                    <td bgcolor="#e2e7ed" class='mn24'>
+	                        &nbsp; 무선 채널
+	                    </td>
+	                    <td bgcolor="white" class='mn24'>
+	                    	<script>
+	                    		<% getInfo("wlan1-status");%>
+	                    	</script>
+	                    	&nbsp;2.4GHz&nbsp;:&nbsp;<% getInfo("channel_drv");%>
+							<script>
+								var bonding = <% getIndex("get_bandwidth"); %>;
+								if (bonding == 0) {
+									document.write(" (채널 폭:20MHz)");
+								} else if (bonding == 1) {
+									document.write(" (채널 폭:40MHz)");
+								}
+							</script>
+							<br>
+	                    	<script>
+	                    		<% getInfo("wlan0-status");%>
+	                    	</script>
+	                    	&nbsp;5GHz&nbsp;:&nbsp;<% getInfo("channel_drv");%>
+	                    </td>
+                    </tr>
+                    <tr>
+	                    <td bgcolor="#e2e7ed" class='mn24'>
+	                        &nbsp; 소프트웨어 버전
+	                    </td>
+	                    <td bgcolor="white" class='mn24'>
+							<script>
+							if( auto_up_flag == 1)
+								document.write("<b><span id=auto_upgrade_info style='color:red;'>&nbsp;펌웨어를 업그레이드 중입니다.<br>&nbsp;전원을 끄지말고 잠시<br>&nbsp;기다려 주시기 바랍니다.</span></b>");
+							else
+								document.write("&nbsp;<% getInfo("fwVersion"); %>");
+							</script>
+	                    </td>
+	            </tr>
+				<tr>
+					<td height='4' bgcolor="white" colspan='2'></td>
+				</tr>
+				<tr>
+		           <td bgcolor="#5D7B7C" height='2' colspan='2'></td>
+	            </tr>
+				<tr>
+					<td height='20' bgcolor="white" colspan='2'></td>
+				</tr>
+            </table>
+		</td>
+	</tr>
+</table>
+<input type="hidden" name="password" value=''>
+</form>
+</body>
+</html>
+

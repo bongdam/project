@@ -1,0 +1,289 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>QUEUE 출력 설정</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<script type="text/javascript" src="skb_util_qos.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+q_enable  = new Array(5);
+r_enable  = new Array(5);
+q_inrate  = new Array(5);
+q_outrate = new Array(5);
+q_qtype   = new Array(5);
+q_qrate   = new Array(5);
+q_qweight = new Array(5);
+
+for (i=0;i<5;i++) {
+	q_qtype[i]   = new Array(4);
+	q_qrate[i]   = new Array(4);
+	q_qweight[i] = new Array(4);
+}
+
+function saveChanges(qosF)
+{
+    var rate_in = qosF.in_rate.value;
+    var rate_out = qosF.out_rate.value;
+    var v_qweight0 = qosF.qweight0.value;
+    var v_qweight1 = qosF.qweight1.value;
+    var v_qweight2 = qosF.qweight2.value;
+    var v_qweight3 = qosF.qweight3.value;
+    var v_qrate0 = qosF.qrate0.value;
+    var v_qrate1 = qosF.qrate1.value;
+    var v_qrate2 = qosF.qrate2.value;
+    var v_qrate3 = qosF.qrate3.value;
+
+    if (qosF.rate_enable.checked) {
+        if (!IsDigit(rate_in)) {
+            alert('숫자를 입력하세요.');
+            qosF.in_rate.focus();
+            return false;
+        }
+        if (!IsDigit(rate_out)) {
+            alert('숫자를 입력하세요.');
+            qosF.out_rate.focus();
+            return false;
+        }
+    }
+
+    if (qosF.que_enable.checked) {
+        if (!IsDigit(v_qrate0)) {
+            alert('숫자만 입력하세요.');
+            qosF.qrate0.focus();
+            return false;
+        }
+        if (!IsDigit(v_qrate1)) {
+            alert('숫자만 입력하세요.');
+            qosF.qrate1.focus();
+            return false;
+        }
+        if (!IsDigit(v_qrate2)) {
+            alert('숫자만 입력하세요.');
+            qosF.qrate2.focus();
+            return false;
+        }
+        if (!IsDigit(v_qrate3)) {
+            alert('숫자만 입력하세요.');
+            qosF.qrate3.focus();
+            return false;
+        }
+
+        if (!IsDigit(v_qweight0) || (v_qweight0 < 1 || v_qweight0 > 128)) {
+            alert('1 ~ 128 사이의 값을 입력하세요.');
+            return false;
+        }
+
+        if (!IsDigit(v_qweight1) || (v_qweight1 < 1 || v_qweight1 > 128)) {
+            alert('1 ~ 128 사이의 값을 입력하세요.');
+            return false;
+        }
+
+        if (!IsDigit(v_qweight2) || (v_qweight2 < 1 || v_qweight2 > 128)) {
+            alert('1 ~ 128 사이의 값을 입력하세요.');
+            return false;
+        }
+
+        if (!IsDigit(v_qweight3) || (v_qweight3 < 1 || v_qweight3 > 128)) {
+            alert('1 ~ 128 사이의 값을 입력하세요.');
+            return false;
+        }
+    }
+    alert("설정 되었습니다!.");
+	return true;
+}
+
+function qosEnChanged(v)
+{
+	var en;
+
+	if (v == true)
+		en = false;
+	else
+		en = true;
+
+	document.qos.qtype3.disabled=en;
+	document.qos.qrate3.disabled=en;
+	document.qos.qweight3.disabled=en;
+
+	document.qos.qtype2.disabled=en;
+	document.qos.qrate2.disabled=en;
+	document.qos.qweight2.disabled=en;
+
+	document.qos.qtype1.disabled=en;
+	document.qos.qrate1.disabled=en;
+	document.qos.qweight1.disabled=en;
+
+	document.qos.qtype0.disabled=en;
+	document.qos.qrate0.disabled=en;
+	document.qos.qweight0.disabled=en;
+}
+
+function rateEnChanged(v)
+{
+	if ( v == true) {
+		document.qos.in_rate.disabled = false;
+		document.qos.out_rate.disabled = false;
+	} else {
+		document.qos.in_rate.disabled = true;
+		document.qos.out_rate.disabled = true;
+	}
+}
+
+
+
+function portChange(idx)
+{
+	q_port = idx;
+
+	if (q_enable[idx] == 0)
+		document.qos.que_enable.checked = false;
+	else
+		document.qos.que_enable.checked = true;
+	qosEnChanged(document.qos.que_enable.checked);
+
+	if (r_enable[idx] == 0)
+		document.qos.rate_enable.checked = false;
+	else
+		document.qos.rate_enable.checked = true;
+	rateEnChanged(document.qos.rate_enable.checked);
+
+	document.qos.in_rate.value = q_inrate[idx];
+	document.qos.out_rate.value = q_outrate[idx];
+
+	document.qos.qtype3.value = q_qtype[idx][3];
+	document.qos.qrate3.value = q_qrate[idx][3];
+	document.qos.qweight3.value = q_qweight[idx][3];
+	document.qos.qtype2.value = q_qtype[idx][2];
+	document.qos.qrate2.value = q_qrate[idx][2];
+	document.qos.qweight2.value = q_qweight[idx][2];
+	document.qos.qtype1.value = q_qtype[idx][1];
+	document.qos.qrate1.value = q_qrate[idx][1];
+	document.qos.qweight1.value = q_qweight[idx][1];
+	document.qos.qtype0.value = q_qtype[idx][0];
+	document.qos.qrate0.value = q_qrate[idx][0];
+	document.qos.qweight0.value = q_qweight[idx][0];
+}
+
+function do_init()
+{
+	<% getInfo("qosQ_init_js"); %>
+	q_port = 4;
+	document.qos.port_num.value = q_port;
+	portChange(q_port);
+}
+
+</script>
+</head>
+
+<body onLoad="do_init()">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>QUEUE 출력 설정</h2>
+<table border=0 width="550" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+ QUEUE 출력 제어를 위한 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formQosQue method=POST name="qos">
+<table border=0 cellspacing=1 cellpadding=2>
+	<tr>
+  	<td width="100" colspan=5>포트 &nbsp;&nbsp;
+		<select name="port_num" onChange="portChange(document.qos.port_num.value);">
+			<option value="4">WAN
+			<option value="0">LAN1
+			<option value="1">LAN2
+			<option value="2">LAN3
+			<option value="3">LAN4</option>
+		</select>
+		</td>
+	</tr>
+
+	<tr>
+	<td conspan=5> 사용 &nbsp;&nbsp;<input type="checkbox" name="que_enable" onClick="qosEnChanged(document.qos.que_enable.checked);"></td>
+	</tr>
+
+	<tr class='tbl_head' align='center'>
+    	<td width="100"><b>Queue </b></td>
+    	<td width="100"><b>Int. Priority</b></td>
+		<td width="100"><b>Queue 종류</b></td>
+		<td width="100"><b>평균 전송률</b></td>
+		<td width="100"><b>Weight<br>(1 ~ 128)</b></td>
+  	</tr>
+
+  	<tr bgcolor="#DDDDDD" align='center'>
+		<td align='center'>Q3</td>
+		<td align='center'>7 / 6</td>
+		<td><select name="qtype3">
+			<option value="SPQ">SPQ
+			<option value="WFQ">WFQ</option>
+		</select></td>
+		<td><input type=text name=qrate3 size=6 maxlength=7>Kbps</td>
+		<td><input type=text name=qweight3 size=4 maxlength=3></td>
+  	</tr>
+
+  	<tr bgcolor="#DDDDDD" align='center'>
+		<td align='center'>Q2</td>
+		<td align='center'>5 / 4</td>
+		<td><select name="qtype2">
+			<option value="SPQ">SPQ
+			<option value="WFQ">WFQ</option>
+		</select></td>
+		<td><input type=text name=qrate2 size=6 maxlength=7>Kbps</td>
+		<td><input type=text name=qweight2 size=4 maxlength=3></td>
+  	</tr>
+
+  	<tr bgcolor="#DDDDDD" align='center'>
+		<td align='center'>Q1</td>
+		<td align='center'>3</td>
+		<td><select name="qtype1">
+			<option value="SPQ">SPQ
+			<option value="WFQ">WFQ</option>
+		</select></td>
+		<td><input type=text name=qrate1 size=6 maxlength=7>Kbps</td>
+		<td><input type=text name=qweight1 size=4 maxlength=3></td>
+  	</tr>
+
+  	<tr bgcolor="#DDDDDD" align='center'>
+		<td align='center'>Q0</td>
+		<td align='center'>2 / 1 / 0</td>
+		<td><select name="qtype0">
+			<option value="SPQ">SPQ
+			<option value="WFQ">WFQ</option>
+		</select></td>
+		<td><input type=text name=qrate0 size=6 maxlength=7>Kbps</td>
+		<td><input type=text name=qweight0 size=4 maxlength=3></td>
+  	</tr>
+
+  	<tr height=10><td colspan=5></td></tr>
+  	<tr>
+		<td colspan=2><input type="checkbox" name="rate_enable" onClick="rateEnChanged(document.qos.rate_enable.checked);">&nbsp;&nbsp; 전체 속도 제어</td>
+		<td colspan=3>
+	  		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;수신 &nbsp;&nbsp;&nbsp;<input type="text" name="in_rate" size='10' maxlength='7'>&nbsp;Kbps<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(0 입력시, 수신 속도 제어 사용 안함)<br>
+	  		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;송신 &nbsp;&nbsp;&nbsp;<input type="text" name="out_rate" size='10' maxlength='7'>&nbsp;Kbps<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(0 입력시, 송신 속도 제어 사용 안함)
+		</td>
+  	</tr>
+  </table>
+
+  <br>
+      <input type="submit" value="저장" name="save" onClick="return saveChanges(this.form)">&nbsp;&nbsp;
+      <input type="button" value="취소" name="reset" onClick="do_init()">
+      <input type="hidden" value="/skb_qosque.htm" name="submit-url">
+</form>
+
+
+
+</blockquote>
+</body>
+</html>
+

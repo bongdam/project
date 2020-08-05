@@ -1,0 +1,40 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>접속 리스트</title>
+<script type="text/javascript" src="util_gw.js"></script>
+<% getInfo("include_css"); %>
+</head>
+
+<body onload="mouse_r_click();">
+<blockquote>
+<h2>접속 리스트</h2>
+
+<table border=0 width="480" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+접속된 단말의 IP와 MAC 주소 그리고 남은 시간을 보여주는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+
+<form action=/boafrm/formReflashClientTbl method=POST name="formClientTbl">
+<table border='1' width="100%">
+<tr class="tbl_head"> <td width="20%" align=center><font size=2>IP 주소</b></td>
+<td width="35%" align=center><font size=2><b>MAC 주소</b></td>
+<td width="20%" align=center><font size=2><b>남은 시간</b></td></tr>
+<% dhcpClientList(); %>
+</table>
+
+<input type="hidden" value="/dhcptbl.htm" name="submit-url">
+  <p><input type="submit" value="다시보기" name="refresh">&nbsp;&nbsp;
+  <input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();"></p>
+</form>
+</blockquote>
+</body>
+
+</html>

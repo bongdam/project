@@ -1,0 +1,117 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>DMZ Host</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function saveClick()
+{
+	var ipaddr = "<% getInfo("ip-rom"); %>";
+
+	if (document.formDMZ.enabled.selectedIndex == 1) {
+		document.formDMZ.ip.value = document.formDMZ.ID_LOCAL_IP_1.value + "." + document.formDMZ.ID_LOCAL_IP_2.value + "." + document.formDMZ.ID_LOCAL_IP_3.value + "." + document.formDMZ.ID_LOCAL_IP_4.value;
+		if (ipaddr == document.formDMZ.ip.value) {
+			alert(dmz_ip_error2);
+			return false;
+		}
+
+		if (checkHostIPValid(document.formDMZ.ip,document.formDMZ.lan_mask, dmz_ip_invalid) == false )
+			return false;
+
+		if (checkIpAddr(document.formDMZ.ip, dmz_ip_invalid) == false )
+			return false;
+	}
+
+	document.formDMZ.save_apply.disabled = true;
+	document.formDMZ.submit();
+	return true;
+}
+
+function updateState()
+{
+	if (document.formDMZ.enabled.selectedIndex == 1) {
+		enableTextField(document.formDMZ.ID_LOCAL_IP_4);
+	} else {
+		disableTextField(document.formDMZ.ID_LOCAL_IP_4);
+	}
+}
+
+function Load_Setting()
+{
+	var dmzip = "<% getInfo("dmzHost"); %>".split(".");
+	var ipaddr = "<% getInfo("ip-rom"); %>".split(".");
+
+	if (dmzip == "") {
+		document.formDMZ.ID_LOCAL_IP_1.value = ipaddr[0];
+		document.formDMZ.ID_LOCAL_IP_2.value = ipaddr[1];
+		document.formDMZ.ID_LOCAL_IP_3.value = ipaddr[2];
+		document.formDMZ.ID_LOCAL_IP_4.value = "";
+	} else {
+		document.formDMZ.ID_LOCAL_IP_1.value = dmzip[0];
+		document.formDMZ.ID_LOCAL_IP_2.value = dmzip[1];
+		document.formDMZ.ID_LOCAL_IP_3.value = dmzip[2];
+		document.formDMZ.ID_LOCAL_IP_4.value = dmzip[3];
+	}
+
+	if ( <% getIndex("dmzEnabled"); %> )
+		document.formDMZ.enabled.selectedIndex = 1;
+
+	updateState();
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(dmz_header)</script></h2>
+<table border=0 width="600" cellspacing=4 cellpadding=0 >
+	<tr>
+		<td><font size=2><script>dw(dmz_header_explain)</script></font></td>
+	</tr>
+	<tr>
+		<td><hr size=1 noshade align=top></td>
+	</tr>
+</table>
+<form action=/boafrm/formDMZ method=POST name="formDMZ">
+<input type="hidden" name="lan_mask" value="<% getInfo("mask-rom"); %>">
+<input type="hidden" name="ip" value="">
+<table border=0 width="600" cellspacing=4 cellpadding=0 >
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(dmz_onfoff)</script></b></td>
+		<td width="60%">
+			<select name="enabled" id="enabled" onclick="updateState();">
+				<option value='OFF'><script>dw(dmz_disable)</script></option>
+				<option value='ON'><script>dw(dmz_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(dmz_host_ipaddr)</script></b></td>
+		<td width="60%">
+			<input type="text" disabled style="width:30px" maxlength="3" name="ID_LOCAL_IP_1" /> .
+			<input type="text" disabled style="width:30px" maxlength="3" name="ID_LOCAL_IP_2" /> .
+			<input type="text" disabled style="width:30px" maxlength="3" name="ID_LOCAL_IP_3" /> .
+			<input type="text" style="width:30px" maxlength="3" name="ID_LOCAL_IP_4" />
+		</td>
+	</tr>
+</table>
+
+<br>
+
+<input type="hidden" value="1" name="setDmzFlag">
+<table border=0 width="600" cellspacing=4 cellpadding=0 >
+	<tr>
+		<td>
+     		<input type="button" value="Save" name="save_apply" onClick="return saveClick()">
+     		<script>document.formDMZ.save_apply.value = dmz_apply;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

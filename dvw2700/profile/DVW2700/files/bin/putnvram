@@ -1,0 +1,62 @@
+#!/bin/sh
+
+trim_leading() {
+	local s="$1"
+	local len=${#s}
+	local i=0
+
+	while [ $len -gt $i ]; do
+		case "${s:$i:1}" in
+			[^$'\r'$'\n'$'\t'$'\v'$' '$'\"']*)
+				break
+				;;
+		esac
+		let i=$i+1
+	done
+	eval "$2=\"\${s:$i}\""
+}
+
+trim_trail() {
+	local s="$1"
+	local len=${#s}
+	local i
+
+	while [ $len -gt 0 ]; do
+		let i=$len-1
+		case "${s:$i:1}" in
+			[^$'\r'$'\n'$'\t'$'\v'$' '$'\"']*)
+				break
+				;;
+		esac
+		len=$i
+	done
+	eval "$2=\"\${s::0:$len}\""
+}
+
+despaces() {
+	local f t
+
+	trim_leading "$1" f
+	trim_leading "${f}" t
+	eval "$2=\"${t}\""
+}
+
+nvram_set_from_file() {
+	local equal namelen name value line
+
+	while read -r line; do
+		equal=`expr index "$line" =`
+		namelen=`expr $equal - 1`
+		name=${line:0:$namelen}
+		despaces "${line:$equal}" value
+		[ "$1" != "-t" ] && nvram set "$name=$value" || echo "$name=$value"
+	done
+}
+
+fin="$1"
+if [ -n "${fin}" -a -f "${fin}" ]; then
+	shift
+	cat ${fin} | nvram_set_from_file "$@"
+else
+	nvram_set_from_file "$@"
+fi

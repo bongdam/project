@@ -1,0 +1,141 @@
+menu "Davolink custom package(cpkg) for user mode"
+
+config LIB_YTOOL
+	bool "libytool"
+	default y
+	help
+	  Library contains APIs which have been used often and generally.
+	  This is the default implementation choice.  Must choose this one unless
+	  you have a good reason not to.
+
+config LIB_NVRAM
+	bool "nvram"
+	default y
+	help
+	  This option depends on NVRAM device in Linux kernel.
+	  This library is the half part of NVRAM in user mode.
+
+config LIB_SHARED
+	bool "libshared"
+	default y
+	help
+	  Library contains miscellaneous funtions including shell-like utility ones.
+	  This option is intended for importing applications based on broadcom SDK.
+
+config LIB_SELECT_EVENT
+	bool "libselect_event"
+	default y
+	help
+	  Library is aimed at providing framework to manage multiple file descriptors
+	  which can be monitored by select system call.
+
+config LIB_KCRYPTO_API
+	bool "libkcapi"
+	default n
+	help
+	  Userspace crypto API utilizing kernel crypto engine
+
+config LIB_NETFILTER
+	bool "libnetfilter"
+	default n
+	help
+	  Collection of userspace library to interwork kernel's netfilter
+
+config NVRAM_APMIB
+	bool "nvram_mib"
+	depends on LIB_NVRAM && LIB_YTOOL
+	default y
+	help
+	  This option changes APMIB - Realek proprietary configuration subsystem
+	  into nvram of Broadcom. APMIB library api should be rewritten to work
+	  on nvram.
+
+config DVBOX
+	bool "dvbox"
+	default y
+	help
+	  A suite of applets having specific purpose.
+
+config APP_LABORER
+	bool "laborer"
+	default y
+	help
+	  House keeping daemon process.
+
+config LIB_FURL
+	bool "furl"
+	depends on !APP_FWD
+	default y
+	help
+	  This library includes implementations needed to verify, burn and dualize
+	  firmware image.
+
+config LIB_SSL
+	bool "libssl"
+	default n
+	help
+	  OpenSSL is a robust, commercial-grade, and full-featured toolkit for the
+	  Transport Layer Security (TLS) and Secure Sockets Layer (SSL) protocols.
+	  It is also a general-purpose cryptography library.
+
+config SEC_CONTAINER
+	bool "secure-container"
+	default n
+	help
+	  This utility can contain any arbitrary data securely.
+
+config ACLWRITE
+	bool "aclwrite"
+	default y
+	help
+	  Manipulate hardware ACL table.
+
+config LIB_CURL_NEW
+	bool "curl"
+	default n
+	help
+	  Curl is command line tool and library for transferring data with URLs.
+
+config APP_VPN_SERVER
+	bool "vpnserver"
+	default n
+	help
+	  IPSec, PPTP and L2TP VPN client/server
+
+config LIB_EXPAT_XML
+	bool "XML parser library"
+	default n
+	help
+	  XML parser library written in C. It is a stream-oriented parser
+	  in which an application registers handlers for things the parser
+	  might find in the XML document.
+
+config LIB_GSOAP
+	bool "gSOAP toolkit"
+	default n
+	help
+	  The gSOAP toolkit is an extensive suite of portable C and C++
+	  software to develop XML Web services with powerful type-safe
+	  XML data bindings.
+
+config APP_CWMPCLIENT
+	bool "CWMP client"
+	depends on LIB_GSOAP
+	default n
+	help
+	  CWMP is a text based protocol. Orders sent between the device(CPE)
+	  and auto configuration server (ACS) are transported over HTTPS.
+
+config APP_MINIUPNPD
+	bool "miniupnpd-1.9"
+	default y
+	help
+	  add miniupnpd.
+
+config APP_REBOOT_SCHD
+	bool "reboot schedule"
+	default y
+	help
+	  reboot scheduling.
+
+endmenu

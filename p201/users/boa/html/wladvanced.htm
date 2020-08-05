@@ -1,0 +1,696 @@
+<html>
+<!-- Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. -->
+<head>
+<meta http-equiv="Content-Type" content="text/html";charset=utf8>
+<% getIndex("no-cache"); %>
+<title>Wireless Advanced Setting</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<% language=javascript %>
+<SCRIPT>
+var band2G5GSupport = <% getIndex("Band2G5GSupport"); %>;
+var mode2x2 = <% getIndex("wlan_mode_2x2");%>;
+var enabled1X = <% getIndex("enable1X");%>;
+var wlan_mode = <% getIndex("wlanMode");%>;
+var wlan_encmode = <% getIndex("encrypt");%>;
+var ft_enable = <% getIndex("80211r_enable");%>;
+
+function validateNum(str)
+{
+	for (var i = 0; i < str.length; i++) {
+		if ( !(str.charAt(i) >='0' && str.charAt(i) <= '9')) {
+			alert(wladv_vallid_num_alert);
+			return false;
+		}
+	}
+	return true;
+}
+
+function saveChanges()
+{
+	var band = <% getIndex("band"); %>;
+
+	if ( validateNum(document.advanceSetup.fragThreshold.value) == 0 ) {
+		document.advanceSetup.fragThreshold.focus();
+		return false;
+	}
+
+	num = parseInt(document.advanceSetup.fragThreshold.value);
+	if (document.advanceSetup.fragThreshold.value == "" || num < 256 || num > 2346) {
+		alert(wladv_fragment_thre_alert);
+		document.advanceSetup.fragThreshold.focus();
+		return false;
+	}
+
+/*
+	if (document.advanceSetup.aggregation.value == "enable" && ( (band != 1) && (band != 2)&& (band != 3) && (band !=4 )) && (num != 2346) ) {
+		alert(wladv_fragment_aggr_alert);
+		return false;
+	}
+*/
+
+	if ( validateNum(document.advanceSetup.rtsThreshold.value) == 0 ) {
+		document.advanceSetup.rtsThreshold.focus();
+		return false;
+	}
+
+	num = parseInt(document.advanceSetup.rtsThreshold.value);
+	if (document.advanceSetup.rtsThreshold.value=="" || num > 2347) {
+		alert(wladv_rts_thre_alert);
+		document.advanceSetup.rtsThreshold.focus();
+		return false;
+	}
+
+	if ( validateNum(document.advanceSetup.beaconInterval.value) == 0 ) {
+		document.advanceSetup.beaconInterval.focus();
+		return false;
+	}
+
+	num = parseInt(document.advanceSetup.beaconInterval.value);
+	if (document.advanceSetup.beaconInterval.value=="" || num < 20 || num > 1024) {
+		alert(wladv_beacon_alert);
+		document.advanceSetup.beaconInterval.focus();
+		return false;
+	}
+
+	/*if (enabled1X != 1 && document.advanceSetup.elements["hs2"][0].checked == true) {
+		alert(wladv_8021x_hs2);
+		resetForm();
+		return false;
+	}*/
+
+	return true;
+}
+
+function wlan_adv_switch()
+{
+	var wlanband = <% getIndex("band"); %>;
+	if (wlanband < 9)
+		wlanband = "0";
+	else
+		wlanband = "";
+
+	var checkid_aggregation;
+	var checkid_shortgi;
+	var wlan_xTxR = "<% getInfo("wlan_xTxR"); %>";
+	var wlan_support_8822be = <% getIndex("wlan_support_8822be"); %>;
+	var wlan_support_8812fe = <% getIndex("wlan_support_8812fe"); %>;
+	var band = <% getIndex("band"); %>;
+
+	checkid_aggregation = document.getElementById("Aggregation");
+	checkid_shortgi = document.getElementById("ShortGi");
+
+	if (wlan_xTxR == "1*1") {
+		document.advanceSetup.tx_stbc[0].checked = false;
+		document.advanceSetup.tx_stbc[1].checked = true;
+		document.advanceSetup.tx_stbc[0].disabled = true;
+		document.advanceSetup.tx_stbc[1].disabled = true;
+ 	} else if(wlan_xTxR == "0*0") {
+		/*document.getElementById("stbctransmit").style.display = "none";*/
+		/*document.getElementById("coexist").style.display = "none";*/
+	}
+
+	if (band2G5GSupport == 2) //2:5g
+ 	{
+		document.getElementById("preambleType").style.display = "none";
+		/*document.getElementById("coexist").style.display = "none";*/
+ 	} else {
+		document.getElementById("preambleType").style.display = "";
+		/*document.getElementById("coexist").style.display = "";*/
+ 	}
+
+	/*if (mode2x2)	{
+		document.getElementById("tx_beamforming").style.display = "";
+	} else {
+		document.getElementById("tx_beamforming").style.display = "none";
+	}*/
+
+	if (<% getIndex("preamble"); %> == 0)
+		document.advanceSetup.elements["preamble"].selectedIndex = 0;
+	else
+		document.advanceSetup.elements["preamble"].selectedIndex = 1;
+
+	document.advanceSetup.elements["dtimPeriod"].selectedIndex = <% getInfo("dtimPeriod"); %>;
+
+	if (<% getIndex("iappDisabled"); %> == 0)
+		document.advanceSetup.elements["iapp"].selectedIndex = 0;
+	else
+		document.advanceSetup.elements["iapp"].selectedIndex = 1;
+
+	if (<% getIndex("protectionDisabled"); %> == 0)
+		document.advanceSetup.elements["11g_protection"].selectedIndex = 0;
+	else
+		document.advanceSetup.elements["11g_protection"].selectedIndex = 1;
+
+	if (<% getIndex("aggregation"); %> != 0)
+		document.advanceSetup.elements["aggregation"][0].checked = true;
+	else
+		document.advanceSetup.elements["aggregation"][1].checked = true;
+
+	if (<% getIndex("shortGIEnabled"); %> == 1)
+		document.advanceSetup.elements["shortGI0"][0].checked = true;
+	else
+		document.advanceSetup.elements["shortGI0"][1].checked = true;
+
+	if (<% getIndex("block_relay"); %> == 1)
+		document.advanceSetup.elements["block_relay"][0].checked = true;
+	else
+		document.advanceSetup.elements["block_relay"][1].checked = true;
+
+	if (<% getIndex("tx_stbc"); %> == 1)
+		document.advanceSetup.elements["tx_stbc"][0].checked = true;
+	else
+		document.advanceSetup.elements["tx_stbc"][1].checked = true;
+
+	if (<% getIndex("tx_ldpc"); %> == 1)
+		document.advanceSetup.elements["tx_ldpc"][0].checked = true;
+	else
+		document.advanceSetup.elements["tx_ldpc"][1].checked = true;
+
+	if (<% getIndex("coexist"); %> == 1)
+		document.advanceSetup.elements["coexist_"][0].checked = true;
+	else
+		document.advanceSetup.elements["coexist_"][1].checked = true;
+
+	if (<% getIndex("tx_beamforming"); %> == 1) {
+		document.advanceSetup.elements["beamforming_"][0].checked = true;
+
+		if ((wlan_support_8822be == 1 || wlan_support_8812fe == 1) && (band & 64)) {
+			document.advanceSetup.elements["txbf_mu_"][0].disabled = false;
+			document.advanceSetup.elements["txbf_mu_"][1].disabled = false;
+
+			if (<% getIndex("txbf_mu"); %> == 1)
+				document.advanceSetup.elements["txbf_mu_"][0].checked = true;
+			else
+				document.advanceSetup.elements["txbf_mu_"][1].checked = true;
+		} else {
+			document.advanceSetup.elements["txbf_mu_"][0].checked = false;
+			document.advanceSetup.elements["txbf_mu_"][1].checked = true;
+			document.advanceSetup.elements["txbf_mu_"][0].disabled = true;
+			document.advanceSetup.elements["txbf_mu_"][1].disabled = true;
+		}
+	} else {
+		document.advanceSetup.elements["beamforming_"][1].checked = true;
+		document.advanceSetup.elements["txbf_mu_"][0].checked = false;
+		document.advanceSetup.elements["txbf_mu_"][1].checked = true;
+		document.advanceSetup.elements["txbf_mu_"][0].disabled = true;
+		document.advanceSetup.elements["txbf_mu_"][1].disabled = true;
+	}
+
+	if (<% getIndex("mc2u_disable"); %> == 0)
+		document.advanceSetup.elements["mc2u_"][0].checked = true;
+	else
+		document.advanceSetup.elements["mc2u_"][1].checked = true;
+
+	onclick_mc2u();
+	document.advanceSetup.elements["RFPower"].selectedIndex = <% getIndex("RFPower"); %>;
+
+	if (<% getIndex("isCrossbandDefined"); %> == 1 && wlan_idx_ == 1) {
+		if ( (wlan_mode == 0 || wlan_mode == 3 || wlan_mode == 4)) {
+			enableRadioGroup(document.advanceSetup.elements["crossband_"]);
+		} else {
+			disableRadioGroup(document.advanceSetup.elements["crossband_"]);
+		}
+
+		/*document.getElementById("crossband").style.display = "";*/
+		if (<% getIndex("crossband_enable"); %> == 1)
+			document.advanceSetup.elements["crossband_"][0].checked = true;
+		else
+			document.advanceSetup.elements["crossband_"][1].checked = true;
+	} else {
+		document.getElementById("crossband").style.display = "none";
+	}
+
+	if (<% getIndex("is_tdls_support"); %> == 1 && (wlan_mode == 0) ) {
+		enableRadioGroup(document.advanceSetup.elements["tdls_prohibited_"]);
+		/*document.getElementById("tdls_prohibited").style.display = "";*/
+		enableRadioGroup(document.advanceSetup.elements["tdls_cs_prohibited_"]);
+		/*document.getElementById("tdls_cs_prohibited").style.display = "";*/
+
+		if (<% getIndex("tdls_cs_prohibited"); %> == 1)
+			document.advanceSetup.elements["tdls_cs_prohibited_"][0].checked = true;
+		else
+			document.advanceSetup.elements["tdls_cs_prohibited_"][1].checked = true;
+
+		if (<% getIndex("tdls_prohibited"); %> == 1){
+			document.advanceSetup.elements["tdls_prohibited_"][0].checked = true;
+			document.advanceSetup.elements["tdls_cs_prohibited_"][0].checked = false;
+			document.advanceSetup.elements["tdls_cs_prohibited_"][1].checked = true;
+			document.advanceSetup.elements["tdls_cs_prohibited_"][0].disabled = true;
+			document.advanceSetup.elements["tdls_cs_prohibited_"][1].disabled = true;
+		} else
+			document.advanceSetup.elements["tdls_prohibited_"][1].checked = true;
+	} else {
+		document.getElementById("tdls_prohibited").style.display = "none";
+		document.getElementById("tdls_cs_prohibited").style.display = "none";
+	}
+
+	if (<% getIndex("is_80211k_support"); %> == 1) {
+		if (wlan_mode == 0 || wlan_mode == 3 || wlan_mode == 4) {
+			enableRadioGroup(document.advanceSetup.elements["dot11k_"]);
+		} else {
+			disableRadioGroup(document.advanceSetup.elements["dot11k_"]);
+		}
+
+		/*document.getElementById("dot11k").style.display = "";*/
+		if (<% getIndex("dot11k_enable"); %> == 1)
+			document.advanceSetup.elements["dot11k_"][0].checked = true;
+		else
+			document.advanceSetup.elements["dot11k_"][1].checked = true;
+	} else {
+		document.getElementById("dot11k").style.display = "none";
+	}
+
+	if (<% getIndex("is_80211r_support"); %> == 1 && (wlan_mode == 0 || wlan_mode == 3 || wlan_mode == 4) ) {
+		enableRadioGroup(document.advanceSetup.elements["80211r_enable_"]);
+		/*document.getElementById("80211r_enable").style.display = "";*/
+
+		if ((enabled1X != 1)&&(wlan_encmode == 4 || wlan_encmode == 6)) { // wpa2 or wpa-mixed
+			if (<% getIndex("80211r_enable"); %> == 1)
+				document.advanceSetup.elements["80211r_enable_"][0].checked = true;
+			else
+				document.advanceSetup.elements["80211r_enable_"][1].checked = true;
+		} else {
+			document.advanceSetup.elements["80211r_enable_"][0].checked = false;
+			document.advanceSetup.elements["80211r_enable_"][1].checked = true;
+			document.advanceSetup.elements["80211r_enable_"][0].disabled = true;
+			document.advanceSetup.elements["80211r_enable_"][1].disabled = true;
+		}
+	} else {
+		document.getElementById("80211r_enable").style.display = "none";
+	}
+
+	if (<% getIndex("is_80211v_support"); %> == 1 && (wlan_mode == 0 || wlan_mode == 3 || wlan_mode == 4)) {
+		enableRadioGroup(document.advanceSetup.elements["80211v_enable_"]);
+		/*document.getElementById("80211v_enable").style.display = "";*/
+
+		if (<% getIndex("80211v_enable"); %> == 1)
+			document.advanceSetup.elements["80211v_enable_"][0].checked = true;
+		else
+			document.advanceSetup.elements["80211v_enable_"][1].checked = true;
+	} else {
+		document.getElementById("80211v_enable").style.display = "none";
+	}
+
+	if (<% getIndex("is_smart_roaming_support"); %> == 1) {
+		if (wlan_mode == 0 || wlan_mode == 3 || wlan_mode == 4) {
+			enableRadioGroup(document.advanceSetup.elements["smart_roaming_"]);
+		} else {
+			disableRadioGroup(document.advanceSetup.elements["smart_roaming_"]);
+		}
+
+		/*document.getElementById("smart_roaming").style.display = "";*/
+		if (<% getIndex("smart_roaming_enable"); %> == 1)
+			document.advanceSetup.elements["smart_roaming_"][0].checked = true;
+		else
+			document.advanceSetup.elements["smart_roaming_"][1].checked = true;
+	} else {
+		document.getElementById("smart_roaming").style.display = "none";
+	}
+
+	if (<% getIndex("isStaControlDefined"); %> == 1 && wlan_idx_ == 1) {
+		/*document.getElementById("stactrl").style.display = "";*/
+		if (<% getIndex("staControlEnabled"); %> == 1)
+			document.advanceSetup.elements["staControlEnabled"].checked = true;
+		else
+			document.advanceSetup.elements["staControlEnabled"].checked = false;
+
+		document.advanceSetup.elements["staControlPrefer"].selectedIndex = (<% getIndex("staControlPrefer"); %> == 1 ? 0 : 1);
+		updateStaControlState(document.advanceSetup, wlan_mode);
+	} else {
+		document.getElementById("stactrl").style.display = "none";
+	}
+}
+
+function updateStaControlState(form, wlan_mode)
+{
+	disableCheckBox(form.elements["staControlEnabled"]);
+	form.elements["staControlPrefer"].disabled = true;
+
+	if (wlan_mode == 0 || wlan_mode == 3 || wlan_mode == 4) {
+		enableCheckBox(form.elements["staControlEnabled"]);
+		if (form.elements["staControlEnabled"].checked) {
+			form.elements["staControlPrefer"].disabled = false;
+		}
+	}
+}
+
+function onClick_func(enable)
+{
+	if (enable)
+		enableRadioGroup(document.advanceSetup.sideBand0);
+	else
+		disableRadioGroup(document.advanceSetup.sideBand0);
+}
+
+function onclick_txbf()
+{
+	var wlan_support_8822be = <% getIndex("wlan_support_8822be"); %>;
+	var wlan_support_8812fe = <% getIndex("wlan_support_8812fe"); %>;
+	var band = <% getIndex("band"); %>;
+
+	if (document.advanceSetup.elements["beamforming_"][0].checked == true) {
+		if ((wlan_support_8822be == 1 || wlan_support_8812fe == 1) && (band & 64)) {
+			document.advanceSetup.elements["txbf_mu_"][0].disabled = false;
+			document.advanceSetup.elements["txbf_mu_"][1].disabled = false;
+		}
+	} else {
+		document.advanceSetup.elements["txbf_mu_"][0].disabled = true;
+		document.advanceSetup.elements["txbf_mu_"][1].disabled = true;
+		document.advanceSetup.elements["txbf_mu_"][0].checked = false;
+		document.advanceSetup.elements["txbf_mu_"][1].checked = true;
+	}
+}
+
+function onclick_mc2u()
+{
+	if (document.advanceSetup.elements["mc2u_"][0].checked == true)
+		get_by_id("mlcsttxrate").style.display = "none";
+	else
+		get_by_id("mlcsttxrate").style.display = "";
+}
+
+function resetForm()
+{
+	location = location;
+}
+
+</SCRIPT>
+<blockquote>
+<body onload="wlan_adv_switch()">
+<h2>
+<script type="text/javascript">
+var wlan_num = <% getIndex("wlan_num"); %>;
+	if (wlan_num > 1) {
+		var wlan_idx_ = <% getIndex("wlan_idx"); %> + 1;
+		document.write(wladv_name_for_double+"</p>");
+	} else
+		document.write(wladv_header+"</p>");
+</script>
+</h2>
+
+<form action=/boafrm/formAdvanceSetup method=POST name="advanceSetup">
+<table border=0 width="600" cellspacing=4 cellpadding=0>
+	<tr><font size=2><script>dw(wladv_explain)</script></tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<table border=0 width="600" cellspacing=4 cellpadding=0>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(wladv_frg_thre)</script></b></td>
+		<td width="60%"><font size=2><input type="text" name="fragThreshold" size="10" maxlength="4" value=<% getInfo("fragThreshold"); %>> (256-2346)</td>
+	</tr>
+
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(wladv_rts_thre)</script></b></td>
+		<td width="60%"><font size=2><input type="text" name="rtsThreshold" size="10" maxlength="4" value=<% getInfo("rtsThreshold"); %>> (0-2347)</td>
+	</tr>
+
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(wladv_beacon_interval)</script></b></td>
+		<td width="60%"><font size=2><input type="text" name="beaconInterval" size="10" maxlength="4" value=<% getInfo("beaconInterval"); %>> (20-1024 ms)</td>
+	</tr>
+
+	<tr id="preambleType" style="display:">
+		<td width="40%"><font size=2><b><script>dw(wladv_preamble_type)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="preamble">
+				<option value="long"><script>dw(wladv_preamble_long)</script></option>
+				<option value="short"><script>dw(wladv_preamble_short)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(wladv_dtim)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="dtimPeriod">
+				<option value="1"> 1 </option>
+				<option value="2"> 2 </option>
+				<option value="3"> 3 </option>
+				<option value="4"> 4 </option>
+				<option value="5"> 5 </option>
+			</select>
+		</td>
+	</tr>
+
+	<tr id="showIAPP" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_iapp)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="iapp">
+				<option value="yes"><script>dw(wladv_iapp_enabled)</script></option>
+				<option value="no"><script>dw(wladv_iapp_disabled)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(wladv_protection)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="11g_protection">
+				<option value="yes"><script>dw(wladv_protection_enabled)</script></option>
+				<option value="no"><script>dw(wladv_protection_disabled)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr id="Aggregation" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_aggregation)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="aggregation" value="enable"><script>dw(wladv_aggregation_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="aggregation" value="disable"><script>dw(wladv_aggregation_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="ShortGi" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_short_gi)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="shortGI0" value="on"><script>dw(wladv_short_gi_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="shortGI0" value="off"><script>dw(wladv_short_gi_disabled)</script></td>
+	</tr>
+
+	<tr id="blockrelay" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_wlan_partition)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="block_relay" value="enable"><script>dw(wladv_wlan_partition_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="block_relay" value="disable"><script>dw(wladv_wlan_partition_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="stbctransmit" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_stbc)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="tx_stbc" value="enable"><script>dw(wladv_stbc_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="tx_stbc" value="disable"><script>dw(wladv_stbc_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="ldpctransmit" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_ldpc)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="tx_ldpc" value="enable"><script>dw(wladv_ldpc_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="tx_ldpc" value="disable"><script>dw(wladv_ldpc_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="coexist" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_coexist)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="coexist_" value="enable"><script>dw(wladv_coexist_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="coexist_" value="disable"><script>dw(wladv_coexist_disabled)</script>
+		</td>
+    </tr>
+
+	<tr id="tx_beamforming" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_tx_beamform)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="beamforming_" value="enable"><script>dw(wladv_tx_beamform_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="beamforming_" value="disable"><script>dw(wladv_tx_beamform_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="txbf_mu" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_mu_mimo)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="txbf_mu_" value="enable"><script>dw(wladv_mu_mimo_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="txbf_mu_" value="disable"><script>dw(wladv_mu_mimo_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="mc2u_disable" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_m2u)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="mc2u_" value="enable" onclick="onclick_mc2u()" ><script>dw(wladv_m2u_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="mc2u_" value="disable" onclick="onclick_mc2u()" ><script>dw(wladv_m2u_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="tdls_prohibited" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_tdls_prohibited)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="tdls_prohibited_" value="enable" ><script>dw(wladv_tdls_prohibited_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="tdls_prohibited_" value="disable" ><script>dw(wladv_tdls_prohibited_disabled)</script>
+			</td>
+	</tr>
+
+	<tr id="tdls_cs_prohibited" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_tdls_channel_switch)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="tdls_cs_prohibited_" value="enable" ><script>dw(wladv_tdls_channel_switch_enabled)</script>&nbsp;&nbsp;
+			<input type="radio" name="tdls_cs_prohibited_" value="disable" ><script>dw(wladv_tdls_channel_switch_disabled)</script>
+		</td>
+	</tr>
+
+	<tr id="mlcsttxrate" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_multicast_rate)</script></b></td>
+		<td width="60%"><font size=2>
+			<select size="1" name="mlcstrate" onChange="">
+				<SCRIPT>
+				var band = <% getIndex("band"); %>;
+				var auto = <% getIndex("rateAdaptiveEnabled"); %>;
+				var txrate = <% getIndex("lowestMlcstRate"); %>;
+				var rf_num = <% getIndex("rf_used"); %>;
+
+				var rate_mask = [15,1,1,1,1,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,8,8,8,8,8,8,8,8];
+				var rate_name = [wladv_multicast_rate,"1M","2M","5.5M","11M","6M","9M","12M","18M","24M","36M","48M","54M", "MCS0", "MCS1",
+							"MCS2", "MCS3", "MCS4", "MCS5", "MCS6", "MCS7", "MCS8", "MCS9", "MCS10", "MCS11", "MCS12", "MCS13", "MCS14", "MCS15"];
+				var vht_rate_name = ["NSS1-MCS0","NSS1-MCS1","NSS1-MCS2","NSS1-MCS3","NSS1-MCS4",
+							"NSS1-MCS5","NSS1-MCS6","NSS1-MCS7","NSS1-MCS8","NSS1-MCS9",
+							"NSS2-MCS0","NSS2-MCS1","NSS2-MCS2","NSS2-MCS3","NSS2-MCS4",
+							"NSS2-MCS5","NSS2-MCS6","NSS2-MCS7","NSS2-MCS8","NSS2-MCS9"];
+				var mask = 0;
+				var defidx = 0;
+				var idx, i, rate;
+				var vht_num;
+
+				if (band & 1)
+					mask |= 1;
+				if ((band & 2) || (band & 4))
+					mask |= 2;
+				if (band & 8) {
+					if (rf_num == 2)
+						mask |= 12;
+					else
+						mask |= 4;
+				}
+				document.write('<option value="' + 0 + '">' + rate_name[0] + '\n');
+				for (idx = 1, i = 1; i <= 28; i++) {
+					if (rate_mask[i] & mask) {
+						rate = (1 << (i-1));
+						if (txrate == 0)
+							defidx = 0;
+						else if (txrate == rate)
+							defidx = idx;
+						document.write('<option value="' + i + '">' + rate_name[i] + '\n');
+						idx++;
+					}
+				}
+
+				if (band & 64) {
+					if (rf_num == 1)
+						vht_num = 9;
+					else
+						vht_num = 19;
+					for (idx = 30, i = 0; i <= vht_num; i++) {
+						rate = ((1 << 31) + i);
+						if (txrate == rate) {
+							if (vht_num == 19)
+								defidx = idx-5;
+							else
+								defidx = idx-5-8;
+						}
+						document.write('<option value="' + (i+30) + '">' + vht_rate_name[i] + '\n');
+						idx++;
+					}
+				}
+				document.advanceSetup.elements["mlcstrate"].selectedIndex = defidx;
+				</SCRIPT>
+			</select>
+		</td>
+  	</tr>
+
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(wladv_rf_power)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="RFPower">
+				<option value="0">100%</option>
+				<option value="1">70%</option>
+				<option value="2">50%</option>
+				<option value="3">35%</option>
+				<option value="4">15%</option>
+			</select>
+		</td>
+	</tr>
+
+	<tr id="crossband" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_crossband_support)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="crossband_" value="enable"><script>dw(wladv_enable)</script>&nbsp;&nbsp;
+			<input type="radio" name="crossband_" value="disable"><script>dw(wladv_disable)</script>
+		</td>
+	</tr>
+
+	<tr id="dot11k" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_80211k_support)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="dot11k_" value="enable"><script>dw(wladv_enable)</script>&nbsp;&nbsp;
+			<input type="radio" name="dot11k_" value="disable"><script>dw(wladv_disable)</script>
+		</td>
+	</tr>
+
+	<tr id="80211r_enable" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_fast_bss_tran)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="80211r_enable_" value="enable"><script>dw(wladv_enable)</script>&nbsp;&nbsp;
+			<input type="radio" name="80211r_enable_" value="disable"><script>dw(wladv_disable)</script>
+		</td>
+    </tr>
+
+	<tr id="ft_over_ds" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_support_overds)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="ft_over_ds_" value="enable"><script>dw(wladv_enable)</script>&nbsp;&nbsp;
+			<input type="radio" name="ft_over_ds_" value="disable"><script>dw(wladv_disable)</script>
+		</td>
+	</tr>
+
+	<tr id="80211v_enable" style="display:none">
+		<td width="40%"><font size=2><b><script>dw(wladv_80211v_bss_tran)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="80211v_enable_" value="enable"><script>dw(wladv_enable)</script>&nbsp;&nbsp;
+			<input type="radio" name="80211v_enable_" value="disable"><script>dw(wladv_disable)</script>
+		</td>
+	</tr>
+
+	<tr id="smart_roaming" style="display:none">
+		<td width="40%"><font size=2><b>Smart Roaming Support:</b></td>
+		<td width="60%"><font size=2>
+			<input type="radio" name="smart_roaming_" value="enable">Enabled&nbsp;&nbsp;
+			<input type="radio" name="smart_roaming_" value="disable">Disabled</td>
+	</tr>
+
+	<tr id="stactrl" style="display:none">
+		<td width="40%"><font size=2><b>
+			<input type="checkbox" name="staControlEnabled" value="ON" ONCLICK="updateStaControlState(document.advanceSetup, wlan_mode)">&nbsp;&nbsp; Enable STA Control</b>
+		</td>
+		<td width="60%"><font size=2>
+			<select size="1" name="staControlPrefer">
+				<option value="0">Prefer 5GHz</option>
+				<option value="1">Prefer 2GHz</option>
+			</select>
+		</td>
+	</tr>
+</table>
+
+<p>
+	<input type="submit" value="Save & Apply" name="save_apply" onClick="return saveChanges()">&nbsp;&nbsp;
+	<script>document.advanceSetup.save_apply.value = wladv_save_apply;</script>
+	<input type="hidden" value="/wladvanced.htm" name="submit-url">
+</p>
+</form>
+</blockquote>
+</body>
+
+</html>
+

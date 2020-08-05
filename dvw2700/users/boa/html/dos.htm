@@ -1,0 +1,223 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>DoS 방어</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function dosEnabledClick(){
+	if(document.formDosCfg.dosEnabled.checked){
+		enableTextField(document.formDosCfg.sysfloodSYN);
+		enableTextField(document.formDosCfg.sysfloodSYNcount);
+		enableTextField(document.formDosCfg.TCPUDPPortScan);
+		enableTextField(document.formDosCfg.portscanSensi);
+		enableTextField(document.formDosCfg.ICMPSmurfEnabled);
+		enableTextField(document.formDosCfg.IPSpoofEnabled);
+		enableTextField(document.formDosCfg.PingOfDeathEnabled);
+		enableTextField(document.formDosCfg.pingSecEnabled);
+		enableTextField(document.formDosCfg.pingSecCount);
+		enableTextField(document.formDosCfg.TraceRtEnabled);
+		//enableTextField(document.formDosCfg.sourceIPblock);
+		//enableTextField(document.formDosCfg.IPblockTime);
+		//document.formDosCfg.sourceIPblock.checked=1;
+		//document.formDosCfg.IPblockTime.value=10;
+
+	} else{
+		document.formDosCfg.sysfloodSYN.checked=0;
+		document.formDosCfg.TCPUDPPortScan.checked=0;
+		document.formDosCfg.ICMPSmurfEnabled.checked=0;
+		document.formDosCfg.IPSpoofEnabled.checked=0;
+		document.formDosCfg.PingOfDeathEnabled.checked=0;
+		document.formDosCfg.pingSecEnabled.checked=0;
+		document.formDosCfg.TraceRtEnabled.checked=0;
+		//document.formDosCfg.sourceIPblock.checked=0;
+		disableTextField(document.formDosCfg.sysfloodSYN);
+		disableTextField(document.formDosCfg.sysfloodSYNcount);
+		disableTextField(document.formDosCfg.TCPUDPPortScan);
+		disableTextField(document.formDosCfg.portscanSensi);
+		disableTextField(document.formDosCfg.ICMPSmurfEnabled);
+		disableTextField(document.formDosCfg.IPSpoofEnabled);
+		disableTextField(document.formDosCfg.PingOfDeathEnabled);
+		disableTextField(document.formDosCfg.pingSecEnabled);
+		disableTextField(document.formDosCfg.pingSecCount);
+		disableTextField(document.formDosCfg.TraceRtEnabled);
+		//disableTextField(document.formDosCfg.sourceIPblock);
+		//disableTextField(document.formDosCfg.IPblockTime);
+		//document.formDosCfg.IPblockTime.value=0;
+	}
+}
+function all_sel_cln(used){
+	if(document.formDosCfg.dosEnabled.checked){
+		document.formDosCfg.sysfloodSYN.checked=used;
+		document.formDosCfg.TCPUDPPortScan.checked=used;
+		document.formDosCfg.ICMPSmurfEnabled.checked=used;
+		document.formDosCfg.IPSpoofEnabled.checked=used;
+		document.formDosCfg.PingOfDeathEnabled.checked=used;
+		document.formDosCfg.pingSecEnabled.checked=used;
+		document.formDosCfg.TraceRtEnabled.checked=used;
+	}
+}
+
+function applyClick(f)
+{
+	if(!IsDigit(f.sysfloodSYNcount.value) || f.sysfloodSYNcount.value < 0){
+		alert('숫자만 입력하세요');
+		f.sysfloodSYNcount.focus();
+		return false;
+	}
+
+	if( f.dosEnabled.checked && (!IsDigit(f.IPblockTime.value) || f.IPblockTime.value < 10 || f.IPblockTime.value > 300)){
+		alert('10~300의 값만 유효합니다.(Block time)');
+		f.IPblockTime.focus();
+		return false;
+	}
+
+	if(!IsDigit(f.pingSecCount.value)) {
+		alert('초당 Ping 응답 수 값이 올바르지 않습니다. 숫자를 입력해야 합니다.');
+		return false;
+	}
+
+	f.enableDos.disabled="true";
+	f.submit();
+}
+
+function frmOnload() {
+
+	var dos_status = <% getIndex("dosEnabled"); %>;
+
+	if ((dos_status&1)==1) {
+		document.formDosCfg.dosEnabled.checked = true;
+		if (((dos_status>>1)&1) == 1) {	//sysfloodSYN
+			document.formDosCfg.sysfloodSYN.checked = true;
+		}
+		if (((dos_status>>9)&1) == 1) {	//TCPUDPPortScan
+			document.formDosCfg.TCPUDPPortScan.checked = true;
+		}
+		if (((dos_status>>23)&1)==0) {
+			document.formDosCfg.portscanSensi.selectedIndex=0;
+		} else if (((dos_status>>23)&1)==1) {
+			document.formDosCfg.portscanSensi.selectedIndex=1;
+		}
+		if (((dos_status>>10)&1) == 1) {	//ICMPSmurfEnabled
+			document.formDosCfg.ICMPSmurfEnabled.checked = true;
+		}
+		if (((dos_status>>12)&1) == 1) {	//IPSpoofEnabled
+			document.formDosCfg.IPSpoofEnabled.checked = true;
+		}
+		if (((dos_status>>14)&1) == 1) {	//PingOfDeathEnabled
+			document.formDosCfg.PingOfDeathEnabled.checked = true;
+		}
+		/*if (((dos_status>>22)&1) == 1) {	//sourceIPblock
+			document.formDosCfg.sourceIPblock.checked = true;
+		}*/
+	}
+	/*
+	var block_time = <% getInfo("blockTime"); %>;
+	if (block_time > 0) {
+		document.formDosCfg.IPblockTime.value = <% getInfo("blockTime"); %>;
+	}*/
+	document.formDosCfg.IPblockTime.value = <% getInfo("blockTime"); %>;
+
+	if(<% getIndex("x_pingSecEnabled"); %> == 1) {
+		document.formDosCfg.pingSecEnabled.checked = true;
+		document.formDosCfg.pingSecCount.value = <%getIndex("x_icmp_reply_rate"); %>;
+	} else {
+		document.formDosCfg.pingSecCount.value = 0;
+	}
+	if(<% getIndex("x_noreply_tracert"); %> == 1) {
+		document.formDosCfg.TraceRtEnabled.checked = true;
+	}
+
+	dosEnabledClick();
+}
+</script>
+</head>
+<body onload="mouse_r_click(); frmOnload();">
+<blockquote>
+<h2>서비스 거부(Dos)&nbsp;&nbsp;설정</h2>
+	<table border=0 width="600" cellspacing=4 cellpadding=0>
+		<tr>
+			<font size=2>사용자들의 정당한 서비스 이용을 방해하는 해커들의 공격을 예방할 수 있는 설정을 하는 페이지입니다.</font>
+		</tr>
+		<tr><hr size=1 noshade align=top></tr>
+	</table>
+
+	<form action=/boafrm/formDosCfg method=POST name="formDosCfg">
+		<tr><td width="300" >
+				<font size=2><b><input type="checkbox" name="dosEnabled" value="ON" onclick="dosEnabledClick()">&nbsp;&nbsp;DoS 방어 사용</b></font>
+		</td></tr>
+		<br>
+		<table border="0" width=600>
+			<tr style="display:on">
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="sysfloodSYN" value="ON" ><font size=2><b> TCP Syn Flood 방어 </b></font><br>
+				</td>
+				<td width="40%">
+					<input type="text" name="sysfloodSYNcount" size="6" maxlength="4" value="<% getInfo("syssynFlood"); %>" >	<font size=2><b> Packets/Second</b></font><br>
+				</td>
+			</tr>
+			<tr>
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="TCPUDPPortScan" value="ON" > <font size=2><b> TCP PortScan 방어 </b></font>
+				</td>
+				<td width="40%">
+					<select name="portscanSensi">
+						<option value="0"> Low </option>
+						<option value="1"> High </option>
+					</select>
+				<font size=2><b> Sensitivity </b></font></td>
+			</tr>
+			<tr>
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="ICMPSmurfEnabled" value="ON" >	<font size=2><b> ICMP Smurf 공격 방어</b></font>
+				</td>
+			</tr>
+			<tr>
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="IPSpoofEnabled" value="ON" > <font size=2><b> IP Spoof 방지</b></font>
+				</td>
+			</tr>
+			<tr>
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="PingOfDeathEnabled" value="ON" > <font size=2><b> Ping Of Death 방어 </b></font>
+				</td>
+			</tr>
+			<tr>
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="pingSecEnabled" value="ON" > <font size=2><b> 초당 ping 응답 수 </b></font>
+				</td>
+				<td width="40%">
+					<input type="text" name="pingSecCount" value="" size="6" maxlength="4" > <font size=2><b> Packets/Second </b></font>
+				</td>
+			</tr>
+			<tr>
+				<td width="40%">
+					&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="TraceRtEnabled" value="ON" > <font size=2><b> Trace route 응답 여부 설정 </b></font>
+				</td>
+			</tr>
+		</table>
+		<br>
+		<input type="button" value=" 전체 선택 " name="selectAll" onClick="all_sel_cln(1)">&nbsp;&nbsp;
+		<input type="button" value=" 전체 해제 " name="clearAll" onClick="all_sel_cln(0)">&nbsp;&nbsp;
+		<br>
+		<table border="0" width=600>
+			<tr>
+				<td width="40%">
+					<!--&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="sourceIPblock" value="ON" > <font size=2><b> Enable Source IP Blocking </b></font>-->
+					&nbsp;&nbsp;&nbsp;&nbsp;<font size=2><b> Enable Source IP Blocking </b></font>
+				</td>
+				<td width="40%">
+					<input type="text" name="IPblockTime" size="4" maxlength="3" value="" > <font size=2><b> Block time (sec)</b></font><br>
+				</td>
+			</tr>
+		</table>
+		<br>
+		<input type="button" value="적용" name="enableDos" onclick="applyClick(this.form);" >&nbsp;&nbsp;
+		<input type="hidden" value="/dos.htm" name="submit-url">
+	</form>
+</body>
+</html>

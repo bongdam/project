@@ -1,0 +1,4 @@
+wrapper: 42d3a183abfc0fcae0b8422100b1c99c98be84d8
+kernel-mips: 00756e770805bf0c5cbfafdc821658de2ff67840
+uclibc: e7eb0c792b7c3e889f1173f1a6fe9f4f8b3bb827
+gnulib: c1325b41f5bc8180efb7a15f0d47425597d3cebb

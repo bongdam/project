@@ -1,0 +1,10 @@
+#!/bin/sh
+
+[ -n "${2}" ] && {
+	logger -t dad "WAN IP 충돌 ["${2}"] ["${3}"]"
+}
+
+[ -f "/etc/udhcpc/udhcpc-${1}.pid" ] && {
+	read pid < "/etc/udhcpc/udhcpc-${1}.pid"
+	kill -HUP ${pid}
+}

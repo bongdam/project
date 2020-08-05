@@ -1,0 +1,155 @@
+menu "Davolink custom package(cpkg) for user mode"
+
+config LIB_YTOOL
+	bool "libytool"
+	default y
+	help
+	  Library contains APIs which have been used often and generally.
+	  This is the default implementation choice.  Must choose this one unless
+	  you have a good reason not to.
+
+config LIB_NVRAM
+	bool "nvram"
+	default y
+	help
+	  This option depends on NVRAM device in Linux kernel.
+	  This library is the half part of NVRAM in user mode.
+
+config LIB_SHARED
+	bool "libshared"
+	default y
+	help
+	  Library contains miscellaneous funtions including shell-like utility ones.
+	  This option is intended for importing applications based on broadcom SDK.
+
+config LIB_SELECT_EVENT
+	bool "libselect_event"
+	default y
+	help
+	  Library is aimed at providing framework to manage multiple file descriptors
+	  which can be monitored by select system call.
+
+config LIB_CAPTCHA
+	bool "libcaptcha"
+	default y
+	help
+	  Generating a  Captcha image
+
+config NVRAM_APMIB
+	bool "nvram_mib"
+	depends on LIB_NVRAM && LIB_YTOOL
+	default y
+	help
+	  This option changes APMIB - Realek proprietary configuration subsystem
+	  into nvram of Broadcom. APMIB library api should be rewritten to work
+	  on nvram.
+
+config NVRAM_APMIB_HIST
+	bool "nvram_mib_history"
+	depends on NVRAM_APMIB
+	default n
+	help
+	  This option records nvram manipulation history.
+
+config DVBOX
+	bool "dvbox"
+	default y
+	help
+	  A suite of applets having specific purpose.
+
+config LIB_FURL
+	bool "furl"
+	depends on !APP_FWD
+	default y
+	help
+	  This library includes implementations needed to verify, burn and dualize
+	  firmware image.
+
+config MPSTAT
+	bool "mpstat"
+	default y
+	help
+	   Per-processor statistics.
+
+config ACLWRITE
+	bool "aclwrite"
+	default y
+	help
+	   Manipulate hardware ACL table.
+
+config APP_WLCMD
+	bool "wlcmd"
+	default n
+	help
+	  wl command like broadcom
+
+config LIB_CAPTCHA
+	bool "captcha"
+	default y
+	help
+	  check to login validate.
+
+config APP_LABORER
+	bool "laborer"
+	default y
+	help
+	  House keeping daemon process.
+
+config LABORER_JOB_RELOAD
+	bool "reload job by laborer"
+	depends on APP_LABORER && !APP_RELOAD
+	default y
+	help
+	  Monitor and restoring to default by laborer
+
+config TELNET
+	bool "telnetd"
+	default y
+	help
+	  add telnet.
+
+config UDHCPD
+	bool "udhcp"
+	depends on !APP_UDHCPD
+	default y
+	help
+	  An embedded DHCP client and server.
+
+config TMS
+	bool "tms"
+	default y
+	help
+	  provision client.
+
+config APP_DVQOS
+	bool "dvqos"
+	default y
+	help
+	  control qos of wire.
+
+config LIB_KCRYPTO_API
+	bool "libkcapi"
+	default n
+	help
+	  Userspace crypto API utilizing kernel crypto engine
+
+config LIB_NETFILTER
+	bool "libnetfilter"
+	default n
+	help
+	  Collection of userspace library to interwork kernel's netfilter
+
+config LABORER_JOB_WEBRD
+	bool "redirect web by laborer"
+	depends on APP_LABORER
+	default y
+	help
+	  Redirect outgoing http request into notifying failure
+
+config SNMP
+	bool "snmp"
+	default y
+	help
+	  Simple Network Management Protocol.
+
+endmenu

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+cmd="$1"; shift
+ports="$*"
+
+case "${cmd}" in
+	up)
+		eval $(nvram show | egrep "^x_port_[0-4]")
+		for i in ${ports:-0 1 2 3 4}; do
+			[ -n "${i##[0-4]}" ] && continue
+			eval "[ \"\${x_port_${i}_config}\" = \"\" ] && x_port_${i}_config=up_auto_-rxpause_txpause"
+			eval "phyconfig ${i} \${x_port_${i}_config//_/ }"
+		done
+		;;
+	down)
+		for i in ${ports:-0 1 2 3 4}; do
+			phyconfig ${i} down
+		done
+		;;
+	*)
+		;;
+esac

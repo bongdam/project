@@ -1,0 +1,225 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2004. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function checkEmpty(field) {
+	if (field.value.length == 0) {
+		if (field.name == 'year')
+			alert(ntp_year + ntp_field_check);
+		else if (field.name == 'month')
+			alert(ntp_month + ntp_field_check);
+		else if (field.name == 'day')
+			alert(ntp_day + ntp_field_check);
+		else if (field.name == 'hour')
+			alert(ntp_hour + ntp_field_check);
+		else if (field.name == 'minute')
+			alert(ntp_minute + ntp_field_check);
+		else if (field.name == 'second')
+			alert(ntp_second + ntp_field_check);
+
+		field.value = field.defaultValue;
+		field.focus();
+		return false;
+	} else
+		return true;
+}
+
+function checkNumber(field) {
+	str = field.value ;
+	for (var i = 0; i < str.length; i++) {
+		if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9'))
+			continue;
+		field.value = field.defaultValue;
+		if (field.name == 'year')
+			alert(ntp_invalid + ntp_year + ntp_num_check);
+		else if(field.name == 'month')
+			alert(ntp_invalid + ntp_month + ntp_num_check);
+		else if(field.name == 'day')
+			alert(ntp_invalid + ntp_day + ntp_num_check);
+		else if(field.name == 'hour')
+			alert(ntp_invalid + ntp_hour + ntp_num_check);
+		else if(field.name == 'minute')
+			alert(ntp_invalid + ntp_minute + ntp_num_check);
+		else if(field.name == 'second')
+			alert(ntp_invalid + ntp_second + ntp_num_check);
+		return false;
+    }
+	return true;
+}
+
+function saveChanges(form) {
+	var Month_num;
+	var Day_num;
+	var Hour_num;
+	var Min_num;
+	var Sec_num;
+
+	if ((checkEmpty(form.year) & checkEmpty(form.month) & checkEmpty(form.hour) &
+		checkEmpty(form.day) & checkEmpty(form.minute) & checkEmpty(form.second)) == false)
+	 	return false;
+
+	if ((checkNumber(form.year)& checkNumber(form.month) & checkNumber(form.hour) &
+		checkNumber(form.day) & checkNumber(form.minute) & checkNumber(form.second)) == false)
+	 	return false;
+
+	if (form.month.value == '0') {
+		form.month.value = form.month.defaultValue;
+		alert(ntp_month_invalid);
+		return false;
+	}
+
+	Month_num = parseInt(form.month.value, 10);
+	Day_num = parseInt(form.day.value, 10);
+	Hour_num = parseInt(form.hour.value, 10);
+	Min_num = parseInt(form.minute.value, 10);
+	Sec_num = parseInt(form.second.value, 10);
+
+	if ((Month_num <= 0) || (Month_num > 12) || (Day_num <= 0) || (Day_num > 31) || (Hour_num < 0)  || (Hour_num > 23) || (Min_num < 0) || (Min_num > 59) || (Sec_num < 0) || (Sec_num > 59)) {
+		alert(ntp_time_invalid);
+		return false;
+	}
+
+	if (form.enabled.checked) {
+		if (form.ntpServerIp1.value == "") {
+			alert(ntp_servip_invalid);
+			form.ntpServerIp1.focus();
+			return false;
+		}
+		if (form.ntpServerIp2.value == "") {
+			alert(ntp_servip_invalid);
+			form.ntpServerIp1.focus();
+			return false;
+		}
+	}
+
+	return true;
+}
+
+function updateState(form)
+{
+	if (form.enabled.checked) {
+		enableTextField(form.ntpServerIp1);
+		enableTextField(form.ntpServerIp2);
+	} else {
+		disableTextField(form.ntpServerIp1);
+		disableTextField(form.ntpServerIp2);
+	}
+}
+
+/** Copy time from the host computer.*/
+function copy_computer_time()
+{
+	var date = new Date();
+	document.time.year.value = date.getFullYear();
+	document.time.month.value = date.getMonth() + 1;
+	document.time.day.value = date.getDate();
+	document.time.hour.value = date.getHours();
+	document.time.minute.value = date.getMinutes();
+	document.time.second.value = date.getSeconds();
+}
+
+function init()
+{
+	var cf = document.time;
+	var ntpEnabled = <%getIndex("ntpEnabled");%>;
+
+   	if (ntpEnabled)
+       	cf.enabled.checked = true;
+	else
+		cf.enabled.checked = false;
+
+	updateState(document.time);
+}
+
+</script>
+</head>
+<body onload="init();">
+<blockquote>
+<h2><script>dw(ntp_header)</script></h2>
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+ <script>dw(ntp_header_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formNtp method=POST name="time">
+<table border="0" width=550>
+	<tr height="20">
+		<td width="30%">
+			<font size=2><b><script>dw(ntp_curr_time)</script> </b></font>
+		</td>
+		<td width="70%">
+			<font size=2><b>
+			<input type="text" name="year" value="<% getInfo("year"); %>" size="4" maxlength="4">-
+			<input type="text" name="month" value="<% getInfo("month"); %>" size="2" maxlength="2">-
+			<input type="text" name="day" value="<% getInfo("day"); %>" size="2" maxlength="2">&nbsp;
+			<input type="text" name="hour" value="<% getInfo("hour"); %>" size="2" maxlength="2">:
+			<input type="text" name="minute" value="<% getInfo("minute"); %>" size="2" maxlength="2">:
+			<input type="text" name="second" value="<% getInfo("second"); %>" size="2" maxlength="2">
+			</b></font>
+		</td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%">&nbsp;</td>
+		<td width="70%">
+			<input type="button" class="button_submit" id="copy_computer_time_button" value="Copy Computer Time" onclick="copy_computer_time();"/>
+			<script>document.time.copy_computer_time_button.value = ntp_copy_comptime;</script>
+    	</td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%"><font size=2><b><script>dw(ntp_time_zone)</script></b></font></td>
+	    <td width="70%">
+			<select name="timeZone">
+			<script language="javascript">
+            	var i;
+            	var ntp_zone_value = "<% getInfo("ntpTimeZone"); %>";
+            	for(i = 0; i < ntp_zone_array.length; i++) {
+					if (ntp_zone_array[i].value == ntp_zone_value)
+						document.write('<option value="',ntp_zone_array[i].value,'" selected>',ntp_zone_array[i].name,'</option>');
+					else
+						document.write('<option value="',ntp_zone_array[i].value,'">',ntp_zone_array[i].name,'</option>');
+            	}
+			</script>
+            </select>
+	    </td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%">&nbsp;</td>
+		<td width="70%">
+			<input type="checkbox" name="enabled" value="ON" onclick=updateState(document.time)>&nbsp;<font size=2><script>dw(ntp_enable_clientup)</script></font>
+	    </td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%"><font size=2><b><script>dw(ntp_server1)</script></b></font></td>
+		<td width="70%">
+			<input type="text" name="ntpServerIp1" size="32" maxlength="63" value=<% getInfo("ntpServerIp1"); %>>
+		</td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%"><font size=2><b><script>dw(ntp_server2)</script></b></font></td>
+		<td width="70%">
+			<input type="text" name="ntpServerIp2" size="32" maxlength="63" value=<% getInfo("ntpServerIp2"); %>>
+		</td>
+	</tr>
+</table>
+<input type="hidden" value="/ntp.htm" name="submit-url">
+<p>
+	<input type="submit" value="Save & Apply" name="save_apply" onClick="return saveChanges(document.time)">
+	<script>document.time.save_apply.value = ntp_save_apply;</script>
+</p>
+</form>
+</blockquote>
+</body>
+</html>

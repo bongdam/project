@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>ygettime-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>ygettime(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>ygettime - 시스템 경과시간</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+time_t ygettime(struct timespec *<a href="#">ts</a>);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 시스템 부팅 후 경과시간을 초(sec)단위로 리턴한다. <a href="#">ts</a>는 NULL로 호출할 수 있다. 또한 유효한 timespec 구조체의 포인터이면 경과시간을 timespec에 맞게 기록한다.
+<dl>
+	<dt><a href="#">ts</a></dt>
+	<dd>time.h에 정의되어 있는 timespec 구조체의 포인터 변수이다.<pre class="fixed_font">struct timespec {
+	time_t   tv_sec;        /* seconds */
+	long     tv_nsec;       /* nanoseconds */
+};</pre></dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>성공 시 시스템의 부팅 후 경과시간을 초단위로 리턴한다. 실패 시 (time_t)-1 의 값을 리턴한다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+<p><a href="#">ts</a>는 NULL일 수 있다.</p>
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>./a.out
+</b>20208:78
+20208.78</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+    <span style="color:Blue;">struct</span> timespec ts;
+    <span style="color:Blue;">float</span> elapsed;
+
+    ygettime(&amp;ts);
+    yfcat(<span style="color:#A31515;">"/proc/uptime"</span>, <span style="color:#A31515;">"%f"</span>, &amp;elapsed);
+    printf(<span style="color:#A31515;">"%lu:%ld\n%.2f\n"</span>, ts.tv_sec, ts.tv_nsec / 10000000, elapsed);
+
+    <span style="color:Blue;">return</span> 0;
+}</pre>
+
+<!-- See Also Section -->
+<h2>See Also</h2>
+<p><a href="#">clock_gettime</a>,<a href="#">adjtime</a></p>
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+</body>
+</html>

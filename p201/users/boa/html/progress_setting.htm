@@ -1,0 +1,62 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"></script>
+<% getInfo("include_css"); %>
+<script language=Javascript src="<% getInfo("lang");%>"></script>
+<style>
+.on {display:on}
+.off {display:none}
+</style>
+<script language=JavaScript>
+var count = <% getInfo("countDownTime"); %> * 1;
+var waitcount = <% getInfo("countDownTime_wait"); %> * 1;
+
+function get_by_id(id)
+{
+	with(document)
+	{
+		return getElementById(id);
+	}
+}
+
+function closeBrowser()
+{
+	parent.window.close();
+}
+
+function do_count_down()
+{
+	get_by_id("show_sec").innerHTML = count;
+
+	if (count == 0)
+	{
+		var lastUrl = "<% getInfo("lastUrl"); %>";
+
+		location.assign(lastUrl);
+		return false;
+	}
+
+	if (count > 0)
+	{
+		count--;
+		setTimeout('do_count_down()',1000);
+	}
+}
+
+</script>
+</head>
+<body onload="do_count_down();">
+<blockquote>
+<form name="formProgress">
+<br>
+<h4>
+	<% getInfo("okMsg"); %>
+	<span id="please_wait"><script>dw(progress_wait)</script></span><b><span id="show_sec"></span></b>&nbsp;<span id="show_seconds"><script>dw(progress_second)</script></span>
+</h4>
+</form>
+</blockquote>
+</body>
+</html>

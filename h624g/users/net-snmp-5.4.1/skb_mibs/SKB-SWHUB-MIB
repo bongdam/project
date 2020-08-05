@@ -1,0 +1,5157 @@
+-- **********************************************************************
+-- *  SK Broadband Switching Hub Private Management Information Base
+-- **********************************************************************
+SKB-H724G-MIB-0801 DEFINITIONS ::= BEGIN
+	IMPORTS
+		MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE, Integer32, Counter32,
+		Counter64, IpAddress, Unsigned32, enterprises		FROM SNMPv2-SMI
+		DisplayString, MacAddress, RowStatus, TruthValue	FROM SNMPv2-TC
+		MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP FROM SNMPv2-CONF
+		ifIndex								FROM RFC1213-MIB;
+
+	skBroadband  OBJECT IDENTIFIER ::= {enterprises 16183}
+
+	skbSHUB	MODULE-IDENTITY
+			LAST-UPDATED	"2009081900Z"
+			ORGANIZATION	"SK Broadband"
+			CONTACT-INFO	""
+			DESCRIPTION		""
+			::={skBroadband 3}
+
+
+skbSHubBasicInfo				OBJECT IDENTIFIER ::= {skbSHUB 1}
+skbSHubConfigInfo				OBJECT IDENTIFIER ::= {skbSHUB 2}
+skbSHubStatus					OBJECT IDENTIFIER ::= {skbSHUB 3}
+skbSHubDiag					OBJECT IDENTIFIER ::= {skbSHUB 4}
+skbSHubExtra					OBJECT IDENTIFIER ::= {skbSHUB 5}
+skbSHubTrap          				OBJECT IDENTIFIER ::= {skbSHUB 6}
+
+-- **********************************************************************
+-- **********************************************************************
+sHubSystmeInfo				OBJECT IDENTIFIER ::= {skbSHubBasicInfo 1}
+sHubSysModelName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The model name of switching hub"
+		::= {sHubSystmeInfo 1}
+
+sHubSysFirmwareVersion		OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Firmware version of switching hub"
+		::= {sHubSystmeInfo 2}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubWanConfig			OBJECT IDENTIFIER ::= {skbSHubConfigInfo 1}
+sHubWanMacAddress			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Wan MAC Address of switching hub"
+		::= {sHubWanConfig 1}
+
+sHubWanIpAddress			OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The IP Address of switching hub"
+		::= {sHubWanConfig 2}
+
+sHubWanSubnetMask			OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Subnet mask of switching hub"
+		::= {sHubWanConfig 3}
+
+sHubWanDefaultGW			OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Default Gateway address of switching hub"
+		::= {sHubWanConfig 4}
+
+sHubWanDNS1					OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The First DNS address for switching hub"
+		::= {sHubWanConfig 5}
+
+sHubWanDNS2					OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Second DNS address for switching hub"
+		::= {sHubWanConfig 6}
+
+
+sHubWanSetup				OBJECT IDENTIFIER ::= {sHubWanConfig 7}
+sHubWanObtainIpMethodSet	OBJECT-TYPE
+		SYNTAX 		INTEGER { autoip(1), staticip(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Method for obtaining ip address."
+		::= {sHubWanSetup 1}
+
+sHubWanIpAddressSet		OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The IP Address of switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 2}
+
+sHubWanSubnetMaskSet		OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Subnet mask of switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 3}
+
+sHubWanDefaultGWSet		OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Default Gateway address of switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 4}
+
+sHubWanDNS1Set				OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The First DNS address for switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 5}
+
+sHubWanDNS2Set				OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Second DNS address for switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 6}
+
+sHubWanDNSSet				OBJECT-TYPE
+		SYNTAX 		INTEGER {enable(1), disable(2)}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Second DNS address for switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 7}
+
+sHubWanDNSMode				OBJECT-TYPE
+		SYNTAX 		INTEGER {auto(1), static(2)}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Second DNS address for switching hub.
+			This value is writable only when value of
+			'sHubWanObtainIpMethodSet' is 'staticip'"
+		::= {sHubWanSetup 8}
+sHubWanGigaLite	OBJECT-TYPE
+
+		SYNTAX 		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Method for wan giga lite enable/disable"
+		::= {sHubWanConfig 9}
+
+-- **********************************************************************
+
+-- **********************************************************************
+sHubLanConfig					OBJECT IDENTIFIER ::= {skbSHubConfigInfo 2}
+
+sHubLanMacAddress			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Lan MAC Address of switching hub."
+		::= {sHubLanConfig 1}
+
+sHubLanIpAddress			OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Lan IP Address of switching hub."
+		::= {sHubLanConfig 2}
+
+sHubLanSubnetMask			OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Lan Subnet mask of switching hub."
+		::= {sHubLanConfig 3}
+
+sHubLanSetup				OBJECT IDENTIFIER ::= {sHubLanConfig 4}
+sHubLanIpAddressSet		OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Lan IP Address of switching hub."
+		::= {sHubLanSetup 1}
+
+sHubLanSubnetMaskSet		OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Lan Subnet mask of switching hub."
+		::= {sHubLanSetup 2}
+
+sHubLanDhcpEnable			OBJECT-TYPE
+		SYNTAX		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS 	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable dhcp server for Lan ip address."
+		::= {sHubLanSetup 3}
+
+sHubLanDhcpStartIPAddress	OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Staring IP address of Lan for switching hub.
+			This value is writable only when value of
+			'sHubLanDhcpEnable' is 'enable'."
+		::= {sHubLanSetup 4}
+
+sHubLanDhcpEndIPAddress	OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Ending IP address of Lan for switching hub.
+			This value is writable only when value of
+			'sHubLanDhcpEnable' is 'enable'."
+		::= {sHubLanSetup 5}
+
+sHubWLanBasicMode	OBJECT-TYPE
+		SYNTAX 		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Basic SSID MODE of AP.
+			This value SYNTAX is read only."
+		::= {sHubLanSetup 6}
+
+sHubWLanBasicReset	OBJECT-TYPE
+		SYNTAX 		INTEGER { reset(1) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Basic SSID MODE is Reset.
+			This value SYNTAX is read-write."
+		::= {sHubLanSetup 7}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubWlanConfig		OBJECT IDENTIFIER ::= {skbSHubConfigInfo 3}
+sHubWlanBasicConfig   OBJECT IDENTIFIER ::= {sHubWlanConfig 1}
+
+sHubWlanMode			OBJECT-TYPE
+		SYNTAX		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: enable
+					2: disable"
+
+		::= {sHubWlanBasicConfig 1}
+
+sHubWlanBand			OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Select wireless lan support mode.
+						Value is combination of frequency
+						and supported bandwidth.
+
+						Input Value
+						===========
+						1: 2.4Ghz (B)
+						2: 2.4Ghz (G)
+						3: 2.4Ghz (N)
+						4: 2.4Ghz (B+G)
+						5: 2.4Ghz (G+N)
+						6: 2.4Ghz (B+G+N)
+						7: 2.4Ghz (B+G+N) 5.0Ghz (N)
+						8: 5.0Ghz (N)"
+
+		::= {sHubWlanBasicConfig 2}
+
+sHubWlanChannelWidth	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Bandwidth per channel. This object
+						is valid in case 'sHubWlanBand' is
+						configured B or G or B+G.
+
+						Input Value
+						===========
+						1: 20MHz
+						2: 40MHz"
+
+		::= {sHubWlanBasicConfig 3}
+
+sHubWlanCtrlSideband	OBJECT-TYPE
+		SYNTAX			INTEGER { upper(1), lower(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"This object
+						is valid in case 'sHubWlanBand' is
+						configured B or G or B+G.
+
+						Input Value
+						===========
+						1: upper
+						2: lower"
+
+		::= {sHubWlanBasicConfig 4}
+
+
+sHubWlanChannelNumber	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Input range of this object is from 0 to 11. Channel
+						number 1-4 is invalid in case 'sHubWlanBand' is configured
+						N or G+N or B+G+N. Input Value '0' is  'auto'."
+
+		::= {sHubWlanBasicConfig 5}
+
+sHubWlanDataRate	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure Date Rate. Configuration value
+						is different following 'sHubWlanBand'
+
+						Valid Value
+						===========
+						Band(B) : auto, 1M, 2M, 5.5M, 11M
+						Band(G) : auto, 6M, 9M, 12M, 18M(9), 24M(10), 36M(11),
+								48M(12), 54M(13)
+						Band(N) : MCS0, MCS1, MCS2, MCS3, MCS4, MCS5, MCS6, MCS7,
+								MCS8, MCS9, MCS10, MCS11, MCS12, MCS13, MCS14, MCS15
+						Band(B+G) : Band(B) + Band(G)
+						Band(G+N) : Band(G) + Band(N)
+						Band(B+G+N) : Band(B) + Band(G) + Band(N)"
+
+		::= {sHubWlanBasicConfig 6}
+
+sHubWlanSessionNum	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"The number of WiFi session"
+
+		::= {sHubWlanBasicConfig 15}
+
+sHubWlanSessionLimit	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Limit of WiFi session"
+
+		::= {sHubWlanBasicConfig 16}
+
+sHubWlanBandAutoSet		OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"WLAN band auto configure
+
+						Input Value
+						===========
+						1: Enable
+						2: Disable"
+
+		::= {sHubWlanBasicConfig 19}
+
+sHubWlanConfigTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBWlanConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWlanBasicConfig 7}
+
+sHubWlanConfigEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBWlanConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubWlanConfigIndex}
+		::= {sHubWlanConfigTable 1}
+
+SHUBWlanConfigEntry ::=
+	SEQUENCE {
+		sHubWlanConfigIndex		INTEGER,
+		sHubWlanSSID			OCTET STRING,
+		sHubWlanSSIDMode		INTEGER,
+		sHubWlanBcastSSIDMode	INTEGER,
+		sHubWlanSecEncrytion	INTEGER,
+		sHubWlanSubDetailRateMode INTEGER,
+		sHubWlanSubDetailTrafficTx INTEGER,
+		sHubWlanSubDetailTrafficRx INTEGER
+
+		}
+
+sHubWlanConfigIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWlanConfigEntry 1}
+
+sHubWlanSSID			OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Wireless lan interface SSID"
+
+		::= {sHubWlanConfigEntry 2}
+
+sHubWlanSSIDMode	OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure SSID enable/disable through this object.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubWlanConfigEntry 3}
+
+
+
+sHubWlanBcastSSIDMode	OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure Hidden SSID enable/disable through this object.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubWlanConfigEntry 4}
+
+
+sHubWlanSecEncrytion		OBJECT-TYPE
+		SYNTAX			INTEGER  { disable(1), wep(2), wpa(3), wpa2(4), wpa-mixed(5) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure method of encryption for SSID
+						selected through 'sHubSecuritySSID'
+
+						Input Value
+						===========
+						1: disable
+						2: WEP
+						3: WPA
+						4: WPA2
+						5: WPA-Mixed"
+		::= {sHubWlanConfigEntry 5}
+
+sHubWlanSubDetailRateMode	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure method of encryption for SSID
+						selected through 'sHubSecuritySSID'
+
+						Input Value
+						===========
+						1: disable
+						2: WEP
+						3: WPA
+						4: WPA2
+						5: WPA-Mixed"
+		::= {sHubWlanConfigEntry 6}
+
+
+sHubWlanSubDetailTrafficTx	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: 10M
+					2: 20M
+					3: 30M
+					.
+					.
+					.
+					10: 100M"
+
+		::= {sHubWlanConfigEntry 7}
+
+sHubWlanSubDetailTrafficRx	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: 10M
+					2: 20M
+					3: 30M
+					.
+					.
+					.
+					10: 100M"
+
+		::= {sHubWlanConfigEntry 8}
+
+
+sHubWlanMode5g			OBJECT-TYPE
+		SYNTAX		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: enable
+					2: disable"
+
+		::= {sHubWlanBasicConfig 8}
+
+sHubWlanBand5g			OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Select wireless lan support mode.
+						Value is combination of frequency
+						and supported bandwidth.
+
+						Input Value
+						===========
+						1: 5Ghz (A)
+						2: 5Ghz (N)
+						3: 5Ghz (A+N)
+						4: 5Ghz (AC)
+						5: 5Ghz (N+AC)
+						6: 5Ghz (A+N+AC)"
+
+		::= {sHubWlanBasicConfig 9}
+
+sHubWlanChannelWidth5g	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Bandwidth per channel. This object
+						is valid in case 'sHubWlanBand' is
+						configured B or G or B+G.
+
+						Input Value
+						===========
+						1: 20MHz
+						2: 40MHz"
+
+		::= {sHubWlanBasicConfig 10}
+
+sHubWlanCtrlSideband5g	OBJECT-TYPE
+		SYNTAX			INTEGER { upper(1), lower(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"This object
+						is valid in case 'sHubWlanBand' is
+						configured B or G or B+G.
+
+						Input Value
+						===========
+						1: upper
+						2: lower"
+
+		::= {sHubWlanBasicConfig 11}
+
+
+sHubWlanChannelNumber5g	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Input range of this object is from 0 to 11. Channel
+						number 1-4 is invalid in case 'sHubWlanBand' is configured
+						N or G+N or B+G+N. Input Value '0' is  'auto'."
+
+		::= {sHubWlanBasicConfig 12}
+
+sHubWlanDataRate5g	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure Date Rate. Configuration value
+						is different following 'sHubWlanBand'
+
+						Valid Value
+						===========
+						Band(B) : auto, 1M, 2M, 5.5M, 11M
+						Band(G) : auto, 6M, 9M, 12M, 18M(9), 24M(10), 36M(11),
+								48M(12), 54M(13)
+						Band(N) : MCS0, MCS1, MCS2, MCS3, MCS4, MCS5, MCS6, MCS7,
+								MCS8, MCS9, MCS10, MCS11, MCS12, MCS13, MCS14, MCS15
+						Band(B+G) : Band(B) + Band(G)
+						Band(G+N) : Band(G) + Band(N)
+						Band(B+G+N) : Band(B) + Band(G) + Band(N)"
+
+		::= {sHubWlanBasicConfig 13}
+
+sHubWlanSessionNum5G	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"The number of WiFi session"
+
+		::= {sHubWlanBasicConfig 17}
+
+sHubWlanSessionLimit5G	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Limit of WiFi session"
+
+		::= {sHubWlanBasicConfig 18}
+
+sHubWlanBandAutoSet5G	OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"WLAN band auto configure
+
+						Input Value
+						===========
+						1: Enable
+						2: Disable"
+
+		::= {sHubWlanBasicConfig 20}
+
+sHubWlanConfigTable5g		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBWlanConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWlanBasicConfig 14}
+
+sHubWlanConfigEntry5g 		OBJECT-TYPE
+		SYNTAX 		SHUBWlanConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubWlanConfigIndex}
+		::= {sHubWlanConfigTable5g 1}
+
+SHUBWlanConfigEntry5g ::=
+	SEQUENCE {
+		sHubWlanConfigIndex5g		INTEGER,
+		sHubWlanSSID5g			OCTET STRING,
+		sHubWlanSSIDMode5g		INTEGER,
+		sHubWlanBcastSSIDMode5g	INTEGER,
+		sHubWlanSecEncrytion5g	INTEGER,
+		sHubWlanSubDetailRateMode5g INTEGER,
+		sHubWlanSubDetailTrafficTx5g INTEGER,
+		sHubWlanSubDetailTrafficRx5g INTEGER
+
+		}
+
+sHubWlanConfigIndex5g		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWlanConfigEntry5g 1}
+
+sHubWlanSSID5g			OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Wireless lan interface SSID"
+
+		::= {sHubWlanConfigEntry5g 2}
+
+sHubWlanSSIDMode5g	OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure SSID enable/disable through this object.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubWlanConfigEntry5g 3}
+
+
+
+sHubWlanBcastSSIDMode5g	OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure Hidden SSID enable/disable through this object.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubWlanConfigEntry5g 4}
+
+
+sHubWlanSecEncrytion5g		OBJECT-TYPE
+		SYNTAX			INTEGER  { disable(1), wep(2), wpa(3), wpa2(4), wpa-mixed(5) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure method of encryption for SSID
+						selected through 'sHubSecuritySSID'
+
+						Input Value
+						===========
+						1: disable
+						2: WEP
+						3: WPA
+						4: WPA2
+						5: WPA-Mixed"
+		::= {sHubWlanConfigEntry5g 5}
+
+sHubWlanSubDetailRateMode5g	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: 10M
+					2: 20M
+					3: 30M
+					.
+					.
+					.
+					10: 100M"
+
+		::= {sHubWlanConfigEntry5g 6}
+
+
+sHubWlanSubDetailTrafficTx5g	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: 10M
+					2: 20M
+					3: 30M
+					.
+					.
+					.
+					10: 100M"
+
+		::= {sHubWlanConfigEntry5g 7}
+
+sHubWlanSubDetailTrafficRx5g	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION	"Enable/Disable wireless lan interface.
+
+					Input Value
+					===========
+					1: 10M
+					2: 20M
+					3: 30M
+					.
+					.
+					.
+					10: 100M"
+
+		::= {sHubWlanConfigEntry5g 8}
+
+sHubWlanAdvancedConfig   OBJECT IDENTIFIER ::= {sHubWlanConfig 2}
+sHubWlanAdvFragmentThreshold		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured Fragment Threshold through this object.
+
+						Input range
+						===========
+						256 - 2346"
+
+		::= {sHubWlanAdvancedConfig 1}
+
+sHubWlanAdvRTSThreshold		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured RTS Threshold through this object.
+
+						Input Range
+						============
+						 0 - 2347"
+
+		::= {sHubWlanAdvancedConfig 2}
+
+sHubWlanAdvBeaconInterval		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured Beacon Interval through this object.
+
+						Input Range
+						===========
+						20 - 1024(ms)."
+
+		::= {sHubWlanAdvancedConfig 3}
+
+sHubWlanAdvPreambleType		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured Preamble Type through this object.
+
+						Input Range
+						============
+						20 - 1024(ms)."
+
+		::= {sHubWlanAdvancedConfig 4}
+
+sHubWlanAdvIAPP		OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured IAPP(Inter-Access Point Protocol)
+						enable/disable through this object.
+
+						Input Value
+						============
+						1: enable
+						2: disable"
+
+		::= {sHubWlanAdvancedConfig 5}
+
+sHubWlanAdvRFOutputPower		OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured RF Output Power through this object."
+		::= {sHubWlanAdvancedConfig 6}
+
+sHubWlanAdvFragmentThreshold5g		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured Fragment Threshold through this object.
+
+						Input range
+						===========
+						256 - 2346"
+
+		::= {sHubWlanAdvancedConfig 7}
+
+sHubWlanAdvRTSThreshold5g		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured RTS Threshold through this object.
+
+						Input Range
+						============
+						 0 - 2347"
+
+		::= {sHubWlanAdvancedConfig 8}
+
+sHubWlanAdvBeaconInterval5g	OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured Beacon Interval through this object.
+
+						Input Range
+						===========
+						20 - 1024(ms)."
+
+		::= {sHubWlanAdvancedConfig 9}
+
+sHubWlanAdvPreambleType5g		OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured Preamble Type through this object.
+
+						Input Range
+						============
+						20 - 1024(ms)."
+
+		::= {sHubWlanAdvancedConfig 10}
+
+sHubWlanAdvIAPP5g		OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured IAPP(Inter-Access Point Protocol)
+						enable/disable through this object.
+
+						Input Value
+						============
+						1: enable
+						2: disable"
+
+		::= {sHubWlanAdvancedConfig 11}
+
+sHubWlanAdvRFOutputPower5g		OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configured RF Output Power through this object."
+		::= {sHubWlanAdvancedConfig 12}
+
+-- **********************************************************************
+
+-- **********************************************************************
+sHubSecurityConfig		OBJECT IDENTIFIER ::= {skbSHubConfigInfo 4}
+
+sHubSecConfigTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig 1}
+
+sHubSecConfigEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBSecConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecConfigSSIDIndex}
+		::= {sHubSecConfigTable 1}
+
+SHUBSecConfigEntry ::=
+	SEQUENCE {
+		sHubSecConfigSSIDIndex	INTEGER,
+		sHubSecSSID		OCTET STRING,
+		sHubSecRadiusServerIp	IpAddress,
+		sHubSecRadiusServerPort  	INTEGER,
+		sHubSecRadiusServerPw  	OCTET STRING,
+		sHubSecAccountMode  	INTEGER,
+		sHubSecAccountServerIp	IpAddress,
+		sHubSecAccountServerPort  	INTEGER,
+		sHubSecAccountServerPw  	OCTET STRING
+		}
+
+sHubSecConfigSSIDIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecConfigEntry 1}
+
+sHubSecSSID		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecConfigEntry 2}
+
+
+sHubSecRadiusServerIp  OBJECT-TYPE
+		SYNTAX			IpAddress
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure radius server ip address. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 3}
+
+sHubSecRadiusServerPort  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure radius server port. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 4}
+
+sHubSecRadiusServerPw  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure radius server password. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 5}
+
+sHubSecAccountMode  OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account packet transmission mode. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 6}
+
+sHubSecAccountServerIp  OBJECT-TYPE
+		SYNTAX			IpAddress
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account server ip address. This
+						object is valid when 'sHubSecWEPAccountMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 7}
+
+
+sHubSecAccountServerPort  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account server port. This
+						object is valid when 'sHubSecWEPAccountMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 8}
+
+sHubSecAccountServerPw  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account server password. This
+						object is valid when 'sHubSecWEPAccountMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry 9}
+
+sHubSecWEPConfigTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecWEPConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig 2}
+
+sHubSecWEPConfigEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBSecWEPConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecWEPConfigSSIDIndex}
+		::= {sHubSecWEPConfigTable 1}
+
+SHUBSecWEPConfigEntry ::=
+	SEQUENCE {
+		sHubSecWEPConfigSSIDIndex	INTEGER,
+		sHubSecWEPSecSSID		OCTET STRING,
+		sHubSecWEP8021xAuthMode	INTEGER,
+		sHubSecWEPMacAuthMode    INTEGER,
+		sHubSecWEPAuthMethod        INTEGER,
+		sHubSecWEPAuthKeyLength   INTEGER,
+		sHubSecWEPAuthEnable         INTEGER,
+		sHubSecWEPKeyFormat          INTEGER,
+		sHubSecWEPEncryptionKey    OCTET STRING,
+						sHubSecWEPKeyIndex	INTEGER
+		}
+
+sHubSecWEPConfigSSIDIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecWEPConfigEntry 1}
+
+sHubSecWEPSecSSID		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecWEPConfigEntry 2}
+
+sHubSecWEP8021xAuthMode           OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure Radius authentication server enable/disable.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubSecWEPConfigEntry 3}
+
+sHubSecWEPMacAuthMode           OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure MAC authentication enable/disable.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubSecWEPConfigEntry 4}
+
+sHubSecWEPAuthMethod           OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure method of authentication.
+
+						Input Value
+						===========
+						1: Open System
+						2: Shared Key
+						3: Auto"
+
+		::= {sHubSecWEPConfigEntry 5}
+
+sHubSecWEPAuthKeyLength           OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure authentication key size.
+
+						Input Value
+						===========
+						1: 64 Bits
+						2: 128 Bits"
+
+		::= {sHubSecWEPConfigEntry 6}
+
+sHubSecWEPAuthEnable           OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Enable/Disable authetication packet transmission. "
+
+		::= {sHubSecWEPConfigEntry 7}
+
+
+sHubSecWEPKeyFormat           OBJECT-TYPE
+		SYNTAX			INTEGER { ascii(1), hex(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure shared key format. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'disable'.
+
+						Input Value
+						===========
+						1: ASCII(5 characters)
+						2: Hex(10 characters)"
+
+		::= {sHubSecWEPConfigEntry 8}
+
+sHubSecWEPEncryptionKey           OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure encryption key. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'disable'."
+
+		::= {sHubSecWEPConfigEntry 9}
+
+sHubSecWEPKeyIndex           OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"WEP Key Index : 1~4"
+
+		::= {sHubSecWEPConfigEntry 10}
+
+sHubSecWPAWPA2ConfigTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecWPAWPA2ConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig 3}
+
+sHubSecWPAWPA2ConfigEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBSecWPAWPA2ConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecWPAxConfigSSIDIndex}
+		::= {sHubSecWPAWPA2ConfigTable 1}
+
+SHUBSecWPAWPA2ConfigEntry ::=
+	SEQUENCE {
+		sHubSecWPAWPA2ConfigSSIDIndex	INTEGER,
+		sHubSecWPAWPA2SecSSID	OCTET STRING,
+		sHubSecWPAWPA2AuthMode  	INTEGER,
+		sHubSecWPAWPA2ClpherSuite  	INTEGER,
+		sHubSecWPAWPA2KeyFormat  	INTEGER,
+		sHubSecWPAWPA2PreSharedKey  OCTET STRING
+		}
+
+sHubSecWPAWPA2ConfigSSIDIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecWPAWPA2ConfigEntry 1}
+
+sHubSecWPAWPA2SecSSID		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecWPAWPA2ConfigEntry 2}
+
+sHubSecWPAWPA2AuthMode  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 authentication mode. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA' or 'WPA2'
+
+						Input Value
+						===========
+						1: Enterprise(RADIUS)
+						2: Personal(Pre-Shared Key)"
+
+		::= {sHubSecWPAWPA2ConfigEntry 3}
+
+sHubSecWPAWPA2ClpherSuite  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 Clpher Suite. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA' or 'WPA2'
+
+						Input Value
+						===========
+						1: TKIP
+						2: AES
+						3: TKIP and AES"
+
+		::= {sHubSecWPAWPA2ConfigEntry 4}
+
+sHubSecWPAWPA2KeyFormat  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 Pre-Shared Key Format. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA' or 'WPA2'.
+						Second, 'sHubSecWPAxAuthMode' must be configured 'Personal(Pre-Shared Key)'
+
+						Input Value
+						===========
+						1: Passphrase
+						2: Hex(64 characters)"
+
+		::= {sHubSecWPAWPA2ConfigEntry 5}
+
+sHubSecWPAWPA2PreSharedKey  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 Pre-Shared Key. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA' or 'WPA2'.
+						Second, 'sHubSecWPAxAuthMode' must be configured 'Personal(Pre-Shared Key)'"
+
+		::= {sHubSecWPAWPA2ConfigEntry 6}
+
+sHubSecWPAmixConfigTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecWPAmixConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig 4}
+
+sHubSecWPAmixConfigEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBSecWPAmixConfigEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecWPAmixConfigSSIDIndex}
+		::= {sHubSecWPAmixConfigTable 1}
+
+SHUBSecWPAmixConfigEntry ::=
+	SEQUENCE {
+		sHubSecWPAmixConfigSSIDIndex	INTEGER,
+		sHubSecWPAmixSecSSID	OCTET STRING,
+		sHubSecWPAmixAuthMode  	INTEGER,
+		sHubSecWPAmixClpherSuite  	INTEGER,
+		sHubSecWPAmix2ClpherSuite INTEGER,
+		sHubSecWPAmixKeyFormat  	INTEGER,
+		sHubSecWPAmixPreSharedKey  OCTET STRING
+
+		}
+
+sHubSecWPAmixConfigSSIDIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecWPAmixConfigEntry 1}
+
+sHubSecWPAmixSecSSID		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecWPAmixConfigEntry 2}
+
+sHubSecWPAmixAuthMode  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed authentication mode. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA-Mixed'.
+
+						Input Value
+						===========
+						1: Enterprise(RADIUS)
+						2: Personal(Pre-Shared Key)"
+
+		::= {sHubSecWPAmixConfigEntry 3}
+
+sHubSecWPAmixClpherSuite  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed WPA Clpher Suite. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA-Mixed.'
+
+						Input Value
+						===========
+						1: TKIP
+						2: AES
+						3: TKIP and AES"
+
+		::= {sHubSecWPAmixConfigEntry 4}
+
+sHubSecWPAmix2ClpherSuite  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed WPA2 Clpher Suite. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA-Mixed.'
+
+						Input Value
+						===========
+						1: TKIP
+						2: AES
+						3: TKIP and AES"
+
+		::= {sHubSecWPAmixConfigEntry 5}
+
+sHubSecWPAmixKeyFormat  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed Pre-Shared Key Format. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA-Mixed'.
+						Second, 'sHubSecWPAmixAuthMode' must be configured 'Personal(Pre-Shared Key)'
+
+						Input Value
+						===========
+						1: Passphrase
+						2: Hex(64 characters)"
+
+		::= {sHubSecWPAmixConfigEntry 6}
+
+sHubSecWPAmixPreSharedKey  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed Pre-Shared Key. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA-Mixed'.
+						Second, 'sHubSecWPAmixAuthMode' must be configured 'Personal(Pre-Shared Key)'"
+
+		::= {sHubSecWPAmixConfigEntry 7}
+
+sHubSecurityConfig5g		OBJECT IDENTIFIER ::= {skbSHubConfigInfo 4}
+
+sHubSecConfigTable5g		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig5g 5}
+
+sHubSecConfigEntry5g 		OBJECT-TYPE
+		SYNTAX 		SHUBSecConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecConfigSSIDIndex5g}
+		::= {sHubSecConfigTable5g 1}
+
+SHUBSecConfigEntry5g ::=
+	SEQUENCE {
+		sHubSecConfigSSIDIndex5g	INTEGER,
+		sHubSecSSID5g		OCTET STRING,
+		sHubSecRadiusServerIp5g	IpAddress,
+		sHubSecRadiusServerPort5g  	INTEGER,
+		sHubSecRadiusServerPw5g  	OCTET STRING,
+		sHubSecAccountMode5g  	INTEGER,
+		sHubSecAccountServerIp5g	IpAddress,
+		sHubSecAccountServerPort5g  	INTEGER,
+		sHubSecAccountServerPw5g  	OCTET STRING
+		}
+
+sHubSecConfigSSIDIndex5g		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecConfigEntry5g 1}
+
+sHubSecSSID5g		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecConfigEntry5g 2}
+
+
+sHubSecRadiusServerIp5g  OBJECT-TYPE
+		SYNTAX			IpAddress
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure radius server ip address. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 3}
+
+sHubSecRadiusServerPort5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure radius server port. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 4}
+
+sHubSecRadiusServerPw5g  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure radius server password. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 5}
+
+sHubSecAccountMode5g  OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account packet transmission mode. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 6}
+
+sHubSecAccountServerIp5g  OBJECT-TYPE
+		SYNTAX			IpAddress
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account server ip address. This
+						object is valid when 'sHubSecWEPAccountMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 7}
+
+
+sHubSecAccountServerPort5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account server port. This
+						object is valid when 'sHubSecWEPAccountMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 8}
+
+sHubSecAccountServerPw5g  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure account server password. This
+						object is valid when 'sHubSecWEPAccountMode'
+						is configured 'enable'"
+
+		::= {sHubSecConfigEntry5g 9}
+
+sHubSecWEPConfigTable5g		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecWEPConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig5g 6}
+
+sHubSecWEPConfigEntry5g 		OBJECT-TYPE
+		SYNTAX 		SHUBSecWEPConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecWEPConfigSSIDIndex}
+		::= {sHubSecWEPConfigTable5g 1}
+
+SHUBSecWEPConfigEntry5g ::=
+	SEQUENCE {
+		sHubSecWEPConfigSSIDIndex5g	INTEGER,
+		sHubSecWEPSecSSID5g		OCTET STRING,
+		sHubSecWEP8021xAuthMode5g	INTEGER,
+		sHubSecWEPMacAuthMode5g    INTEGER,
+		sHubSecWEPAuthMethod5g        INTEGER,
+		sHubSecWEPAuthKeyLength5g   INTEGER,
+		sHubSecWEPAuthEnable5g         INTEGER,
+		sHubSecWEPKeyFormat5g          INTEGER,
+		sHubSecWEPEncryptionKey5g    OCTET STRING,
+		sHubSecWEPKeyIndex5g	INTEGER
+		}
+
+sHubSecWEPConfigSSIDIndex5g		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecWEPConfigEntry5g 1}
+
+sHubSecWEPSecSSID5g		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecWEPConfigEntry5g 2}
+
+sHubSecWEP8021xAuthMode5g           OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure Radius authentication server enable/disable.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubSecWEPConfigEntry5g 3}
+
+sHubSecWEPMacAuthMode5g           OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure MAC authentication enable/disable.
+
+						Input Value
+						===========
+						1: enable
+						2: disable"
+
+		::= {sHubSecWEPConfigEntry5g 4}
+
+sHubSecWEPAuthMethod5g           OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure method of authentication.
+
+						Input Value
+						===========
+						1: Open System
+						2: Shared Key
+						3: Auto"
+
+		::= {sHubSecWEPConfigEntry5g 5}
+
+sHubSecWEPAuthKeyLength5g           OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure authentication key size.
+
+						Input Value
+						===========
+						1: 64 Bits
+						2: 128 Bits"
+
+		::= {sHubSecWEPConfigEntry5g 6}
+
+sHubSecWEPAuthEnable5g           OBJECT-TYPE
+		SYNTAX			INTEGER { enable(1), disable(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Enable/Disable authetication packet transmission. "
+
+		::= {sHubSecWEPConfigEntry5g 7}
+
+
+sHubSecWEPKeyFormat5g           OBJECT-TYPE
+		SYNTAX			INTEGER { ascii(1), hex(2) }
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure shared key format. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'disable'.
+
+						Input Value
+						===========
+						1: ASCII(5 characters)
+						2: Hex(10 characters)"
+
+		::= {sHubSecWEPConfigEntry5g 8}
+
+sHubSecWEPEncryptionKey5g           OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure encryption key. This
+						object is valid when 'sHubSecWEP8021xAuthMode'
+						is configured 'disable'."
+
+		::= {sHubSecWEPConfigEntry5g 9}
+
+sHubSecWEPKeyIndex5g           OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"WEP Key Index : 1~4"
+
+		::= {sHubSecWEPConfigEntry5g 10}
+
+sHubSecWPAWPA2ConfigTable5g		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecWPAWPA2ConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig5g 7}
+
+sHubSecWPAWPA2ConfigEntry5g 		OBJECT-TYPE
+		SYNTAX 		SHUBSecWPAWPA2ConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecWPAxConfigSSIDIndex}
+		::= {sHubSecWPAWPA2ConfigTable5g 1}
+
+SHUBSecWPAWPA2ConfigEntry5g ::=
+	SEQUENCE {
+		sHubSecWPAWPA2ConfigSSIDIndex5g	INTEGER,
+		sHubSecWPAWPA2SecSSID5g	OCTET STRING,
+		sHubSecWPAWPA2AuthMode5g  	INTEGER,
+		sHubSecWPAWPA2ClpherSuite5g  	INTEGER,
+		sHubSecWPAWPA2KeyFormat5g  	INTEGER,
+		sHubSecWPAWPA2PreSharedKey5g  OCTET STRING
+		}
+
+sHubSecWPAWPA2ConfigSSIDIndex5g		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecWPAWPA2ConfigEntry5g 1}
+
+sHubSecWPAWPA2SecSSID5g		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecWPAWPA2ConfigEntry5g 2}
+
+sHubSecWPAWPA2AuthMode5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 authentication mode. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA' or 'WPA2'
+
+						Input Value
+						===========
+						1: Enterprise(RADIUS)
+						2: Personal(Pre-Shared Key)"
+
+		::= {sHubSecWPAWPA2ConfigEntry5g 3}
+
+sHubSecWPAWPA2ClpherSuite5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 Clpher Suite. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA' or 'WPA2'
+
+						Input Value
+						===========
+						1: TKIP
+						2: AES
+						3: TKIP and AES"
+
+		::= {sHubSecWPAWPA2ConfigEntry5g 4}
+
+sHubSecWPAWPA2KeyFormat5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 Pre-Shared Key Format. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA' or 'WPA2'.
+						Second, 'sHubSecWPAxAuthMode' must be configured 'Personal(Pre-Shared Key)'
+
+						Input Value
+						===========
+						1: Passphrase
+						2: Hex(64 characters)"
+
+		::= {sHubSecWPAWPA2ConfigEntry5g 5}
+
+sHubSecWPAWPA2PreSharedKey5g  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA or WPA2 Pre-Shared Key. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA' or 'WPA2'.
+						Second, 'sHubSecWPAxAuthMode' must be configured 'Personal(Pre-Shared Key)'"
+
+		::= {sHubSecWPAWPA2ConfigEntry5g 6}
+
+sHubSecWPAmixConfigTable5g		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSecWPAmixConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecurityConfig5g 8}
+
+sHubSecWPAmixConfigEntry5g 		OBJECT-TYPE
+		SYNTAX 		SHUBSecWPAmixConfigEntry5g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubSecWPAmixConfigSSIDIndex5g}
+		::= {sHubSecWPAmixConfigTable5g 1}
+
+SHUBSecWPAmixConfigEntry5g ::=
+	SEQUENCE {
+		sHubSecWPAmixConfigSSIDIndex5g	INTEGER,
+		sHubSecWPAmixSecSSID5g	OCTET STRING,
+		sHubSecWPAmixAuthMode5g  	INTEGER,
+		sHubSecWPAmixClpherSuite5g  	INTEGER,
+		sHubSecWPAmix2ClpherSuite5g INTEGER,
+		sHubSecWPAmixKeyFormat5g  	INTEGER,
+		sHubSecWPAmixPreSharedKey5g  OCTET STRING
+
+		}
+
+sHubSecWPAmixConfigSSIDIndex5g		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubSecWPAmixConfigEntry5g 1}
+
+sHubSecWPAmixSecSSID5g		OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-only
+		STATUS			current
+		DESCRIPTION		"You can select SSID to get/set security option
+						through this object.
+						Input Range -->> firenux"
+
+		::= {sHubSecWPAmixConfigEntry5g 2}
+
+sHubSecWPAmixAuthMode5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed authentication mode. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA-Mixed'.
+
+						Input Value
+						===========
+						1: Enterprise(RADIUS)
+						2: Personal(Pre-Shared Key)"
+
+		::= {sHubSecWPAmixConfigEntry5g 3}
+
+sHubSecWPAmixClpherSuite5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed WPA Clpher Suite. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA-Mixed.'
+
+						Input Value
+						===========
+						1: TKIP
+						2: AES
+						3: TKIP and AES"
+
+		::= {sHubSecWPAmixConfigEntry5g 4}
+
+sHubSecWPAmix2ClpherSuite5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed WPA2 Clpher Suite. This
+						object is valid when 'sHubSecEncrytion'
+						is configured 'WPA-Mixed.'
+
+						Input Value
+						===========
+						1: TKIP
+						2: AES
+						3: TKIP and AES"
+
+		::= {sHubSecWPAmixConfigEntry5g 5}
+
+sHubSecWPAmixKeyFormat5g  OBJECT-TYPE
+		SYNTAX			INTEGER
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed Pre-Shared Key Format. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA-Mixed'.
+						Second, 'sHubSecWPAmixAuthMode' must be configured 'Personal(Pre-Shared Key)'
+
+						Input Value
+						===========
+						1: Passphrase
+						2: Hex(64 characters)"
+
+		::= {sHubSecWPAmixConfigEntry5g 6}
+
+sHubSecWPAmixPreSharedKey5g  OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"You can configure WPA-Mixed Pre-Shared Key. This
+						object is valid under two conditions.
+						First, 'sHubSecEncrytion' must be configured 'WPA-Mixed'.
+						Second, 'sHubSecWPAmixAuthMode' must be configured 'Personal(Pre-Shared Key)'"
+
+		::= {sHubSecWPAmixConfigEntry5g 7}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubPortConfig					OBJECT IDENTIFIER ::= {skbSHubConfigInfo 5}
+sHubDevPortMode				OBJECT-TYPE
+		SYNTAX 		INTEGER { bridge(1), nat(2), custom(3) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Device mode of switching hub
+				1) Bridge mode
+				2) NAT mode
+				3) Custom mode"
+		::= {sHubPortConfig 1}
+
+sHubDevPortTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBDevPortEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Device Port List Table"
+		::= {sHubPortConfig 2}
+
+sHubDevPortEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBDevPortEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Devie Port List Entry "
+		INDEX	{sHubDevPortIndex}
+		::= {sHubDevPortTable 1}
+
+SHUBDevPortEntry ::=
+	SEQUENCE {
+		sHubDevPortIndex	INTEGER,
+		sHubDevPortNumber	INTEGER,
+		sHubDevPortName 	OCTET STRING,
+		sHubDevPortNego	INTEGER,
+		sHubDevPortSpeed	INTEGER,
+		sHubDevPortDuplex	INTEGER,
+		sHubDevPortOnOff	INTEGER,
+		sHubDevPortReset	INTEGER
+		}
+
+sHubDevPortIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The index of device port list."
+		::= {sHubDevPortEntry 1}
+
+sHubDevPortNumber		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The port number of device port list."
+		::= {sHubDevPortEntry 2}
+
+sHubDevPortName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The port name of device port list."
+		::= {sHubDevPortEntry 3}
+
+sHubDevPortNego			OBJECT-TYPE
+		SYNTAX 		INTEGER { force(1), auto(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The port negotiation of device port list.
+				1) Force
+				2) Auto nego"
+		::= {sHubDevPortEntry 4}
+
+sHubDevPortSpeed		OBJECT-TYPE
+		SYNTAX 		INTEGER { m10(1), m100(2), m200(3), m300(4), m500(5), g1(6) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The port speed of device port list.
+				1) 10Mbps
+				2) 100Mbps
+				3) 200Mbps
+				4) 300Mbps
+				5) 500Mbps
+				6) 1Gbps"
+		::= {sHubDevPortEntry 5}
+
+sHubDevPortDuplex		OBJECT-TYPE
+		SYNTAX 		INTEGER { half(1), full(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The port Duplex of device port list.
+				1) Half duplex
+				2) Full duplex"
+		::= {sHubDevPortEntry 6}
+
+sHubDevPortOnOff		OBJECT-TYPE
+		SYNTAX 		INTEGER { on(1), off(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The port on/off of device port list.
+				1) On
+				2) Off"
+		::= {sHubDevPortEntry 7}
+
+sHubDevPortReset		OBJECT-TYPE
+		SYNTAX 		INTEGER { other(0), reset(1) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The port reset"
+		::= {sHubDevPortEntry 8}
+
+sHubDevPortTrafficLimit		OBJECT-TYPE
+		SYNTAX 		INTEGER { on(1), off(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Limit port traffic"
+		::= {sHubPortConfig 3}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubIgmpConfig				OBJECT IDENTIFIER ::= {skbSHubConfigInfo 6}
+
+sHubIgmpIpMulticastEnable				OBJECT-TYPE
+		SYNTAX 		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable/disable operation of Ip Multicast"
+		::= {sHubIgmpConfig 1}
+
+sHubIgmpSelectMode						OBJECT-TYPE
+		SYNTAX 		INTEGER { proxy(1), snooping(2) }
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"This value is Igmp mode
+				1) igmp proxy
+				2) igmp snooping"
+		::= {sHubIgmpConfig 2}
+
+sHubIgmpFastLeaveEnable				OBJECT-TYPE
+		SYNTAX 		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable/disable Fast Leave Configuration."
+		::= {sHubIgmpConfig 3}
+
+sHubIgmpProxyMemberExpireTime			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The member expire time of igmp proxy.
+			 According to circumstance, This value is not writable.
+			 Default: 180, Unit: sec"
+		::= {sHubIgmpConfig 4}
+
+sHubIgmpProxyQueryInterval				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The query interval of igmp proxy.
+			 According to circumstance, This value is not writable.
+			 Default: 125, Unit: sec"
+		::= {sHubIgmpConfig 5}
+
+sHubIgmpProxyQueryRespInterval			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The query response interval of igmp proxy.
+			 According to circumstance, This value is not writable.
+			 Default: 5, Unit: sec"
+		::= {sHubIgmpConfig 6}
+
+sHubIgmpProxyGroupMemberInterval		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The group member interval of igmp proxy.
+			 According to circumstance, This value is not writable.
+			 Default: 135, Unit: sec"
+		::= {sHubIgmpConfig 7}
+
+sHubIgmpProxyGroupQueryInterval		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The group query interval of igmp proxy.
+			 According to circumstance, This value is not writable.
+			 Default: 125, Unit: sec"
+		::= {sHubIgmpConfig 8}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubFirmwareUpgradeConfig		OBJECT IDENTIFIER ::= {skbSHubConfigInfo 7}
+
+sHubAutoUpgradeConfig		OBJECT IDENTIFIER ::= {sHubFirmwareUpgradeConfig 1}
+sHubAutoFirmUpEnable  			OBJECT-TYPE
+		SYNTAX 		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable/disable firmware auto-upgrade function."
+		::= {sHubAutoUpgradeConfig 1}
+
+sHubAutoFirmUpServerURL		OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..255))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The URL string of server for firmware auto-upgrade when AP is rebooted.
+			Auto-upgrade server can be configured using IPAddress or ServerUrl"
+		::= {sHubAutoUpgradeConfig 2}
+
+sHubAutoFirmUpPrefix			OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..255))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The prefix of firware path in auto-upgrade server"
+		::= {sHubAutoUpgradeConfig 3}
+
+sHubAutoFirmUpDataFile			OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..255))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The description filename about firware in auto-upgrade server"
+		::= {sHubAutoUpgradeConfig 4}
+
+sHubManualUpgradeConfig		OBJECT IDENTIFIER ::= {sHubFirmwareUpgradeConfig 2}
+sHubManualFirmUpServerURL		OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..255))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The URL string of server for firmware manual-upgrade.
+			Manual-upgrade server can be configured using IPAddress or ServerUrl"
+		::= {sHubManualUpgradeConfig 1}
+
+sHubManualFirmUpPrefix			OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..255))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The prefix of firware path in manual-upgrade server"
+		::= {sHubManualUpgradeConfig 2}
+
+sHubManualUpgradeFile			OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..255))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The image filename to manual-upgrade."
+		::= {sHubManualUpgradeConfig 3}
+
+sHubManualUpgradeExecute			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Execute firmware upgrade from configured file
+			in object 'sHubManualUpgradeFile'
+			Input value is '1'"
+		::= {sHubManualUpgradeConfig 4}
+
+-- **********************************************************************
+
+-- **********************************************************************
+
+ sHubSnmpConfig				OBJECT IDENTIFIER ::= {skbSHubConfigInfo 8}
+ sHubSnmpEnable				OBJECT-TYPE
+ 		SYNTAX 		INTEGER { enable(1), disable(2) }
+ 		MAX-ACCESS	read-write
+ 		STATUS		current
+ 		DESCRIPTION
+ 			"The enable/disable SNMP agent"
+ 		::= {sHubSnmpConfig 1}
+
+    communityTable OBJECT-TYPE
+            SYNTAX SEQUENCE OF CommunityTableEntry
+        	MAX-ACCESS not-accessible
+        	STATUS current
+        	DESCRIPTION
+            	"A list of CommunityTable entries."
+        ::= { sHubSnmpConfig 2 }
+
+	communityTableEntry OBJECT-TYPE
+	        SYNTAX CommunityTableEntry
+	        MAX-ACCESS not-accessible
+	        STATUS current
+	        DESCRIPTION
+	        	"An entry containing management information applicable
+                 to a particular board."
+	        INDEX { communityIndex }
+	        ::= { communityTable 1 }
+
+	CommunityTableEntry ::=
+        	SEQUENCE {
+        	        communityIndex              INTEGER,
+                	communityName               OCTET STRING,
+                	communityType               INTEGER,
+	                communityStatus      		INTEGER,
+	                communityAdmin              INTEGER,
+	                }
+	communityIndex OBJECT-TYPE
+	        SYNTAX INTEGER
+	        MAX-ACCESS read-only
+	        STATUS mandatory
+	        DESCRIPTION
+	           "A unique value, greater than zero, for each
+               port.  It is recommended that values are assigned
+               contiguously starting from 1.  The value for each
+               interface sub-layer must remain constant at least from
+               one re-initialization of the entity's network
+               management system to the next re-initialization."
+	        ::= { communityTableEntry 1 }
+
+ 	communityName  OBJECT-TYPE
+		SYNTAX OCTET STRING (SIZE(1..24))
+	        MAX-ACCESS read-write
+	        STATUS current
+	        DESCRIPTION ""
+	        ::= { communityTableEntry 2 }
+
+
+	communityType OBJECT-TYPE
+	    	SYNTAX INTEGER {
+	            ro   (0),
+	            rw   (1)
+		    }
+	        MAX-ACCESS read-write
+	        STATUS current
+	        DESCRIPTION
+	        	""
+	        ::= { communityTableEntry 3 }
+
+   	communityAdmin OBJECT-TYPE
+	        SYNTAX INTEGER {
+	            off  (0),
+	            on   (1)
+	        }
+	        MAX-ACCESS read-write
+	        STATUS current
+	        DESCRIPTION
+	        	"community Admin.
+	        	 0: off ( not active )
+	        	 1: on  ( active )"
+	        ::= { communityTableEntry 4 }
+
+    trapDestinationTable OBJECT-TYPE
+            SYNTAX SEQUENCE OF TrapDestinationTableEntry
+        	MAX-ACCESS not-accessible
+        	STATUS current
+        	DESCRIPTION
+            	"A list of TrapDestinationTable entries."
+        ::= { sHubSnmpConfig 3 }
+
+	trapDestinationTableEntry OBJECT-TYPE
+	        SYNTAX TrapDestinationTableEntry
+	        MAX-ACCESS not-accessible
+	        STATUS current
+	        DESCRIPTION
+	        	"An entry containing management information applicable
+                 to a particular board."
+	        INDEX { trapDestinationIndex }
+	        ::= { trapDestinationTable 1 }
+
+	TrapDestinationTableEntry ::=
+        	SEQUENCE {
+        	        trapDestinationIndex              INTEGER,
+                    trapDestination		      OCTET STRING,
+                    trapCommunityName               OCTET STRING,
+	        trapDestinationAdmin              INTEGER,
+	                }
+	trapDestinationIndex OBJECT-TYPE
+	        SYNTAX INTEGER
+	        MAX-ACCESS read-only
+	        STATUS mandatory
+	        DESCRIPTION
+	           "A unique value, greater than zero, for each
+               port.  It is recommended that values are assigned
+               contiguously starting from 1.  The value for each
+               interface sub-layer must remain constant at least from
+               one re-initialization of the entity's network
+               management system to the next re-initialization."
+	        ::= { trapDestinationTableEntry 1 }
+
+ 	trapDestination  OBJECT-TYPE
+		SYNTAX OCTET STRING (SIZE(1..24))
+	        MAX-ACCESS read-write
+	        STATUS current
+	        DESCRIPTION "Trap Destination IP or Domain"
+	        ::= { trapDestinationTableEntry 2 }
+
+ 	trapCommunityName  OBJECT-TYPE
+		SYNTAX OCTET STRING (SIZE(1..24))
+	        MAX-ACCESS read-write
+	        STATUS current
+	        DESCRIPTION "Trap Destination IP or Domain"
+	        ::= { trapDestinationTableEntry 3 }
+
+   	trapDestinationAdmin OBJECT-TYPE
+	        SYNTAX INTEGER {
+	            off  (0),
+	            on   (1)
+	        }
+	        MAX-ACCESS read-write
+	        STATUS current
+	        DESCRIPTION
+	        	"trap destination Admin.
+	        	 0: off ( not active )
+	        	 1: on  ( active )"
+	        ::= { trapDestinationTableEntry 4 }
+
+
+
+-- sHubSnmpConfig				OBJECT IDENTIFIER ::= {skbSHubConfigInfo 8}
+-- sHubSnmpEnable				OBJECT-TYPE
+-- 		SYNTAX 		INTEGER { enable(1), disable(2) }
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The enable/disable SNMP agent"
+-- 		::= {sHubSnmpConfig 1}
+--
+-- sHubSnmpReadOnlyCommunity	OBJECT-TYPE
+-- 		SYNTAX 		OCTET STRING (SIZE(0..32))
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The community name for SNMP read only operation"
+-- 		::= {sHubSnmpConfig 2}
+--
+-- sHubSnmpReadWriteCommunity	OBJECT-TYPE
+-- 		SYNTAX 		OCTET STRING (SIZE(0..32))
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The community name for SNMP read write operation"
+-- 		::= {sHubSnmpConfig 3}
+--
+-- sHubSnmpTrapCommunity		OBJECT-TYPE
+-- 		SYNTAX 		OCTET STRING (SIZE(0..32))
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The community name for the trap operation"
+-- 		::= {sHubSnmpConfig 4}
+--
+-- sHubSnmpTrapEnable 		OBJECT-TYPE
+-- 		SYNTAX 		INTEGER { enable(1), disable(2) }
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+--  		DESCRIPTION
+-- 			"The enable/disable of TRAP operation"
+-- 		::= {sHubSnmpConfig 5}
+--
+-- sHubSnmpTrapDestIp1 		OBJECT-TYPE
+-- 		SYNTAX 		OCTET STRING (SIZE(0..32))
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The host1 IP address or doamin of trap destination SNMP server"
+-- 		::= {sHubSnmpConfig 6}
+--
+-- sHubSnmpTrapDestIp2		OBJECT-TYPE
+-- 		SYNTAX 		OCTET STRING (SIZE(0..32))
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The host2 IP address or doamin of trap destination SNMP server"
+-- 		::= {sHubSnmpConfig 7}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubSyslogConfig				OBJECT IDENTIFIER ::= {skbSHubConfigInfo 9}
+sHubSysLogEnable			OBJECT-TYPE
+		SYNTAX		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable/disable Sys Log."
+		::= {sHubSyslogConfig 1}
+
+sHubSysLogRemoteLogEnable	OBJECT-TYPE
+		SYNTAX		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable/disable sending syslog to remote syslog server."
+		::= { sHubSyslogConfig 2}
+
+sHubSysLogRemoteLogServer	OBJECT-TYPE
+		SYNTAX		OCTET STRING (SIZE(1..32))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The Remote syslog server name."
+		::= { sHubSyslogConfig 3}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubNtpConfig				OBJECT IDENTIFIER ::= {skbSHubConfigInfo 10}
+sHubNtpServer1Name		OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..31))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The NTP server1 Domain name or IP address"
+		::= {sHubNtpConfig 1}
+
+sHubNtpServer2Name		OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..31))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The NTP server2 Domain name or IP address"
+		::= {sHubNtpConfig 2}
+
+sHubNtpServer3Name		OBJECT-TYPE
+		SYNTAX 		OCTET STRING (SIZE(0..31))
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The NTP server3 Domain name or IP address"
+		::= {sHubNtpConfig 3}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubQoSConfig					OBJECT IDENTIFIER ::= {skbSHubConfigInfo 11}
+sHubQoSPortRateLimitTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHubPortRateLimitEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of PortLateLmit&FlowControl"
+		::= {sHubQoSConfig 1}
+
+sHubPortRateLimitEntry 		OBJECT-TYPE
+		SYNTAX 		SHubPortRateLimitEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of PortLateLimit&FlowControl table"
+		INDEX		{ sHubPortRateLimitIndex }
+		::= {sHubQoSPortRateLimitTable 1}
+
+SHubPortRateLimitEntry ::=
+	SEQUENCE {
+		sHubPortRateLimitIndex		INTEGER,
+		sHubPortRateLimitPortNumber		INTEGER,
+		sHubPortRateLimitPortName		OCTET STRING,
+		sHubPortRateLimitMode		INTEGER,
+		sHubPortRateLimitIncomming	INTEGER,
+		sHubPortRateLimitOutcomming	INTEGER,
+		sHubPortFlowControl			INTEGER,
+	}
+
+sHubPortRateLimitIndex				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The index of PortLateLimit&FlowControl table"
+		::= {sHubPortRateLimitEntry 1}
+
+sHubPortRateLimitPortNumber		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The port number of device port list."
+		::= {sHubPortRateLimitEntry 2}
+
+sHubPortRateLimitPortName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The port name of device port list."
+		::= {sHubPortRateLimitEntry 3}
+
+sHubPortRateLimitMode        			OBJECT-TYPE
+		SYNTAX 		INTEGER		{ enable(1), disable(2)	}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"The enable/disable operation of Port Rate Limit
+
+			Input Value
+			===========
+			1: enable
+			2: disable"
+		::= {sHubPortRateLimitEntry 4}
+
+
+sHubPortRateLimitIncomming				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Incoming rate limit of the Wan(Port0)-Lan(Port1-4)
+			Default: 100, Unit: percent(0~100)"
+		::= {sHubPortRateLimitEntry 5}
+
+sHubPortRateLimitOutcomming				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Outcoming rate limit of the Wan(Port0)-Lan(Port1-4)
+			Default: 100, Unit: percent(0~100)"
+		::= {sHubPortRateLimitEntry 6}
+
+sHubPortFlowControl				OBJECT-TYPE
+		SYNTAX 		INTEGER  { off(1), on(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Input Value
+			============
+			1: off
+			2: on"
+		::= {sHubPortRateLimitEntry 7}
+
+------------------------------------------------------------------------------------
+sHubPortQosTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHubPortQosEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of Port-Qos"
+		::= {sHubQoSConfig 2 }
+
+sHubPortQosEntry 		OBJECT-TYPE
+		SYNTAX 		SHubPortQosEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of Port-Qos table"
+		INDEX	{sHubPortQosIndex}
+		::= {sHubPortQosTable 1}
+
+SHubPortQosEntry ::=
+	SEQUENCE {
+		sHubPortQosIndex		INTEGER,
+		sHubPortQosPortNumber 	INTEGER,
+		sHubPortQosPortName 	OCTET STRING,
+		sHubPortQosPriority		INTEGER
+	}
+
+sHubPortQosIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubPortQosEntry 1}
+
+sHubPortQosPortNumber		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Port number, Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)..."
+		::= {sHubPortQosEntry 2}
+
+sHubPortQosPortName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"physical port name"
+		::= {sHubPortQosEntry 3}
+
+sHubPortQosPriority			OBJECT-TYPE
+		SYNTAX 	INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			" QoS Priority Config
+	            	  99    : none, not config
+	            	  0-N  : range of Priority
+                                                Queue0_Priority0(0), Queue0_Priority1(1),
+				Queue1_Priority2(2), Queue2_Priority3(3),
+				Queue3_Priority4(4), Queue4_Priority5(5),
+				Queue5_Priority6(6), Queue5_Priority7(7) "
+		::= {sHubPortQosEntry 4}
+
+    sHubQosClassfyTable OBJECT-TYPE
+            SYNTAX SEQUENCE OF SHubQosClassfyTableEntry
+        	MAX-ACCESS not-accessible
+        	STATUS current
+        	DESCRIPTION
+            	""
+        ::= { sHubQoSConfig 3 }
+
+	sHubQosClassfyTableEntry OBJECT-TYPE
+	        SYNTAX SHubQosClassfyTableEntry
+	        MAX-ACCESS not-accessible
+	        STATUS current
+	        DESCRIPTION
+	        	""
+	        INDEX { sHubQosClassIndex }
+	        ::= { sHubQosClassfyTable 1 }
+
+	SHubQosClassfyTableEntry ::=
+        	SEQUENCE {
+                	sHubQosClassIndex        INTEGER,
+                	sHubQosClassDstIp        OCTET STRING,
+                	sHubQosClassSrcIp        OCTET STRING,
+                	sHubQosClassDstPortStart OCTET STRING,
+                	sHubQosClassDstPortEnd   OCTET STRING,
+                	sHubQosClassSrcPortStart OCTET STRING,
+                	sHubQosClassSrcPortEnd   OCTET STRING,
+                	sHubQosClassDstMac       OCTET STRING,
+                	sHubQosClassSrcMac       OCTET STRING,
+                	sHubQosClassProtocol     OCTET STRING,
+                	sHubQosClassCos          INTEGER,
+                	sHubQosClassIpTosType    INTEGER,
+                	sHubQosClassIpTos        INTEGER,
+                	sHubQosClassEthType      OCTET STRING,
+                	sHubQosClassMarkIndex     INTEGER
+	                }
+
+    sHubQosClassIndex       OBJECT-TYPE
+	        SYNTAX INTEGER (0..99)
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "0~N : range of Rule Index"
+	        ::= { sHubQosClassfyTableEntry 1 }
+
+    sHubQosClassDstIp       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Specific destination IP Address (A.B.C.D/M)
+	            none : not config."
+	        ::= { sHubQosClassfyTableEntry 2 }
+
+    sHubQosClassSrcIp       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Specific source IP Address (A.B.C.D/M)
+	            none : not config"
+	        ::= { sHubQosClassfyTableEntry 3 }
+
+     sHubQosClassDstPortStart       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Start number of destination port
+	            none : not config
+	            0~65535 : range of port number"
+	        ::= { sHubQosClassfyTableEntry 4 }
+
+    sHubQosClassDstPortEnd       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "End number of destination port
+	            none : not config
+	            0~65535 : range of port number"
+	        ::= { sHubQosClassfyTableEntry 5 }
+
+    sHubQosClassSrcPortStart       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+              "Start number of source port
+	           none : not config
+	           0~65535 : range of port number"
+	        ::= { sHubQosClassfyTableEntry 6 }
+
+    sHubQosClassSrcPortEnd       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+              "End number of source port
+	           none : not config
+	           0~65535 : range of port number"
+	        ::= { sHubQosClassfyTableEntry 7 }
+
+    sHubQosClassDstMac       OBJECT-TYPE
+	        SYNTAX OCTET STRING (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Destination MAC Address (AA:BB:CC:DD:EE:FF)
+	            none : not config"
+	        ::= { sHubQosClassfyTableEntry 8 }
+
+    sHubQosClassSrcMac       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Source MAC Address (AA:BB:CC:DD:EE:FF)
+	            none : not config"
+	        ::= { sHubQosClassfyTableEntry 9 }
+
+    sHubQosClassProtocol       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Specific protocol type
+	            none : not config
+	            0-255 : protocol range
+	            (tcp:6, udp:17, icmp:1, igmp:2)"
+	        ::= { sHubQosClassfyTableEntry 10 }
+
+    sHubQosClassCos       OBJECT-TYPE
+	        SYNTAX 	INTEGER
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Class of Service
+	            99   : none, not config
+	            0-7 : class number range"
+	        ::= { sHubQosClassfyTableEntry 11 }
+
+    sHubQosClassIpTosType       OBJECT-TYPE
+	        SYNTAX INTEGER {
+	  	        none(0),
+	  	        tos (1),
+	  	        dscp (2),
+	                    precedence(3)
+  	            }
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Kind of IP Priority
+	            tos, dscp, precedence"
+	        ::= { sHubQosClassfyTableEntry 12 }
+
+    sHubQosClassIpTos       OBJECT-TYPE
+	        SYNTAX INTEGER (0..255)
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+               "Value of IP Priority
+	            tos  : 0-255
+	            dscp : 0-63
+	            prececence : 0-7"
+	        ::= { sHubQosClassfyTableEntry 13 }
+
+    sHubQosClassEthType       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Ethernet Type
+	            none : not config
+	            0-65525 : Ether Type range
+	            (IP:2048, ARP:2054, IPX:33079, 802.1Q:33024, HDLC:25)"
+	        ::= { sHubQosClassfyTableEntry 14 }
+
+    sHubQosClassMarkIndex       OBJECT-TYPE
+	        SYNTAX INTEGER
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Connect current ACL' actions to QoS Mark index
+	            99    : none(not config)
+	            0-N : qos mark index range"
+	        ::= { sHubQosClassfyTableEntry 15 }
+
+
+    sHubQosMarkTable OBJECT-TYPE
+            SYNTAX SEQUENCE OF SHubQosMarkTableEntry
+        	MAX-ACCESS not-accessible
+        	STATUS current
+        	DESCRIPTION
+            	""
+        ::= { sHubQoSConfig 4 }
+
+	sHubQosMarkTableEntry OBJECT-TYPE
+	        SYNTAX SHubQosMarkTableEntry
+	        MAX-ACCESS not-accessible
+	        STATUS current
+	        DESCRIPTION
+	        	""
+	        INDEX { sHubQosMarkIndex }
+	        ::= { sHubQosMarkTable 1 }
+
+	SHubQosMarkTableEntry ::=
+        	SEQUENCE {
+                	sHubQosMarkIndex		INTEGER,
+                	sHubQosMarkCosRemark    	INTEGER,
+                	sHubQosMarkDscpRemark    	OCTET STRING,
+                	sHubQosMarkPriority     	INTEGER
+	                }
+
+    sHubQosMarkIndex       OBJECT-TYPE
+	        SYNTAX INTEGER (0..99)
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "0-N : range of Qos Mark Index"
+	        ::= { sHubQosMarkTableEntry 1 }
+
+     sHubQosMarkCosRemark       OBJECT-TYPE
+	        SYNTAX 	INTEGER
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "QoS Remark the CoS Level
+	            99    : none, not config
+	            0-7  : range of CoS
+	            "
+	        ::= { sHubQosMarkTableEntry 2 }
+
+    sHubQosMarkDscpRemark       OBJECT-TYPE
+	        SYNTAX OCTET STRING  (SIZE(1..36))
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "QoS Remark the Dscp Level
+	            none  : not config
+	            0-63 : range of DSCP
+	            "
+	        ::= { sHubQosMarkTableEntry 3 }
+
+    sHubQosMarkPriority       OBJECT-TYPE
+	        SYNTAX 	INTEGER
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "QoS Priority Config
+	            99    : none, not config
+	            0-N  : range of Priority
+	            "
+	        ::= { sHubQosMarkTableEntry 4 }
+
+
+    sHubQosScheduleTable OBJECT-TYPE
+            SYNTAX SEQUENCE OF SHubQosScheduleTableEntry
+        	MAX-ACCESS not-accessible
+        	STATUS current
+        	DESCRIPTION
+            	""
+        ::= { sHubQoSConfig 5 }
+
+	sHubQosScheduleTableEntry OBJECT-TYPE
+	        SYNTAX SHubQosScheduleTableEntry
+	        MAX-ACCESS not-accessible
+	        STATUS current
+	        DESCRIPTION
+	        	""
+	        INDEX {sHubQosSchedulePortNumber, sHubQosScheduleQueue }
+	        ::= { sHubQosScheduleTable 1 }
+
+	SHubQosScheduleTableEntry ::=
+        	SEQUENCE {
+                	sHubQosSchedulePortNumber          	INTEGER,
+		sHubQosSchedulePortName 		OCTET STRING,
+                        sHubQosScheduleQueue	   	INTEGER,
+                	sHubQosScheduleMode         		INTEGER,
+                	sHubQosScheduleWeight       		INTEGER
+	                }
+
+	sHubQosSchedulePortNumber	OBJECT-TYPE
+	        SYNTAX INTEGER
+	        MAX-ACCESS read-only
+	        STATUS mandatory
+	        DESCRIPTION
+	           "Port number, Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)..."
+	        ::= { sHubQosScheduleTableEntry 1 }
+
+ 	sHubQosSchedulePortName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"physical port name"
+		::= {sHubQosScheduleTableEntry 2 }
+
+
+           sHubQosScheduleQueue	OBJECT-TYPE
+	        SYNTAX INTEGER (0..99)
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	           "Queue Number
+			Queue0(0), Queue1(1), Queue2(2)...."
+	        ::= { sHubQosScheduleTableEntry 3 }
+
+	sHubQosScheduleMode	OBJECT-TYPE
+	        SYNTAX INTEGER {
+	  	 wrr (1),
+	            dwrr(2),
+	            wfq (3),
+	            spq (4)
+  	            }
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	        	"Schedule Mode"
+	        ::= { sHubQosScheduleTableEntry 4 }
+
+	sHubQosScheduleWeight       OBJECT-TYPE
+	        SYNTAX INTEGER (1..255)
+	        MAX-ACCESS read-only
+	        STATUS current
+	        DESCRIPTION
+	        	"weight value.
+	        	 If you want SPQ mode, type the 255."
+	        ::= { sHubQosScheduleTableEntry 5 }
+
+
+
+-- **********************************************************************
+
+-- **********************************************************************
+sHubAccessControlConfig					OBJECT IDENTIFIER ::= {skbSHubConfigInfo 12}
+sHubLanAccessControlConfig					OBJECT IDENTIFIER ::= {sHubAccessControlConfig 1}
+
+sHubLanAccessControlModeTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBLanAccessControlModeEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubLanAccessControlConfig 1}
+
+sHubLanAccessControlModeEntry 		OBJECT-TYPE
+        SYNTAX 		SHUBLanAccessControlModeEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX		{	sHubLanAccessControlPortlndex
+				}
+		::= {sHubLanAccessControlModeTable 1}
+
+SHUBLanAccessControlModeEntry::=
+	SEQUENCE {
+		sHubLanAccessControlPortlndex			INTEGER,
+		sHubLanAccessControlPortNumber			INTEGER,
+                        sHubLanAccessControlPortName			OCTET STRING,
+                        sHubLanAccessControlPortOperMode			INTEGER
+	}
+
+sHubLanAccessControlPortlndex	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	" "
+    	::= {sHubLanAccessControlModeEntry 1}
+
+
+sHubLanAccessControlPortNumber	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	"Physical port number
+          	Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)"
+    	::= {sHubLanAccessControlModeEntry 2}
+
+sHubLanAccessControlPortName	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Physical port name."
+		::= {sHubLanAccessControlModeEntry 3}
+
+sHubLanAccessControlPortOperMode			OBJECT-TYPE
+		SYNTAX 		INTEGER { disable(1), allow(2), deny(3) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Access Control operation mode.
+
+			Input Value
+			============
+			1: disable
+			2: allow listed
+			3: deny listed"
+		::= {sHubLanAccessControlModeEntry 4}
+
+---------------------------------------------------------------------------------------------------
+sHubLanAccessControlListConfig					OBJECT IDENTIFIER ::= {sHubLanAccessControlConfig 2}
+sHubLanAccessControlListSetPortNumber	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+          	"Physical port number
+          	Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)"
+    	::= {sHubLanAccessControlListConfig 1}
+
+sHubLanAccessControlListSetPortName	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Physical port name."
+		::= {sHubLanAccessControlListConfig 2}
+
+sHubLanAccessControlListSetMacAddr			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Mac address of device to control access"
+		::= {sHubLanAccessControlListConfig 3}
+
+sHubLanAccessControlListSetComment			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Comment for device configured to control access."
+		::= {sHubLanAccessControlListConfig 4}
+
+sHubLanAccessControlListAdd				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Add configured values by user to Access Control List.
+			When sHubAccessControlMacAddr, sHubAccessControlComment are configured,
+			this object is working."
+		::= {sHubLanAccessControlListConfig 5}
+
+sHubLanAccessControlListDel				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete entry that have entered number by user."
+		::= {sHubLanAccessControlListConfig 6}
+
+sHubLanAccessControlListDelAll				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete all entries in table."
+		::= {sHubLanAccessControlListConfig 7}
+
+sHubLanAccessControlListTable				OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHubLanACCESSCONTROLListEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubLanAccessControlListConfig 8}
+
+sHubLanAccessControlListEntry 		OBJECT-TYPE
+		SYNTAX 		SHubLanACCESSCONTROLListEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX		{ sHubLanAccessControlListIndex }
+		::= {sHubLanAccessControlListTable 1}
+
+SHubLanACCESSCONTROLListEntry ::=
+	SEQUENCE {
+		sHubLanAccessControlListIndex			INTEGER,
+		sHubLanAccessControlListPortNumber		INTEGER,
+		sHubLanAccessControlListPortName			OCTET STRING,
+		sHubLanAccessControlListHwAddr			MacAddress,
+		sHubLanAccessControlListDescription		OCTET STRING
+	}
+
+sHubLanAccessControlListIndex			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubLanAccessControlListEntry 1}
+
+sHubLanAccessControlListPortNumber	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	"Physical port number
+          	Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)"
+    	::= {sHubLanAccessControlListEntry 2}
+
+sHubLanAccessControlListPortName	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Physical port name."
+		::= {sHubLanAccessControlListEntry 3}
+
+
+sHubLanAccessControlListHwAddr			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubLanAccessControlListEntry 4}
+
+sHubLanAccessControlListDescription			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubLanAccessControlListEntry 5}
+
+-----------------------------------------------------------------------------------
+sHubLanAccessControlMode  OBJECT-TYPE
+  SYNTAX   INTEGER { enable(1), disable(2) }
+  MAX-ACCESS read-write
+  STATUS  current
+  DESCRIPTION
+   "Mac filtering Enable/Disable"
+   ::= {sHubLanAccessControlConfig 3}
+-----------------------------------------------------------------------------------
+
+sHubWLanAccessControlConfig		OBJECT IDENTIFIER ::= {sHubAccessControlConfig 2}
+
+sHubWLanAccessControlModeTable2G		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBWLanAccessControlModeEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubWLanAccessControlConfig 1}
+
+sHubWLanAccessControlModeEntry2G 		OBJECT-TYPE
+		SYNTAX 		SHUBWLanAccessControlModeEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX		{	sHubWLanAccessControlSSIDlndex
+				}
+		::= {sHubWLanAccessControlModeTable2G 1}
+
+SHUBWLanAccessControlModeEntry::=
+	SEQUENCE {
+		sHubWLanAccessControlSSIDlndex2G			INTEGER,
+		sHubWLanAccessControlSSID2G				OCTET STRING,
+		sHubWLanAccessControlSSIDOperMode2G		INTEGER
+	}
+
+sHubWLanAccessControlSSIDlndex2G	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			" SSID Index or all(99) "
+		::= {sHubWLanAccessControlModeEntry2G 1}
+
+sHubWLanAccessControlSSID2G	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlModeEntry2G 2}
+
+sHubWLanAccessControlSSIDOperMode2G			OBJECT-TYPE
+		SYNTAX 		INTEGER { disable(1), allow(2), deny(3) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Access Control operation mode.
+
+			Input Value
+			============
+			1: disable
+			2: allow listed
+			3: deny listed"
+		::= {sHubWLanAccessControlModeEntry2G 3}
+
+
+sHubWLanAccessControlListConfig					OBJECT IDENTIFIER ::= {sHubWLanAccessControlConfig 2}
+sHubWLanAccessControlListSetSSIDIndex2g	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"SSID Index or all(99)"
+		::= {sHubWLanAccessControlListConfig 1}
+
+--sHubWLanAccessControlListSetSSID2g OBJECT-TYPE
+--		SYNTAX 		OCTET STRING
+--		MAX-ACCESS	read-only
+--		STATUS		current
+--		DESCRIPTION
+--			"SSID"
+--		::= {sHubWLanAccessControlListConfig 2}
+
+sHubWLanAccessControlListSetMacAddr2g			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Mac address of device to control access"
+		::= {sHubWLanAccessControlListConfig 3}
+
+sHubWLanAccessControlListSetComment2g			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Comment for device configured to control access."
+		::= {sHubWLanAccessControlListConfig 4}
+
+sHubWLanAccessControlListAdd2g				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Add configured values by user to Access Control List.
+			When sHubAccessControlMacAddr, sHubAccessControlComment are configured,
+			this object is working."
+		::= {sHubWLanAccessControlListConfig 5}
+
+sHubWLanAccessControlListDel2g				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete entry that have entered number by user."
+		::= {sHubWLanAccessControlListConfig 6}
+
+sHubWLanAccessControlListDelAll2g				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete all entries in table."
+		::= {sHubWLanAccessControlListConfig 7}
+
+sHubWLanAccessControlListTable2g				OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHubWLanACCESSCONTROLListEntry2g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListConfig 8}
+
+sHubWLanAccessControlListEntry2g 		OBJECT-TYPE
+		SYNTAX 		SHubWLanACCESSCONTROLListEntry2g
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX		{ sHubWLanAccessControlListIndex }
+		::= {sHubWLanAccessControlListTable2g 1}
+
+SHubWLanACCESSCONTROLListEntry2g ::=
+	SEQUENCE {
+		sHubWLanAccessControlListIndex2g			INTEGER,
+		sHubWLanAccessControlListSSIDIndex2g		INTEGER,
+		sHubWLanAccessControlListSSID2g			OCTET STRING,
+		sHubWLanAccessControlListHwAddr2g			MacAddress,
+		sHubWLanAccessControlListDescription2g		OCTET STRING
+	}
+
+sHubWLanAccessControlListIndex2g			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry2g 1}
+
+sHubWLanAccessControlListSSIDIndex2g	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"SSID Index or all(99) "
+		::= {sHubWLanAccessControlListEntry2g 2}
+
+sHubWLanAccessControlListSSID2g	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry2g 3}
+
+
+sHubWLanAccessControlListHwAddr2g			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry2g 4}
+
+sHubWLanAccessControlListDescription2g			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry2g 5}
+
+
+-- ********************************************************************** START
+sHubWLanAccessControlConfig5G		OBJECT IDENTIFIER ::= {sHubAccessControlConfig 3}
+
+sHubWLanAccessControlModeTable5G		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBWLanAccessControlModeEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubWLanAccessControlConfig5G 1}
+
+sHubWLanAccessControlModeEntry5G 		OBJECT-TYPE
+		SYNTAX 		SHUBWLanAccessControlModeEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX		{	sHubWLanAccessControlSSIDlndex5G
+				}
+		::= {sHubWLanAccessControlModeTable5G 1}
+
+SHUBWLanAccessControlModeEntry5G::=
+	SEQUENCE {
+		sHubWLanAccessControlSSIDlndex5G			INTEGER,
+		sHubWLanAccessControlSSID5G				OCTET STRING,
+		sHubWLanAccessControlSSIDOperMode5G		INTEGER
+	}
+
+sHubWLanAccessControlSSIDlndex5G	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			" SSID Index or all(99) "
+		::= {sHubWLanAccessControlModeEntry5G 1}
+
+sHubWLanAccessControlSSID5G	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlModeEntry5G 2}
+
+sHubWLanAccessControlSSIDOperMode5G			OBJECT-TYPE
+		SYNTAX 		INTEGER { disable(1), allow(2), deny(3) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Access Control operation mode.
+
+			Input Value
+			============
+			1: disable
+			2: allow listed
+			3: deny listed"
+		::= {sHubWLanAccessControlModeEntry5G 3}
+
+
+sHubWLanAccessControlListConfig5G					OBJECT IDENTIFIER ::= {sHubWLanAccessControlConfig5G 2}
+sHubWLanAccessControlListSetSSIDIndex5G	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"SSID Index or all(99)"
+		::= {sHubWLanAccessControlListConfig5G 1}
+
+--sHubWLanAccessControlListSetSSID5G OBJECT-TYPE
+--		SYNTAX 		OCTET STRING
+--		MAX-ACCESS	read-only
+--		STATUS		current
+--		DESCRIPTION
+--			"SSID"
+--		::= {sHubWLanAccessControlListConfig5G 2}
+
+sHubWLanAccessControlListSetMacAddr5G			OBJECT-TYPE
+		SYNTAX 		MacAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Mac address of device to control access"
+		::= {sHubWLanAccessControlListConfig5G 3}
+
+sHubWLanAccessControlListSetComment5G			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Comment for device configured to control access."
+		::= {sHubWLanAccessControlListConfig5G 4}
+
+sHubWLanAccessControlListAdd5G				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Add configured values by user to Access Control List.
+			When sHubAccessControlMacAddr, sHubAccessControlComment are configured,
+			this object is working."
+		::= {sHubWLanAccessControlListConfig5G 5}
+
+sHubWLanAccessControlListDel5G				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete entry that have entered number by user."
+		::= {sHubWLanAccessControlListConfig5G 6}
+
+sHubWLanAccessControlListDelAll5G				OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete all entries in table."
+		::= {sHubWLanAccessControlListConfig5G 7}
+
+sHubWLanAccessControlListTable5G				OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHubWLanACCESSCONTROLListEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListConfig5G 8}
+
+sHubWLanAccessControlListEntry5G 		OBJECT-TYPE
+		SYNTAX 		SHubWLanACCESSCONTROLListEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX		{ sHubWLanAccessControlListIndex5G }
+		::= {sHubWLanAccessControlListTable5G 1}
+
+SHubWLanACCESSCONTROLListEntry5G ::=
+	SEQUENCE {
+		sHubWLanAccessControlListIndex5G			INTEGER,
+		sHubWLanAccessControlListSSIDIndex5G		INTEGER,
+		sHubWLanAccessControlListSSID5G			OCTET STRING,
+		sHubWLanAccessControlListHwAddr5G			OCTET STRING,
+		sHubWLanAccessControlListDescription5G		OCTET STRING
+	}
+
+sHubWLanAccessControlListIndex5G			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry5G 1}
+
+sHubWLanAccessControlListSSIDIndex5G	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"SSID Index or all(99) "
+		::= {sHubWLanAccessControlListEntry5G 2}
+
+sHubWLanAccessControlListSSID5G	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry5G 3}
+
+
+sHubWLanAccessControlListHwAddr5G			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry5G 4}
+
+sHubWLanAccessControlListDescription5G			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			""
+		::= {sHubWLanAccessControlListEntry5G 5}
+
+-- **********************************************************************	END
+sHubVlanConfig					OBJECT IDENTIFIER ::= {skbSHubConfigInfo 13}
+sHubVlanConfTable			OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHubVLANConfEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Vlan Configuration Table"
+		::= {sHubVlanConfig 1}
+
+sHubVlanConfEntry 			OBJECT-TYPE
+		SYNTAX 		SHubVLANConfEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Vlan Configuration Entry "
+		INDEX	{sHubVlanConfIndex}
+		::= {sHubVlanConfTable 1}
+
+SHubVLANConfEntry ::=
+	SEQUENCE {
+		sHubVlanConfIndex		INTEGER,
+		sHubVlanConfVid		INTEGER,
+		sHubVlanConfMemberPort	INTEGER
+	}
+
+sHubVlanConfIndex			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The index of vlan config.
+			ex) vlan'index'"
+		::= {sHubVlanConfEntry 1}
+
+sHubVlanConfVid			OBJECT-TYPE
+		SYNTAX 		INTEGER (0..4094)
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Insert vid range : 0 ~ 4094"
+		::= {sHubVlanConfEntry 2}
+
+sHubVlanConfMemberPort			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"bit map
+                                     --|--|--|--|...
+                                     port 1
+                                          port 2
+                                               port 3
+                                    00 : unset,
+                                    01 : tag,
+                                    10 : untag"
+		::= {sHubVlanConfEntry 3}
+
+-- **********************************************************************
+-- **********************************************************************	END
+sHubPortFwConfig					OBJECT IDENTIFIER ::= {skbSHubConfigInfo 14}
+sHubProtocolType 	OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Protocol Type"
+		::= {sHubPortFwConfig 1}
+
+sHubExternalPortStart 	OBJECT-TYPE
+			SYNTAX 		INTEGER
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"External Start Port"
+			::= {sHubPortFwConfig 2}
+
+sHubExternalPortEnd 	OBJECT-TYPE
+			SYNTAX 		INTEGER
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"External End Port"
+			::= {sHubPortFwConfig 3}
+
+sHubInternalIPAddress 	OBJECT-TYPE
+			SYNTAX 		IpAddress
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"Internal IP Address"
+			::= {sHubPortFwConfig 4}
+
+sHubInternalPortStart 	OBJECT-TYPE
+			SYNTAX 		INTEGER
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"Internal Start Port"
+			::= {sHubPortFwConfig 5}
+
+sHubInternalPortEnd 	OBJECT-TYPE
+			SYNTAX 		INTEGER
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"Internal End Port"
+			::= {sHubPortFwConfig 6}
+
+sHubPortFwAdd	OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"PortFW Add"
+		::= {sHubPortFwConfig 7}
+
+sHubPortFwDel 	OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"PortFW Delete"
+		::= {sHubPortFwConfig 8}
+
+sHubPortFwDelAll 	OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+			DESCRIPTION
+			"Internal End Port"
+		::= {sHubPortFwConfig 9}
+
+sHubPortFwTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBPortFwEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubPortFwConfig 10}
+
+sHubPortFwEntry 		OBJECT-TYPE
+        SYNTAX 		SHUBPortFwEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			""
+		INDEX	{sHubPortFwlndex}
+		::= {sHubPortFwTable 1}
+
+SHUBPortFwEntry::=
+	SEQUENCE {
+		sHubPortFwlndexEntry					INTEGER,
+		sHubExternalPortStartEntry			INTEGER,
+        sHubExternalPortEndEntry				INTEGER,
+        sHubInternalIPAddressEntry			IpAddress,
+ 		sHubInternalPortStartEntry			INTEGER,
+        sHubInternalPortEndEntry				INTEGER
+	}
+
+sHubPortFwlndexEntry	OBJECT-TYPE
+	SYNTAX 		INTEGER
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"Indexs of PortFw table"
+	::= {sHubPortFwEntry 1}
+
+sHubExternalPortStartEntry	OBJECT-TYPE
+			SYNTAX 			INTEGER
+			MAX-ACCESS		read-write
+			STATUS			current
+			DESCRIPTION
+				"ExternalPort of PortFw table"
+			::= {sHubPortFwEntry 2}
+
+sHubExternalPortEndEntry	OBJECT-TYPE
+			SYNTAX 			INTEGER
+			MAX-ACCESS		read-write
+			STATUS			current
+			DESCRIPTION
+				"ExternalPort of PortFw table"
+			::= {sHubPortFwEntry 3}
+
+sHubInternalIPAddressEntry		OBJECT-TYPE
+				SYNTAX 			IpAddress
+				MAX-ACCESS		read-write
+				STATUS			current
+				DESCRIPTION
+					"Ipaddress of PortFw table"
+				::= {sHubPortFwEntry 4}
+
+sHubInternalPortStartEntry		OBJECT-TYPE
+				SYNTAX 			INTEGER
+				MAX-ACCESS		read-write
+				STATUS			current
+				DESCRIPTION
+					"InternalPort of PortFw table"
+				::= {sHubPortFwEntry 5}
+
+sHubInternalPortEndEntry	OBJECT-TYPE
+			SYNTAX 			INTEGER
+			MAX-ACCESS		read-write
+			STATUS			current
+			DESCRIPTION
+				"InternalPort of PortFw table"
+			::= {sHubPortFwEntry 6}
+
+-- **********************************************************************
+-- **********************************************************************
+sHubIgmpStatus			OBJECT IDENTIFIER ::= {skbSHubStatus 1}
+sHubIgmpJoinTable					OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBIGMPJoinEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of IGMP Join status"
+		::= {sHubIgmpStatus 1}
+
+sHubIgmpJoinEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBIGMPJoinEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of IGMP Join table"
+		INDEX		{ sHubIgmpJoinIndex }
+		::= {sHubIgmpJoinTable 1}
+
+SHUBIGMPJoinEntry ::=
+	SEQUENCE {
+		sHubIgmpJoinIndex			INTEGER,
+		sHubIgmpJoinIpAddress		IpAddress,
+		sHubIgmpJoinMemberNumber		INTEGER,
+		sHubIgmpJoinPort			INTEGER,
+                        sHubIgmpMulticastInPkts		Counter32,
+		sHubIgmpMulticastOutPkts		Counter32
+
+	}
+
+sHubIgmpJoinIndex	OBJECT-TYPE
+	SYNTAX 		INTEGER
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"Indexs of IGMP Join table"
+	::= {sHubIgmpJoinEntry 1}
+
+sHubIgmpJoinIpAddress	OBJECT-TYPE
+	SYNTAX 		IpAddress
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"The multicast group ip addreess"
+	::= {sHubIgmpJoinEntry 2}
+
+sHubIgmpJoinMemberNumber	OBJECT-TYPE
+	SYNTAX 		INTEGER
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"The number of SS joined multicast group"
+	::= {sHubIgmpJoinEntry 3}
+
+sHubIgmpJoinPort			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"bit map
+                                     -|-|-|-|-|-|-|-|...
+                                     port 1
+                                        port 2
+                                            port 3
+                                    0 : X,
+                                    1 : O"
+		::= {sHubIgmpJoinEntry 4}
+
+sHubMulticastTable					OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBMulticastEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of Multicast status"
+		::= {sHubIgmpStatus 2}
+
+sHubMulticastEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBMulticastEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of Multicast table"
+		INDEX		{ sHubMulticastIndex }
+		::= {sHubMulticastTable 1}
+
+SHUBMulticastEntry ::=
+	SEQUENCE {
+		sHubMulticastIndex		INTEGER,
+		sHubMulticastJoinIpAddress	IpAddress,
+		sHubMulticastPortNumber	INTEGER,
+                        sHubMulticastPortName		OCTET STRING,
+		sHubMulticastOperation		INTEGER,
+                        sHubMulticastInPkts		Counter32,
+		sHubMulticastOutPkts		Counter32
+
+	}
+
+sHubMulticastIndex	OBJECT-TYPE
+	SYNTAX 		INTEGER
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"Indexs of Multicast table"
+	::= {sHubMulticastEntry 1}
+
+sHubMulticastJoinIpAddress	OBJECT-TYPE
+	SYNTAX 		IpAddress
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"The multicast group ip addreess"
+	::= {sHubMulticastEntry 2}
+
+sHubMulticastPortNumber				OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	"Physical port number
+          	Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)"
+    	::= {sHubMulticastEntry 3}
+
+sHubMulticastPortName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Physical port name."
+		::= {sHubMulticastEntry 4}
+
+sHubMulticastOperation	OBJECT-TYPE
+	SYNTAX 		INTEGER  { run(1), notRun(2) }
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		"Multicast packet running status.
+		Run(1), notRun(2)"
+	::= {sHubMulticastEntry 5}
+
+sHubMulticastInPkts	OBJECT-TYPE
+	SYNTAX 		Counter32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		" "
+	::= {sHubMulticastEntry 6}
+
+sHubMulticastOutPkts	OBJECT-TYPE
+	SYNTAX 		Counter32
+	MAX-ACCESS	read-only
+	STATUS		current
+	DESCRIPTION
+		" "
+	::= {sHubMulticastEntry 7}
+
+-- **********************************************************************
+
+-- **********************************************************************
+sHubSyslogStatus			OBJECT IDENTIFIER ::= {skbSHubStatus 2}
+sHubSysLogTable			OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBSysLogEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of APR Sys log"
+		::= {sHubSyslogStatus 1}
+
+sHubSysLogEntry 			OBJECT-TYPE
+        SYNTAX 		SHUBSysLogEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entry of APR Evnet log"
+			INDEX		{ sHubSysLogIndex }
+		::= {sHubSysLogTable 1}
+
+SHUBSysLogEntry ::=
+	SEQUENCE {
+		sHubSysLogIndex		INTEGER,
+		sHubSysLogString		OCTET STRING
+	}
+
+sHubSysLogIndex			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The Index of AP Event log"
+		::= {sHubSysLogEntry 1}
+
+sHubSysLogString			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The String of AP Event log"
+		::= {sHubSysLogEntry 2}
+-- **********************************************************************
+
+-- **********************************************************************
+sHubHostInfoOnPort			OBJECT IDENTIFIER ::= {skbSHubStatus 3}
+
+sHubHostInfoOnPortTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBHostInfoOnPortEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Port - Mac address - host Ip address matching Table"
+		::= {sHubHostInfoOnPort 1}
+
+sHubHostInfoOnPortEntry 		OBJECT-TYPE
+        SYNTAX 		SHUBHostInfoOnPortEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Entries of Port - Mac address - host Ip address matching Table"
+		INDEX		{
+					sHubHostInfoOnPortIndex
+					}
+		::= {sHubHostInfoOnPortTable 1}
+
+SHUBHostInfoOnPortEntry ::=
+	SEQUENCE {
+                        sHubHostInfoOnPortIndex		INTEGER,
+		sHubPortNumber			INTEGER,
+                        sHubPortName				OCTET STRING,
+		sHubPortHostMacAddr    MacAddress,
+		sHubPortHostIpaddr     IpAddress
+	}
+
+sHubHostInfoOnPortIndex		OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	""
+    	::= {sHubHostInfoOnPortEntry 1}
+
+
+sHubPortNumber				OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	"Physical port number
+          	Wan(0) - Lan(1) - Lan(2) - Lan(3) - Lan(4)"
+    	::= {sHubHostInfoOnPortEntry 2}
+
+sHubPortName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Physical port name."
+		::= {sHubHostInfoOnPortEntry 3}
+
+
+sHubPortHostMacAddr		OBJECT-TYPE
+		SYNTAX		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	"Mac Address of host linked each phisical port"
+    	::= {sHubHostInfoOnPortEntry 4}
+
+sHubPortHostIpaddr				OBJECT-TYPE
+		SYNTAX		IpAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+          	"Ip Address of host linked each phisical port"
+    	::= {sHubHostInfoOnPortEntry 5}
+-- **********************************************************************
+sHubPortStatus					OBJECT IDENTIFIER ::= {skbSHubStatus 4}
+sHubPortStatusTable		OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF SHUBPortStatusEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Device Port Status List Table"
+		::= {sHubPortStatus 1}
+
+sHubPortStatusEntry 		OBJECT-TYPE
+		SYNTAX 		SHUBPortStatusEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"Devie Port Status List Entry "
+		INDEX	{sHubPortStatusIndex}
+		::= {sHubPortStatusTable 1}
+
+SHUBPortStatusEntry ::=
+	SEQUENCE {
+		sHubPortStatusIndex		INTEGER,
+		sHubPortStatusNumber	INTEGER,
+		sHubPortStatusName 		OCTET STRING,
+		sHubPortStatusInBps		INTEGER,
+		sHubPortStatusOutBps		INTEGER,
+		sHubPortStatusCRC		Counter
+		}
+
+sHubPortStatusIndex		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The index of device port list."
+		::= {sHubPortStatusEntry 1}
+
+sHubPortStatusNumber		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The port number of device port list."
+		::= {sHubPortStatusEntry 2}
+
+sHubPortStatusName			OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"The port name of device port list."
+		::= {sHubPortStatusEntry 3}
+
+sHubPortStatusInBps			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubPortStatusEntry 4}
+
+sHubPortStatusOutBps			OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubPortStatusEntry 5}
+
+sHubPortStatusCRC		OBJECT-TYPE
+		SYNTAX 		Counter
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			" "
+		::= {sHubPortStatusEntry 6}
+
+
+-- **********************************************************************
+sHubWlanActiveStatus				OBJECT IDENTIFIER ::= {skbSHubStatus 5}
+sHubWlanActiveStatusTable			OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF     SHubWlanActiveStatusEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of Active Wireless Client"
+		::= {sHubWlanActiveStatus 1}
+
+sHubWlanActiveStatusEntry 		OBJECT-TYPE
+		SYNTAX 		SHubWlanActiveStatusEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of Active Wireless Client Table"
+		INDEX		{ sHubWlanActiveIndex }
+		::= {sHubWlanActiveStatusTable 1}
+
+SHubWlanActiveStatusEntry ::=
+	SEQUENCE {
+		sHubWlanActiveIndex			INTEGER,
+		sHubWlanActiveSSID			OCTET STRING,
+		sHubWlanActiveMacAddr		MacAddress,
+		sHubWlanActiveMode			INTEGER,
+		sHubWlanActiveAuthResult		INTEGER,
+		sHubWlanActiveRSSI		OCTET STRING,
+	}
+
+sHubWlanActiveIndex		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Index of Active Wireless Client Table"
+		::= {sHubWlanActiveStatusEntry 1}
+
+sHubWlanActiveSSID			OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Wireless lan interface SSID"
+
+		::= {sHubWlanActiveStatusEntry 2}
+
+sHubWlanActiveMacAddr		    OBJECT-TYPE
+		SYNTAX		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"MAC address of Active Wireless Client"
+		::= {sHubWlanActiveStatusEntry 3}
+
+sHubWlanActiveMode		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Mode of Active Wireless Client. This object has three state.
+
+			1: 11b
+			2: 11g
+			3: 11n"
+		::= {sHubWlanActiveStatusEntry 4}
+
+sHubWlanActiveAuthResult		    OBJECT-TYPE
+		SYNTAX		INTEGER	{ success(2) }
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Reault of wireless clinent authentication.
+			Result is one of two status, Fail or Success."
+		::= {sHubWlanActiveStatusEntry 5}
+
+sHubWlanActiveRSSI		OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Receive Signal Strength Indicator "
+		::= {sHubWlanActiveStatusEntry 6}
+
+sHubWlanScanActiveStatus				OBJECT IDENTIFIER ::= {skbSHubStatus 6}
+sHubWlanScanActiveStatusTable			OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF     SHubWlanScanActiveStatusEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of Active Wireless Client"
+		::= {sHubWlanScanActiveStatus 1}
+
+sHubWlanScanActiveStatusEntry 		OBJECT-TYPE
+		SYNTAX 		SHubWlanScanActiveStatusEntry
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of Active Wireless Client Table"
+		INDEX		{ sHubWlanScanActiveIndex }
+		::= {sHubWlanScanActiveStatusTable 1}
+
+SHubWlanScanActiveStatusEntry ::=
+	SEQUENCE {
+		sHubWlanScanActiveIndex			INTEGER,
+		sHubWlanScanActiveSSID			OCTET STRING,
+		sHubWlanScanActiveBssid		MacAddress,
+		sHubWlanScanActiveChannel			OCTET STRING,
+		sHubWlanScanActiveEncrypt		OCTET STRING,
+		sHubWlanScanActiveRSSI		OCTET STRING,
+		sHubWlanScanSiteSurvey		INTEGER,
+
+	}
+
+sHubWlanScanActiveIndex		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Index of Active Wireless Client Table"
+		::= {sHubWlanScanActiveStatusEntry 1}
+
+sHubWlanScanActiveSSID			OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Wireless lan interface SSID"
+
+		::= {sHubWlanScanActiveStatusEntry 2}
+
+sHubWlanScanActiveBssid		    OBJECT-TYPE
+		SYNTAX		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"MAC address of Active Wireless Client"
+		::= {sHubWlanScanActiveStatusEntry 3}
+
+sHubWlanScanActiveChannel		    OBJECT-TYPE
+		SYNTAX		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Channel of Active Wireless Client.(channel+B+G+N)."
+		::= {sHubWlanScanActiveStatusEntry 4}
+
+sHubWlanScanActiveEncrypt		    OBJECT-TYPE
+		SYNTAX		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Encrypt of Active Wireless Client.(WPA)."
+		::= {sHubWlanScanActiveStatusEntry 5}
+
+sHubWlanScanActiveRSSI		OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Receive Signal Strength Indicator "
+		::= {sHubWlanScanActiveStatusEntry 6}
+
+sHubWlanScan				OBJECT IDENTIFIER ::= {sHubWlanScanActiveStatus 2}
+sHubWlanScanDoit	OBJECT-TYPE
+		SYNTAX		INTEGER{ disable(0), enable(1)}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"do it - wlsitesurvey"
+		::= {sHubWlanScan 1}
+
+sHubResourceInfo				OBJECT IDENTIFIER ::= {skbSHubStatus 7}
+sHubCpuUtilization		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"CPU Utilization"
+		::= {sHubResourceInfo 1}
+
+sHubRamUtilization		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"RAM Utilization"
+		::= {sHubResourceInfo 2}
+
+sHubFlashUtilization		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"FLASH Utilization"
+		::= {sHubResourceInfo 3}
+
+sHubSystemLog				OBJECT IDENTIFIER ::= {skbSHubStatus 8}
+
+sHubDeleteSyslog		OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Delete SysLog"
+		::= {sHubSystemLog 1}
+
+
+sHubWlanActiveStatus5G				OBJECT IDENTIFIER ::= {skbSHubStatus 9}
+sHubWlanActiveStatusTable5G			OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF     SHubWlanActiveStatusEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of Active Wireless Client"
+		::= {sHubWlanActiveStatus5G 1}
+
+sHubWlanActiveStatusEntry5G 		OBJECT-TYPE
+		SYNTAX 		SHubWlanActiveStatusEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of Active Wireless Client Table"
+		INDEX		{ sHubWlanActiveIndex5G }
+		::= {sHubWlanActiveStatusTable5G 1}
+
+SHubWlanActiveStatusEntry5G ::=
+	SEQUENCE {
+		sHubWlanActiveIndex5G			INTEGER,
+		sHubWlanActiveSSID5G			OCTET STRING,
+		sHubWlanActiveMacAddr5G		MacAddress,
+		sHubWlanActiveMode5G			INTEGER,
+		sHubWlanActiveAuthResult5G		INTEGER,
+		sHubWlanActiveRSSI5G		OCTET STRING,
+	}
+
+sHubWlanActiveIndex5G		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Index of Active Wireless Client Table"
+		::= {sHubWlanActiveStatusEntry5G 1}
+
+sHubWlanActiveSSID5G			OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Wireless lan interface SSID"
+
+		::= {sHubWlanActiveStatusEntry5G 2}
+
+sHubWlanActiveMacAddr5G		    OBJECT-TYPE
+		SYNTAX		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"MAC address of Active Wireless Client"
+		::= {sHubWlanActiveStatusEntry5G 3}
+
+sHubWlanActiveMode5G		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Mode of Active Wireless Client. This object has three state.
+
+			1: 11b
+			2: 11g
+			3: 11n"
+		::= {sHubWlanActiveStatusEntry5G 4}
+
+sHubWlanActiveAuthResult5G		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Reault of wireless clinent authentication.
+			Result is one of two status, Fail or Success."
+		::= {sHubWlanActiveStatusEntry5G 5}
+
+sHubWlanActiveRSSI5G		OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Receive Signal Strength Indicator "
+		::= {sHubWlanActiveStatusEntry5G 6}
+
+sHubWlanScanActiveStatus5G				OBJECT IDENTIFIER ::= {skbSHubStatus 10}
+sHubWlanScanActiveStatusTable5G			OBJECT-TYPE
+		SYNTAX 		SEQUENCE OF     SHubWlanScanActiveStatusEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The table of Active Wireless Client"
+		::= {sHubWlanScanActiveStatus5G 1}
+
+sHubWlanScanActiveStatusEntry5G 		OBJECT-TYPE
+		SYNTAX 		SHubWlanScanActiveStatusEntry5G
+		MAX-ACCESS	not-accessible
+		STATUS		current
+		DESCRIPTION
+			"The entries of Active Wireless Client Table"
+		INDEX		{ sHubWlanScanActiveIndex5G }
+		::= {sHubWlanScanActiveStatusTable5G 1}
+
+SHubWlanScanActiveStatusEntry5G ::=
+	SEQUENCE {
+		sHubWlanScanActiveIndex5G			INTEGER,
+		sHubWlanScanActiveSSID5G			OCTET STRING,
+		sHubWlanScanActiveBssid5G		MacAddress,
+		sHubWlanScanActiveChannel5G			OCTET STRING,
+		sHubWlanScanActiveEncrypt5G		OCTET STRING,
+		sHubWlanScanActiveRSSI5G		OCTET STRING,
+		sHubWlanScanSiteSurvey5G		INTEGER,
+
+	}
+
+sHubWlanScanActiveIndex5G		    OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Index of Active Wireless Client Table"
+		::= {sHubWlanScanActiveStatusEntry5G 1}
+
+sHubWlanScanActiveSSID5G			OBJECT-TYPE
+		SYNTAX			OCTET STRING
+		MAX-ACCESS		read-write
+		STATUS			current
+		DESCRIPTION		"Wireless lan interface SSID"
+
+		::= {sHubWlanScanActiveStatusEntry5G 2}
+
+sHubWlanScanActiveBssid5G		    OBJECT-TYPE
+		SYNTAX		MacAddress
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"MAC address of Active Wireless Client"
+		::= {sHubWlanScanActiveStatusEntry5G 3}
+
+sHubWlanScanActiveChannel5G		    OBJECT-TYPE
+		SYNTAX		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Channel of Active Wireless Client.(channel+B+G+N)."
+		::= {sHubWlanScanActiveStatusEntry5G 4}
+
+sHubWlanScanActiveEncrypt5G		    OBJECT-TYPE
+		SYNTAX		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Encrypt of Active Wireless Client.(WPA)."
+		::= {sHubWlanScanActiveStatusEntry5G 5}
+
+sHubWlanScanActiveRSSI5G		OBJECT-TYPE
+		SYNTAX 		OCTET STRING
+		MAX-ACCESS	read-only
+		STATUS		current
+		DESCRIPTION
+			"Receive Signal Strength Indicator "
+		::= {sHubWlanScanActiveStatusEntry5G 6}
+
+sHubWlanScan5G				OBJECT IDENTIFIER ::= {sHubWlanScanActiveStatus5G 2}
+sHubWlanScanDoit5G	OBJECT-TYPE
+		SYNTAX		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"do it - wlsitesurvey"
+		::= {sHubWlanScan5G 1}
+-- **********************************************************************
+sHubSystemRemoteResetConfig	OBJECT IDENTIFIER ::= {skbSHubDiag 1}
+sHubSystemRemoteReset		OBJECT-TYPE
+		SYNTAX 		TruthValue
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"If true, Remote reset is asserted"
+		::= {sHubSystemRemoteResetConfig 1}
+sHubAutoresetSet		OBJECT-TYPE
+		SYNTAX 		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Autoreset Enable/Disable"
+		::= {sHubSystemRemoteResetConfig 2}
+sHubAutoresetWanTraffic		OBJECT-TYPE
+		SYNTAX 		INTEGER { "100kbps"(1), "200kbps"(2), "300kbps"(3), "400kbps"(4), "500kbps"(5), "600kbps"(6), "700kbps"(7), "800kbps"(8), "900kbps"(9), "1000kbps"(10),}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Autoreset WAN traffic check"
+		::= {sHubSystemRemoteResetConfig 3}
+
+-- **********************************************************************
+
+-- **********************************************************************
+sHubPingTest			OBJECT IDENTIFIER ::= {skbSHubDiag 2}
+
+pingTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF PingEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+        "A table of ping request entries."
+    ::= { sHubPingTest 1 }
+
+pingEntry OBJECT-TYPE
+    SYNTAX PingEntry
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+        "A ping request entry.
+
+        A management station wishing to create an entry should
+        first generate a pseudo-random serial number to be used
+        as the index to this sparse table.  The station should
+        then create the associated instance of the row status
+        and row owner objects.  It must also, either in the same
+        or in successive PDUs, create the associated instance of
+        the protocol and address objects.  It should also modify
+        the default values for the other configuration objects
+        if the defaults are not appropriate.
+
+        Once the appropriate instance of all the configuration
+        objects have been created, either by an explicit SNMP
+        set request or by default, the row status should be set
+        to active to initiate the request.  Note that this entire
+        procedure may be initiated via a single set request which
+        specifies a row status of createAndGo as well as specifies
+        valid values for the non-defaulted configuration objects.
+
+        Once the ping sequence has been activated, it cannot be
+        stopped -- it will run until the configured number of
+        packets have been sent.
+
+        Once the sequence completes, the management station should
+        retrieve the values of the status objects of interest, and
+        should then delete the entry.  In order to prevent old
+        entries from clogging the table, entries will be aged out,
+        but an entry will never be deleted within 5 minutes of
+        completing."
+    INDEX { pingSerialNumber }
+    ::= { pingTable 1 }
+
+PingEntry ::= SEQUENCE {
+    pingSerialNumber INTEGER,
+    pingProtocol INTEGER,
+    pingAddress OCTET STRING,
+    pingPacketCount INTEGER,
+    pingPacketSize INTEGER,
+    pingPacketTimeout INTEGER,
+    pingDelay INTEGER,
+    pingTrapOnCompletion INTEGER,
+    pingSentPackets Counter,
+    pingReceivedPackets Counter,
+    pingMinRtt INTEGER,
+    pingAvgRtt INTEGER,
+    pingMaxRtt INTEGER,
+    pingCompleted INTEGER,
+    pingEntryOwner OCTET STRING,
+    pingEntryStatus INTEGER,
+    pingVrfName OCTET STRING
+    }
+
+pingSerialNumber OBJECT-TYPE
+    SYNTAX INTEGER(1..2147483647)
+    ACCESS not-accessible
+    STATUS mandatory
+    DESCRIPTION
+        "Object which specifies a unique entry in the
+        PingTable.  A management station wishing
+        to initiate a ping operation should use a
+        pseudo-random value for this object when creating
+        or modifying an instance of a PingEntry.
+        The RowStatus semantics of the PingEntryStatus
+        object will prevent access conflicts."
+    ::= { pingEntry 1 }
+
+pingProtocol OBJECT-TYPE
+    SYNTAX INTEGER {
+        ip(1)
+        }
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "The protocol to use.
+        Once an instance of this object is created, its
+        value can not be changed."
+    ::= { pingEntry 2 }
+
+pingAddress OBJECT-TYPE
+    SYNTAX	OCTET STRING
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "The address of the device to be pinged.
+        An instance of this object cannot be created until the
+        associated instance of PingProtocol is created."
+    ::= { pingEntry 3 }
+
+pingPacketCount OBJECT-TYPE
+    SYNTAX INTEGER(1..2147483647)
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "Specifies the number of ping packets to send to the target
+        in this sequence."
+    DEFVAL { 5 }
+    ::= { pingEntry 4 }
+
+pingPacketSize OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "Specifies the size of ping packets to send to the target
+        in this sequence.  The lower and upper boundaries of this
+        object are protocol-dependent.
+        An instance of this object cannot be modified unless the
+        associated instance of PingProtocol has been created
+        (so as to allow protocol-specific range checking on the
+        new value)."
+    DEFVAL { 100 }
+    ::= { pingEntry 5 }
+
+pingPacketTimeout OBJECT-TYPE
+    SYNTAX INTEGER(0..3600000)
+--  Units
+--    milliseconds
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "Specifies the amount of time to wait for a response to a
+        transmitted packet before declaring the packet 'dropped.'"
+    DEFVAL { 2000 }
+    ::= { pingEntry 6 }
+
+pingDelay OBJECT-TYPE
+    SYNTAX INTEGER(0..3600000)
+--  Units
+--    milliseconds
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "Specifies the minimum amount of time to wait before sending
+        the next packet in a sequence after receiving a response or
+        declaring a timeout for a previous packet.  The actual delay
+        may be greater due to internal task scheduling."
+    DEFVAL { 0 }
+    ::= { pingEntry 7 }
+
+pingTrapOnCompletion OBJECT-TYPE
+    SYNTAX	INTEGER {
+        true(1),
+        false(2)
+        }
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "Specifies whether or not a PingCompletion trap should
+        be issued on completion of the sequence of pings.  If such a
+        trap is desired, it is the responsibility of the management
+        entity to ensure that the SNMP administrative model is
+        configured in such a way as to allow the trap to be delivered."
+    DEFVAL { false }
+    ::= { pingEntry 8 }
+
+pingSentPackets OBJECT-TYPE
+    SYNTAX Counter
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+        "The number of ping packets that have been sent to the target
+        in this sequence."
+    ::= { pingEntry 9 }
+
+pingReceivedPackets OBJECT-TYPE
+    SYNTAX Counter
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+        "The number of ping packets that have been received from the
+        target in this sequence."
+    ::= { pingEntry 10 }
+
+pingMinRtt OBJECT-TYPE
+    SYNTAX INTEGER
+--  Units
+--    milliseconds
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+        "The minimum round trip time of all the packets that have
+        been sent in this sequence.
+
+        This object will not be created until the first ping
+        response in a sequence is received."
+    ::= { pingEntry 11 }
+
+pingAvgRtt OBJECT-TYPE
+    SYNTAX INTEGER
+--  Units
+--    milliseconds
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+        "The average round trip time of all the packets that have
+        been sent in this sequence.
+
+        This object will not be created until the first ping
+        response in a sequence is received."
+    ::= { pingEntry 12 }
+
+pingMaxRtt OBJECT-TYPE
+    SYNTAX INTEGER
+--  Units
+--    milliseconds
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+        "The maximum round trip time of all the packets that have
+        been sent in this sequence.
+
+        This object will not be created until the first ping
+        response in a sequence is received."
+    ::= { pingEntry 13 }
+
+pingCompleted OBJECT-TYPE
+    SYNTAX	INTEGER {
+        true(1),
+        false(2)
+        }
+    ACCESS read-only
+    STATUS mandatory
+    DESCRIPTION
+        "Set to true when all the packets in this sequence have been
+        either responded to or timed out."
+    ::= { pingEntry 14 }
+
+pingEntryOwner OBJECT-TYPE
+    SYNTAX	OCTET STRING(SIZE(0..255))
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "The entity that configured this entry."
+    ::= { pingEntry 15 }
+
+pingEntryStatus OBJECT-TYPE
+    SYNTAX 	INTEGER {
+        active(1),
+        notInService(2),
+        notReady(3),
+        createAndGo(4),
+        createAndWait(5),
+        destroy(6)
+        }
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+        "The status of this table entry.  Once the entry status is
+        set to active, the associate entry cannot be modified until
+        the sequence completes (PingCompleted is true)."
+    ::= { pingEntry 16 }
+
+
+-- sHubPingTest			OBJECT IDENTIFIER ::= {skbSHubDiag 2}
+-- sHubPingDestination	OBJECT-TYPE
+-- 		SYNTAX		OCTET STRING
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"Destination ip or domain name to execute ping test."
+-- 		::= { sHubPingTest 1 }
+--
+-- sHubPingStart		OBJECT-TYPE
+-- 		SYNTAX		INTEGER { _4(1), _8(2), _16(3) }
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"Execute ping command. 'sHubPingDestination' must be configured necessiarly.
+-- 			Ping execute 4 or 8 or 16 times following Input Value.
+--
+-- 			Input Value
+-- 			===========
+-- 			1: 4 times
+-- 			2: 8 times
+-- 			3: 16 times
+--
+-- 			Before reexecuting this object, 'sHubPingStop' must be executed."
+-- 		::= { sHubPingTest 2 }
+--
+-- sHubPingStop		OBJECT-TYPE
+-- 		SYNTAX		INTEGER
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"This object make ping command stop and
+-- 			clear configuration for testing ping."
+-- 		::= { sHubPingTest 3 }
+--
+-- sHubPingClear			OBJECT-TYPE
+-- 		SYNTAX		INTEGER
+-- 		MAX-ACCESS	read-write
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"This object is clear Ping Log"
+-- 		::= {sHubPingTest 4 }
+--
+-- sHubPingLogTable			OBJECT-TYPE
+-- 		SYNTAX 		SEQUENCE OF sHubPingLogEntry
+-- 		MAX-ACCESS	not-accessible
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The table of Ping log"
+-- 		::= {sHubPingTest 5}
+--
+-- sHubPingTestLogEntry 			OBJECT-TYPE
+--         SYNTAX 		sHubPingLogEntry
+-- 		MAX-ACCESS	not-accessible
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"The entry of Ping log"
+-- 			INDEX		{ sHubSysLogIndex }
+-- 		::= {sHubPingLogTable 1}
+--
+-- sHubPingLogEntry ::=
+-- 	SEQUENCE {
+-- 		sHubPingLogIndex		INTEGER,
+-- 		sHubPingLogString		OCTET STRING
+-- 	}
+--
+-- sHubPingLogIndex			OBJECT-TYPE
+-- 		SYNTAX 		INTEGER
+-- 		MAX-ACCESS	read-only
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"Ping log index"
+-- 		::= {sHubPingTestLogEntry 1}
+--
+-- sHubPingLogString			OBJECT-TYPE
+-- 		SYNTAX 		OCTET STRING
+-- 		MAX-ACCESS	read-only
+-- 		STATUS		current
+-- 		DESCRIPTION
+-- 			"Contents of ping log"
+-- 		::= {sHubPingTestLogEntry 2}
+--
+-- **********************************************************************
+
+sHubCpePing			OBJECT IDENTIFIER ::= {skbSHubDiag 3}
+
+cpePingTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF CpePingEntry
+    ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "A table of CPE ping."
+    ::= { sHubCpePing 1 }
+
+cpePingEntry OBJECT-TYPE
+    SYNTAX CpePingEntry
+    ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "A CPE ping entry"
+    INDEX { cpePingPortIndex }
+    ::= { cpePingTable 1 }
+
+CpePingEntry ::= SEQUENCE {
+    cpePingTablePortIndex INTEGER,
+    cpePingTableAction INTEGER,
+    cpePingTableCpeMac MacAddress,
+    cpePingTablePingAddress IpAddress,
+    cpePingTableRttMin INTEGER,
+    cpePingTableRttAvg INTEGER,
+    cpePingTableRttMax INTEGER,
+    cpePingTableTimeout INTEGER
+    }
+
+cpePingTablePortIndex OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "Object which specifies a unique entry in the
+        cpePingTable."
+    ::= { cpePingEntry 1 }
+
+cpePingTableAction  OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-write
+    STATUS current
+    DESCRIPTION
+        ""
+    ::= { cpePingEntry 2 }
+
+cpePingTableCpeMac  OBJECT-TYPE
+    SYNTAX	MacAddress
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        ""
+    ::= { cpePingEntry 3 }
+
+cpePingTablePingAddress  OBJECT-TYPE
+    SYNTAX IpAddress
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        ""
+    ::= { cpePingEntry 4 }
+
+cpePingTableRttMin OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "ms"
+    ::= { cpePingEntry 5 }
+
+cpePingTableRttAvg  OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "ms"
+    ::= { cpePingEntry 6 }
+
+cpePingTableRttMax OBJECT-TYPE
+    SYNTAX INTEGER
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "ms"
+    ::= { cpePingEntry 7 }
+
+cpePingTableTimeout  OBJECT-TYPE
+    SYNTAX	INTEGER
+    ACCESS read-only
+    STATUS current
+    DESCRIPTION
+        "count of ping time out"
+    ::= { cpePingEntry 8 }
+
+cpePingTrap 	OBJECT IDENTIFIER ::= {sHubCpePing 2}
+cpePingTrapSet		OBJECT-TYPE
+		SYNTAX 		INTEGER { disable(0), enable(1) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"cpe ping trap setup"
+		::= {cpePingTrap 1}
+
+-- **********************************************************************
+sHubFactoryReset			OBJECT IDENTIFIER ::= {skbSHubDiag 4}
+sHubFactoryReset 	OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Factory Reset"
+		::= {sHubFactoryReset 4}
+
+-- **********************************************************************
+sHubIgmpJoinTest			OBJECT IDENTIFIER ::= {skbSHubDiag 10}
+sHubIgmpJoinGroupAddr 	OBJECT-TYPE
+		SYNTAX 		IpAddress
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Multicast Group Ip Address"
+		::= {sHubIgmpJoinTest 1}
+
+sHubIgmpJoinGroupPort 	OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Multicast Group Port Number"
+		::= {sHubIgmpJoinTest 2}
+
+sHubIgmpJoinVersion	OBJECT-TYPE
+		SYNTAX 		INTEGER
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Igmp Version"
+		::= {sHubIgmpJoinTest 3}
+
+sHubIgmpJoinMessage 	OBJECT-TYPE
+		SYNTAX 		INTEGER {  join(1), leave(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			" 1 : Send IGMP join message.
+                                      2 : Send IGMP leave message
+                                      If sHubIgmpJoinGroupAddr or sHubIgmpJoinMessage isn't set
+			  this object will be not work."
+		::= {sHubIgmpJoinTest 4}
+-- **********************************************************************
+sHubConfigSave	OBJECT IDENTIFIER ::= {skbSHubExtra 1}
+
+sHubSystemConfSaveAndApply	OBJECT-TYPE
+		SYNTAX		INTEGER{ all(1), defaultconfig(2)
+                                                                           }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"all : Save current settings to file and Apply
+                                     default_config : Reset settings to default configuration and Save and Apply"
+		::= {sHubConfigSave 1}
+
+sHubConfigMode	OBJECT IDENTIFIER ::= {skbSHubExtra 2}
+sHubSystemInitConfMode	OBJECT-TYPE
+		SYNTAX		INTEGER{ sHub(1),  sNat(2)  }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+		"Get/Set Factory-default mode when user press init button
+			1 : Wired Switching HUB mode (for IPTV service only)
+			2 : AP mode (for FMC, WiFi, etc)"
+		::= {sHubConfigMode 1}
+
+sHubConfigPassword	OBJECT IDENTIFIER ::= {skbSHubExtra 3}
+
+sHubRootPassword	OBJECT-TYPE
+		SYNTAX		OCTET STRING
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"change root account password"
+		::= {sHubConfigPassword 1}
+
+sHubAdminPassword	OBJECT-TYPE
+		SYNTAX		OCTET STRING
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"change admin account password"
+		::= {sHubConfigPassword 2}
+
+sHubRootPasswordSet	OBJECT-TYPE
+		SYNTAX		INTEGER {enable(1), disable(2)}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"change root account password"
+		::= {sHubConfigPassword 3}
+
+sHubConfigIpv6PassThru	OBJECT IDENTIFIER ::= {skbSHubExtra 4}
+
+sHubIpv6PassThru	OBJECT-TYPE
+		SYNTAX		INTEGER { enable(1), disable(2) }
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"ipv6 passthru configure"
+		::= {sHubConfigIpv6PassThru 1}
+
+sHubConfigAutoReset	OBJECT IDENTIFIER ::= {skbSHubExtra 5}
+
+sHubAutoResetEnable		OBJECT-TYPE
+			SYNTAX		INTEGER { enable(1), disable(2) }
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"Auto Reset configure"
+			::= {sHubConfigAutoReset 1}
+
+sHubAutoResetCRC		OBJECT-TYPE
+			SYNTAX		INTEGER
+			MAX-ACCESS	read-write
+			STATUS		current
+			DESCRIPTION
+				"Auto Reset configure"
+			::= {sHubConfigAutoReset 2}
+
+-- **********************************************************************
+-- *  7. Start of mmcAPR1Trap
+-- **********************************************************************
+sHubNewIPAllocation	NOTIFICATION-TYPE
+		OBJECTS { sHubWanIpAddress,
+                                          sHubWanMacAddress,
+                                          sHubSysModelName,
+                                          sHubSysFirmwareVersion}
+		STATUS		current
+		DESCRIPTION
+			"New IP allocation notification trap. This trap will be generated
+			when ap IP is changed from previous IP to new IP."
+		::= {skbSHubTrap 1}
+
+-- **********************************************************************
+-- *  7. End of mmcAPR1Trap
+-- **********************************************************************
+
+-- **********************************************************************
+-- * Start of AutoReebotTrap
+-- **********************************************************************
+sHubAutorebootTrap	    OBJECT IDENTIFIER ::= {skbSHubTrap 4}
+
+sHubAutorebootTrapLeaf	NOTIFICATION-TYPE
+
+		STATUS		current
+		DESCRIPTION
+			"Autoreboot Trap. This trap will be generated
+			 when Ap is AutoReboot."
+		::= {sHubAutorebootTrap 1}
+
+-- **********************************************************************
+-- *  7. End of AutoReebotTrap
+-- **********************************************************************
+
+	skbAdvanced MODULE-IDENTITY
+			LAST-UPDATED	"2009081900Z"
+			ORGANIZATION	"SK Broadband"
+			CONTACT-INFO	""
+			DESCRIPTION		""
+			::={skBroadband 4}
+
+sHunAdvancedBasicInfo				OBJECT IDENTIFIER ::= {skbAdvanced 1}
+sHubAdvancedSystmeInfo				OBJECT IDENTIFIER ::= {sHunAdvancedBasicInfo 1}
+sHubAdvancedConfigInfo				OBJECT IDENTIFIER ::= {sHubAdvancedSystmeInfo 1}
+sHubAdvancedWlanInfo				OBJECT IDENTIFIER ::= {sHubAdvancedConfigInfo 1}
+
+-- **********************************************************************
+-- **********************************************************************
+
+sHubWirelessHandoverSet			OBJECT-TYPE
+		SYNTAX 		INTEGER {enable(1), disable(2)}
+		MAX-ACCESS	read-write
+		STATUS		current
+		DESCRIPTION
+			"Wireless Handover Enable/Disable"
+		::= {sHubAdvancedWlanInfo 1}
+
+END

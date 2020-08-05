@@ -1,0 +1,220 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<% getInfo("include_css"); %>
+<title>TR-069 Configuration</title>
+<script type="text/javascript" src="share.js">
+</script>
+<% language=javascript %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script>
+function chk_tr_use()
+{
+	if (document.getElementById("tr_use").value == "0") {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+function sel_tr_use()
+{
+	if (chk_tr_use()) {
+		document.getElementById("acs_url").disabled = false;
+		document.getElementById("acs_user").disabled = false;
+		document.getElementById("acs_pw").disabled = false;
+		document.getElementById("period_use").disabled = false;
+		mod_period_use();
+		document.getElementById("conreq_name").disabled = false;
+		document.getElementById("conreq_pw").disabled = false;
+		document.getElementById("conreq_path").disabled = false;
+		document.getElementById("conreq_port").disabled = false;
+		document.getElementById("stun_use").disabled = false;
+		mod_stun_use();
+	} else {
+		document.getElementById("acs_url").disabled = true;
+		document.getElementById("acs_user").disabled = true;
+		document.getElementById("acs_pw").disabled = true;
+		document.getElementById("period_use").disabled = true;
+		document.getElementById("period_itv").disabled = true;
+		document.getElementById("conreq_name").disabled = true;
+		document.getElementById("conreq_pw").disabled = true;
+		document.getElementById("conreq_path").disabled = true;
+		document.getElementById("conreq_port").disabled = true;
+		document.getElementById("stun_use").disabled = true;
+		document.getElementById("stun_url").disabled = true;
+		document.getElementById("stun_port").disabled = true;
+	}
+}
+
+function chk_period_use()
+{
+	if (document.getElementById("period_use").value == "0") {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+function mod_period_use()
+{
+	if (chk_period_use()) {
+		document.getElementById("period_itv").disabled = false;
+	} else {
+		document.getElementById("period_itv").disabled = true;
+	}
+}
+
+function sel_period_use()
+{
+	if (chk_tr_use()) {
+		mod_period_use();
+	} else {
+		document.getElementById("period_itv").disabled = true;
+	}
+}
+
+function chk_stun_use()
+{
+	if (document.getElementById("stun_use").value == "0") {
+		return 0;
+	} else {
+		return 1;
+	}
+}
+
+function mod_stun_use()
+{
+	if (chk_stun_use()) {
+		document.getElementById("stun_url").disabled = false;
+		document.getElementById("stun_port").disabled = false;
+	} else {
+		document.getElementById("stun_url").disabled = true;
+		document.getElementById("stun_port").disabled = true;
+	}
+}
+
+function sel_stun_use()
+{
+	if (chk_tr_use()) {
+		mod_stun_use();
+	} else {
+		document.getElementById("stun_url").disabled = true;
+		document.getElementById("stun_port").disabled = true;
+	}
+}
+
+function init()
+{
+	sel_tr_use();
+}
+</script>
+</head>
+
+<body>
+<blockquote>
+<form action=/boafrm/formTR069Config method=POST name="tr069">
+	<h2>TR-069</h2>
+	<font size=2><script>dw(tr069_header_explain)</script></font>
+	<hr size=1 noshade align=top>
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+		<tr>
+			<td width="40%"><font size="2"><b>TR-069 On/Off</b></font></td>
+			<td width="60%">
+				<select name="tr_use" id="tr_use" onchange="sel_tr_use()">
+					<option value="0" selected>Disabled</option>
+					<option value="1">Enabled</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="40%"><font size=2><b>ACS</b></font></td>
+			<td width="60%"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>URL</b></font></td>
+			<td width="60%"><input type="text" name="acs_url" id="acs_url" size="32" maxlength="256" value="<% getInfo("acs_url"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>User Name</b></font></td>
+			<td width="60%"><input type="text" name="acs_user" id="acs_user" size="32" maxlength="256" value="<% getInfo("acs_username"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>Password</b></font></td>
+			<td width="60%"><input type="text" name="acs_pw" id="acs_pw" size="32" maxlength="256" value="<% getInfo("acs_password"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>Periodic Inform Enable</b></font></td>
+			<td width="60%">
+				<select name="period_use" id="period_use" onchange="sel_period_use()">
+					<option value="0" selected>Disabled</option>
+					<option value="1">Enabled</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>Periodic Inform Interval</b></font></td>
+			<td width="60%"><input type="text" name="period_itv" id="period_itv" size="32" maxlength="10" value="<% getInfo("inform_interval"); %>"></td>
+		</tr>
+	</table>
+
+	<hr size=1 noshade align=top>
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+		<tr>
+			<td width="40%"><font size=2><b>Connection Request</b></font></td>
+			<td width="60%"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>User Name</b></font></td>
+			<td width="60%"><input type="text" name="conreq_name" id="conreq_name" size="32" maxlength="256" value="<% getInfo("conreq_name"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>Password</b></font></td>
+			<td width="60%"><input type="text" name="conreq_pw" id="conreq_pw" size="32" maxlength="256" value="<% getInfo("conreq_pw"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>Path</b></font></td>
+			<td width="60%"><input type="text" name="conreq_path" id="conreq_path" size="32" maxlength="31" value="<% getInfo("conreq_path"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>Port</b></font></td>
+			<td width="60%"><input type="text" name="conreq_port" id="conreq_port" size="32" maxlength="5" value="<% getInfo("conreq_port"); %>"></td>
+		</tr>
+	</table>
+
+	<hr size=1 noshade align=top>
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+		<tr>
+			<td width="40%"><font size=2><b>STUN Connection</b></font></td>
+			<td width="60%"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>STUN On/Off</b></font></td>
+			<td width="60%">
+				<select name="stun_use" id="stun_use" onchange="sel_stun_use()">
+					<option value="0" selected>Disabled</option>
+					<option value="1">Enabled</option>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>STUN Server URL</b></font></td>
+			<td width="60%"><input type="text" name="stun_url" id="stun_url" size="32" maxlength="256" value="<% getInfo("stun_url"); %>"></td>
+		</tr>
+		<tr>
+			<td width="40%">&nbsp;&nbsp;&nbsp;<font size=2><b>STUN Server Port</b></font></td>
+			<td width="60%"><input type="text" name="stun_port" id="stun_port" size="32" maxlength="5" value="<% getInfo("stun_port"); %>"></td>
+		</tr>
+	</table>
+	<p>
+		<input type="submit" value="Apply" name="apply" onClick="return saveChanges()">
+		<input type="hidden" value="/tr069config.htm" name="submit-url">
+	</p>
+</form>
+<script>init();</script>
+</blockquote>
+</body>
+
+</html>

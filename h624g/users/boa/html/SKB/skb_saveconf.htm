@@ -1,0 +1,58 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Save/Reload Setting</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+var act = document.getElementsByName("reset_val");
+function resetClick()
+{
+	if ( !confirm('정말 기본값으로 초기화 하시겠습니까?') ) {
+		return false;
+	}
+	else {
+		act[0].value = "Reset";
+		return true;
+	}
+}
+
+function rebootClick()
+{
+	if ( !confirm('정말 재부팅 하시겠습니까?') ) {
+		return false;
+	}
+	else {
+		act[0].value = "Reboot";
+		return true;
+	}
+}
+
+</script>
+
+</head>
+<body>
+<blockquote>
+<h2>재부팅/초기화</h2>
+  <table border="0" cellspacing="4" width="500">
+  <tr><font size=2>
+장비를 재부팅하거나 초기화 설정을 할 수 있는 페이지 입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+   <form action=/boafrm/formSaveConfig method=POST name="saveConfig">
+  <input type="hidden" name="reset_val" value="">
+  <tr>
+    <td width="32%"><font size=2><b>기본 설정으로 초기화:</b></td>
+    <td width="30%"><font size=2><input type="submit" id="reset" name="reset" value="초기화" onclick="resetClick()">
+  </td></tr>
+  <tr>
+	 <td width="32%"><font size=2><b>재부팅 하기:</b></td>
+	 <td width="30%"><font size=2><input type="submit" id="reboot" name="reboot" value="재시작" onclick="rebootClick()">
+	 </td></tr>
+</form>
+</table>
+</blockquote>
+</body>
+</html>

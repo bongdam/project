@@ -1,0 +1,63 @@
+<html>
+<head>
+	<script type="text/javascript" src="util_gw.js"></script>
+	<script language=Javascript src="<% getInfo("lang");%>"></script>
+	<% getInfo("include_css"); %>
+	<style>
+	.on {display:on}
+	.off {display:none}
+	</style>
+	<script language=JavaScript>
+		var count = <% getInfo("countDownTime"); %> * 1;
+
+		function get_by_id(id)
+		{
+			with(document)
+			{
+				return getElementById(id);
+			}
+		}
+
+		function closeBrowser()
+		{
+			parent.window.close();
+		}
+
+		function do_count_down()
+		{
+			get_by_id("show_sec").innerHTML = count;
+
+			if (count == 0)
+			{
+				var lastUrl = "<% getInfo("lastUrl"); %>";
+
+				location.assign(lastUrl);
+				return false;
+			}
+
+			if (count > 0)
+			{
+				count--;
+				setTimeout('do_count_down()',1000);
+			}
+		}
+	</script>
+</head>
+<body onload="do_count_down();">
+<form>
+<blockquote>
+<br>
+	<h4>
+		<script>dw(wps_start_info)</script>
+<br>
+		<span id="show_msg"><font color="red"><script>dw(wps_run_wps_info)</script></font></span>
+	</h4>
+	<P align="left">
+		<h4><b><span id="show_sec"></span></b>&nbsp;<span id="show_seconds"><script>dw(progress_second)</script></span></h4>
+	</P>
+<input type=button value="ok" id="back" OnClick=window.location.replace("/wlwps.htm")>
+<script>document.getElementById("back").value = wps_retuenp_page;</script>
+</blockquote>
+</form>
+</body>
+</html>

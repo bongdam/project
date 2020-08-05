@@ -1,0 +1,255 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function LoadConfig()
+{
+	var wanOn = <% getIndex("wanPortOn") %>;
+	var NegoWan = <% getIndex("wanPortNego") %>;
+	var SpeedWan = <% getIndex("wanPortSpeed") %>;
+
+	var lan1On = <% getIndex("lan1PortOn") %>;
+	var NegoLan1 = <% getIndex("lan1PortNego") %>;
+	var SpeedLan1 = <% getIndex("lan1PortSpeed") %>;
+
+	var lan2On = <% getIndex("lan2PortOn") %>;
+	var NegoLan2 = <% getIndex("lan2PortNego") %>;
+	var SpeedLan2 = <% getIndex("lan2PortSpeed") %>;
+
+	var lan3On = <% getIndex("lan3PortOn") %>;
+	var NegoLan3 = <% getIndex("lan3PortNego") %>;
+	var SpeedLan3 = <% getIndex("lan3PortSpeed") %>;
+
+	var lan4On = <% getIndex("lan4PortOn") %>;
+	var NegoLan4 = <% getIndex("lan4PortNego") %>;
+	var SpeedLan4 = <% getIndex("lan4PortSpeed") %>;
+
+	if (wanOn)
+		document.tcpipPort.wanPower.selectedIndex = 1;
+	if (NegoWan)
+		document.tcpipPort.wanNego.selectedIndex = 1;
+	if (SpeedWan)
+		document.tcpipPort.wanSpeed.value = SpeedWan;
+
+	if (lan1On)
+		document.tcpipPort.lan1Power.selectedIndex = 1;
+	if (NegoLan1)
+		document.tcpipPort.lan1Nego.selectedIndex = 1;
+	if (SpeedLan1)
+		document.tcpipPort.lan1Speed.value = SpeedLan1;
+
+	if (lan2On)
+		document.tcpipPort.lan2Power.selectedIndex = 1;
+	if (NegoLan2)
+		document.tcpipPort.lan2Nego.selectedIndex = 1;
+	if (SpeedLan2)
+		document.tcpipPort.lan2Speed.value = SpeedLan2;
+
+	if (lan3On)
+		document.tcpipPort.lan3Power.selectedIndex = 1;
+	if (NegoLan3)
+		document.tcpipPort.lan3Nego.selectedIndex = 1;
+	if (SpeedLan3)
+		document.tcpipPort.lan3Speed.value = SpeedLan3;
+
+	if (lan4On)
+		document.tcpipPort.lan4Power.selectedIndex = 1;
+	if (NegoLan4)
+		document.tcpipPort.lan4Nego.selectedIndex = 1;
+	if (SpeedLan4)
+		document.tcpipPort.lan4Speed.value = SpeedLan4;
+
+	negoChange("wanNego");
+	negoChange("lan1Nego");
+	negoChange("lan2Nego");
+	negoChange("lan3Nego");
+	negoChange("lan4Nego");
+}
+
+function addClick()
+{
+	document.tcpipPort.save_apply.disabled = true;
+	document.tcpipPort.submit();
+	return true;
+}
+
+function negoChange(name)
+{
+	if (name == "wanNego") {
+		if (document.tcpipPort.wanNego.value == "AUTO")
+			document.tcpipPort.wanSpeed.disabled = true;
+		else
+			document.tcpipPort.wanSpeed.disabled = false;
+	} else if (name == "lan1Nego") {
+		if (document.tcpipPort.lan1Nego.value == "AUTO")
+			document.tcpipPort.lan1Speed.disabled = true;
+		else
+			document.tcpipPort.lan1Speed.disabled = false;
+	} else if (name == "lan2Nego") {
+		if (document.tcpipPort.lan2Nego.value == "AUTO")
+			document.tcpipPort.lan2Speed.disabled = true;
+		else
+			document.tcpipPort.lan2Speed.disabled = false;
+	} else if (name == "lan3Nego") {
+		if (document.tcpipPort.lan3Nego.value == "AUTO")
+			document.tcpipPort.lan3Speed.disabled = true;
+		else
+			document.tcpipPort.lan3Speed.disabled = false;
+	} else {
+		if (document.tcpipPort.lan4Nego.value == "AUTO")
+			document.tcpipPort.lan4Speed.disabled = true;
+		else
+			document.tcpipPort.lan4Speed.disabled = false;
+	}
+}
+</script>
+</head>
+
+<body onload="LoadConfig();">
+<blockquote>
+<h2><script>dw(tcpip_port_header)</script></h2>
+<form action=/boafrm/formTcpipPort method=POST name="tcpipPort">
+<table border=0 width="550" cellspacing=4 cellpadding=0>
+	<tr><font size=2>
+		<script>dw(tcpip_port_explain)</script>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<table border=0 width="480" cellspacing=4 cellpadding=0>
+	<tr class="tbl_head">
+		<td align="center" width="30%" ><font size="2"><b><script>dw(tcpip_port_info)</script></b></font></td>
+		<td align="center" width="25%" ><font size="2"><b><script>dw(tcpip_port_nego)</script></b></font></td>
+		<td align="center" width="25%" ><font size="2"><b><script>dw(tcpip_port_speed)</script></b></font></td>
+		<td align="center" width="20%" ><font size="2"><b><script>dw(tcpip_port_onoff)</script></b></font></td>
+	</tr>
+
+	<tr class="tbl_body">
+		<td align="center" width="30%"><font size=2><b><script>dw(tcpip_port_wan)</script></b></font></td>
+		<td align="center" width="25%"><font size=2>
+			<select name="wanNego" id="wanNego" onclick="negoChange(this.name);" >
+				<option value='AUTO'><script>dw(tcpip_port_nego_auto)</script></option>
+				<option value='FORCE'><script>dw(tcpip_port_nego_force)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="25%"><font size=2>
+			<select name="wanSpeed" id="wanSpeed">
+				<option value='1000'><script>dw(tcpip_port_speed_1000m)</script></option>
+				<option value='100'><script>dw(tcpip_port_speed_100m)</script></option>
+				<option value='10'><script>dw(tcpip_port_speed_10m)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="20%"><font size=2>
+			<select name="wanPower" id="wanPower">
+				<option value='OFF'><script>dw(tcpip_port_off)</script></option>
+				<option value='ON'><script>dw(tcpip_port_on)</script></option>
+			</select></font>
+		</td>
+	</tr>
+	<tr class="tbl_body">
+		<td align="center" width="30%"><font size=2><b><script>dw(tcpip_port_lan1)</script></b></font></td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan1Nego" id="lan1Nego" onclick="negoChange(this.name);" >
+				<option value='AUTO'><script>dw(tcpip_port_nego_auto)</script></option>
+				<option value='FORCE'><script>dw(tcpip_port_nego_force)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan1Speed" id="lan1Speed">
+				<option value='100'><script>dw(tcpip_port_speed_100m)</script></option>
+				<option value='10'><script>dw(tcpip_port_speed_10m)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="20%"><font size=2>
+			<select name="lan1Power" id="lan1Power">
+				<option value='OFF'><script>dw(tcpip_port_off)</script></option>
+				<option value='ON'><script>dw(tcpip_port_on)</script></option>
+			</select></font>
+		</td>
+	</tr>
+	<tr class="tbl_body">
+		<td align="center" width="30%"><font size=2><b><script>dw(tcpip_port_lan2)</script></b></font></td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan2Nego" id="lan2Nego" onclick="negoChange(this.name);" >
+				<option value='AUTO'><script>dw(tcpip_port_nego_auto)</script></option>
+				<option value='FORCE'><script>dw(tcpip_port_nego_force)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan2Speed" id="lan2Speed">
+				<option value='100'><script>dw(tcpip_port_speed_100m)</script></option>
+				<option value='10'><script>dw(tcpip_port_speed_10m)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="20%"><font size=2>
+			<select name="lan2Power" id="lan2Power">
+				<option value='OFF'><script>dw(tcpip_port_off)</script></option>
+				<option value='ON'><script>dw(tcpip_port_on)</script></option>
+			</select></font>
+		</td>
+	</tr>
+	<tr class="tbl_body">
+		<td align="center" width="30%"><font size=2><b><script>dw(tcpip_port_lan3)</script></b></font></td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan3Nego" id="lan3Nego" onclick="negoChange(this.name);" >
+				<option value='AUTO'><script>dw(tcpip_port_nego_auto)</script></option>
+				<option value='FORCE'><script>dw(tcpip_port_nego_force)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan3Speed" id="lan3Speed">
+				<option value='100'><script>dw(tcpip_port_speed_100m)</script></option>
+				<option value='10'><script>dw(tcpip_port_speed_10m)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="20%"><font size=2>
+			<select name="lan3Power" id="lan3Power">
+				<option value='OFF'><script>dw(tcpip_port_off)</script></option>
+				<option value='ON'><script>dw(tcpip_port_on)</script></option>
+			</select></font>
+		</td>
+	</tr>
+	<tr class="tbl_body">
+		<td align="center" width="30%"><font size=2><b><script>dw(tcpip_port_lan4)</script></b></font></td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan4Nego" id="lan4Nego" onclick="negoChange(this.name);" >
+				<option value='AUTO'><script>dw(tcpip_port_nego_auto)</script></option>
+				<option value='FORCE'><script>dw(tcpip_port_nego_force)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="25%"><font size=2>
+			<select name="lan4Speed" id="lan4Speed">
+				<option value='100'><script>dw(tcpip_port_speed_100m)</script></option>
+				<option value='10'><script>dw(tcpip_port_speed_10m)</script></option>
+			</select></font>
+		</td>
+		<td align="center" width="20%"><font size=2>
+			<select name="lan4Power" id="lan4Power">
+				<option value='OFF'><script>dw(tcpip_port_off)</script></option>
+				<option value='ON'><script>dw(tcpip_port_on)</script></option>
+			</select></font>
+		</td>
+	</tr>
+</table>
+
+<br>
+<table border=0 width="480" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td>
+			<input type="button" value="Save & Apply" name="save_apply" onClick="return addClick()">
+        	<script>document.tcpipPort.save_apply.value = tcpip_apply;</script>
+        </td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

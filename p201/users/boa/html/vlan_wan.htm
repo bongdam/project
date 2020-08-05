@@ -1,0 +1,249 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<META HTTP-EQUIV="Cache-Control" CONTENT="no-cache">
+<title> 会话初始协议</title>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script language="javascript">
+function Init()
+{
+        enableVlanWAN();
+}
+function enableVlanWAN()
+{
+       var checked = document.net_form.vlan_wan_enable.checked;
+        if(checked == false)
+       	{
+       		document.net_form.vlan_wan_tag.checked  = false;
+    		document.net_form.vlan_wan_host_enable.checked = false;
+       		document.net_form.vlan_wan_wifi_root_enable.checked = false;
+       		document.net_form.vlan_wan_wifi_vap0_enable.checked = false;
+       		document.net_form.vlan_wan_wifi_vap1_enable.checked = false;
+       		document.net_form.vlan_wan_wifi_vap2_enable.checked = false;
+       		document.net_form.vlan_wan_wifi_vap3_enable.checked = false;
+       		
+       		document.net_form.vlan_wan_bridge_enable.checked = false;
+       	}
+       	
+       	document.net_form.vlan_wan_tag.disabled  			= !checked;
+    	document.net_form.vlan_wan_host_enable.disabled 	= !checked;
+    	document.net_form.vlan_wan_host_tag.disabled     	=!(document.net_form.vlan_wan_host_enable.checked);
+		document.net_form.vlan_wan_host_pri.disabled 		=!(document.net_form.vlan_wan_host_enable.checked);
+    	document.net_form.vlan_wan_wifi_root_enable.disabled 	=!checked;
+    	document.net_form.vlan_wan_wifi_root_tag.disabled     	=!(document.net_form.vlan_wan_wifi_root_enable.checked);
+		document.net_form.vlan_wan_wifi_root_pri.disabled 		=!(document.net_form.vlan_wan_wifi_root_enable.checked);
+    	document.net_form.vlan_wan_wifi_vap0_enable.disabled=!checked;
+    	document.net_form.vlan_wan_wifi_vap0_tag.disabled   =!(document.net_form.vlan_wan_wifi_vap0_enable.checked);
+		document.net_form.vlan_wan_wifi_vap0_pri.disabled 	=!(document.net_form.vlan_wan_wifi_vap0_enable.checked);
+    	document.net_form.vlan_wan_wifi_vap1_enable.disabled=!checked;
+    	document.net_form.vlan_wan_wifi_vap1_tag.disabled   =!(document.net_form.vlan_wan_wifi_vap1_enable.checked);
+		document.net_form.vlan_wan_wifi_vap1_pri.disabled 	=!(document.net_form.vlan_wan_wifi_vap1_enable.checked);
+    	document.net_form.vlan_wan_wifi_vap2_enable.disabled=!checked;
+    	document.net_form.vlan_wan_wifi_vap2_tag.disabled   =!(document.net_form.vlan_wan_wifi_vap2_enable.checked);
+		document.net_form.vlan_wan_wifi_vap2_pri.disabled 	=!(document.net_form.vlan_wan_wifi_vap2_enable.checked);
+    	document.net_form.vlan_wan_wifi_vap3_enable.disabled=!checked; 
+    	document.net_form.vlan_wan_wifi_vap3_tag.disabled   =!(document.net_form.vlan_wan_wifi_vap3_enable.checked);
+		document.net_form.vlan_wan_wifi_vap3_pri.disabled 	=!(document.net_form.vlan_wan_wifi_vap3_enable.checked);
+		
+		document.net_form.vlan_wan_bridge_enable.disabled  	  =!checked;
+		document.net_form.vlan_wan_bridge_tag.disabled  	  =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_0.disabled     =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_1.disabled     =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_2.disabled     =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_3.disabled     =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_wifi_root.disabled  =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_wifi_vap0.disabled  =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_wifi_vap1.disabled  =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_wifi_vap2.disabled  =!(document.net_form.vlan_wan_bridge_enable.checked);
+		document.net_form.vlan_wan_bridge_port_wifi_vap3.disabled  =!(document.net_form.vlan_wan_bridge_enable.checked);
+		
+		if(document.net_form.vlan_wan_bridge_enable.checked==false)
+			document.net_form.vlan_wan_bridge_multicast_enable.checked = false;
+			
+		document.net_form.vlan_wan_bridge_multicast_enable.disabled   =!(document.net_form.vlan_wan_bridge_enable.checked);;
+		document.net_form.vlan_wan_bridge_multicast_tag.disabled  	  =!(document.net_form.vlan_wan_bridge_multicast_enable.checked);
+		
+}
+function check_param()
+{
+}
+</script>
+
+</head>
+<body bgcolor="#ffffff" text="#000000" onload="Init()">
+<form method="post" action="/boafrm/formVlanWAN" name=net_form>
+
+<p>
+<tr>
+<b><script>dw(vlan_wan_header_explain)</script></b>
+<p>
+
+
+<td width=200>
+<input type=checkbox name=vlan_wan_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_enable");%>><script>dw(vlan_wan_enable_tag)</script>
+</td>
+
+
+
+<table cellSpacing=1 cellPadding=1 border=0 width=500>
+<tr>
+<td bgColor=#aaddff width=200><script>dw(vlan_wan_all_ptk)</script></td>
+<td bgColor=#ddeeff width=150>
+                <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_tag");%>"> 
+</td>
+</tr>
+
+<tr>
+        <td bgColor=#aaddff width=200>
+        <input type=checkbox name=vlan_wan_host_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_host_enable");%>><script>dw(vlan_wan_host_pkt)</script> 
+       </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_host_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_host_tag");%>"> 
+        </td>
+<td bgColor=#ddeeff width=150><script>dw(vlan_wan_local_pkt)</script></td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_pri)</script> <input type=text name=vlan_wan_host_pri size=1 maxlength=1 value="<%getInfo("vlan_wan_host_pri");%>"> ( 0~7 )
+        </td>
+        
+</tr>
+<tr>
+        <td bgColor=#aaddff width=200>
+        <input type=checkbox name=vlan_wan_wifi_root_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_wifi_root_enable");%>><script>dw(vlan_wan_wifi_root_ptk)</script> 
+       </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_wifi_root_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_wifi_root_tag");%>"> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_pri)</script> <input type=text name=vlan_wan_wifi_root_pri size=1 maxlength=1 value="<%getInfo("vlan_wan_wifi_root_pri");%>"> ( 0~7 )
+        </td>
+        
+</tr>
+<tr>
+        <td bgColor=#aaddff width=200>
+        <input type=checkbox name=vlan_wan_wifi_vap0_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_wifi_vap0_enable");%>><script>dw(vlan_wan_wifi_vap1_ptk)</script> 
+       </td>
+       </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_wifi_vap0_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_wifi_vap0_tag");%>"> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_pri)</script> <input type=text name=vlan_wan_wifi_vap0_pri size=1 maxlength=1 value="<%getInfo("vlan_wan_wifi_vap0_pri");%>"> ( 0~7 )
+        </td>
+        
+</tr>
+<tr>
+        <td bgColor=#aaddff width=200>
+        <input type=checkbox name=vlan_wan_wifi_vap1_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_wifi_vap1_enable");%>><script>dw(vlan_wan_wifi_vap2_ptk)</script> 
+       </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_wifi_vap1_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_wifi_vap1_tag");%>"> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_pri)</script> <input type=text name=vlan_wan_wifi_vap1_pri size=1 maxlength=1 value="<%getInfo("vlan_wan_wifi_vap1_pri");%>"> ( 0~7 )
+        </td>
+        
+</tr>
+<tr>
+        <td bgColor=#aaddff width=200>
+        <input type=checkbox name=vlan_wan_wifi_vap2_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_wifi_vap2_enable");%>><script>dw(vlan_wan_wifi_vap3_ptk)</script> 
+       </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_wifi_vap2_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_wifi_vap2_tag");%>"> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_pri)</script> <input type=text name=vlan_wan_wifi_vap2_pri size=1 maxlength=1 value="<%getInfo("vlan_wan_wifi_vap2_pri");%>"> ( 0~7 )
+        </td>
+        
+</tr>
+<tr>
+        <td bgColor=#aaddff width=200>
+        <input type=checkbox name=vlan_wan_wifi_vap3_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_wifi_vap2_enable");%>><script>dw(vlan_wan_wifi_vap4_ptk)</script> 
+       </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_wifi_vap3_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_wifi_vap3_tag");%>"> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+               <script>dw(vlan_wan_pri)</script> <input type=text name=vlan_wan_wifi_vap3_pri size=1 maxlength=1 value="<%getInfo("vlan_wan_wifi_vap3_pri");%>"> ( 0~7 )
+        </td>
+        
+</tr>
+</table>
+<table cellSpacing=1 cellPadding=1 border=0 width=650>
+<tr>
+        <td bgColor=#aaddff width=200>
+                <input type=checkbox name=vlan_wan_bridge_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_bridge_enable");%>><script>dw(vlan_wan_bridge)</script> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+                <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_bridge_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_bridge_tag");%>"> 
+        </td>
+	
+        <td bgColor=#ddeeff width=150>
+                <input type=checkbox name=vlan_wan_bridge_multicast_enable onClick="enableVlanWAN();" <%getInfo("vlan_wan_bridge_multicast_enable");%>><script>dw(vlan_wan_multicast)</script> 
+        </td>
+        <td bgColor=#ddeeff width=150>
+                <script>dw(vlan_wan_id)</script> <input type=text name=vlan_wan_bridge_multicast_tag size=4 maxlength=4 value="<%getInfo("vlan_wan_bridge_multicast_tag");%>"> 
+        </td>
+
+</tr>
+</table>
+
+
+
+<table cellSpacing=1 cellPadding=1 border=0 width=650>
+<tr>     
+		<td width=200></td>
+        <td bgColor=#ddeeff width=450>
+                <input type=checkbox name=vlan_wan_bridge_port_0 <%getInfo("vlan_wan_bridge_port_0");%>><script>dw(vlan_wan_lan0)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_1 <%getInfo("vlan_wan_bridge_port_1");%>><script>dw(vlan_wan_lan1)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_2 <%getInfo("vlan_wan_bridge_port_2");%>><script>dw(vlan_wan_lan2)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_3 <%getInfo("vlan_wan_bridge_port_3");%>><script>dw(vlan_wan_lan3)</script>
+        </td>
+</tr>
+<tr>
+		  <td width=200></td>
+          <td bgColor=#ddeeff width=450>
+                <input type=checkbox name=vlan_wan_bridge_port_wifi_root <%getInfo("vlan_wan_bridge_port_wifi_root");%>><script>dw(vlan_wan_wifi_root)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_wifi_vap0 <%getInfo("vlan_wan_bridge_port_wifi_vap0");%>><script>dw(vlan_wan_vap1)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_wifi_vap1 <%getInfo("vlan_wan_bridge_port_wifi_vap1");%>><script>dw(vlan_wan_vap2)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_wifi_vap2 <%getInfo("vlan_wan_bridge_port_wifi_vap2");%>><script>dw(vlan_wan_vap3)</script>
+                <input type=checkbox name=vlan_wan_bridge_port_wifi_vap3 <%getInfo("vlan_wan_bridge_port_wifi_vap3");%>><script>dw(vlan_wan_vap4)</script>
+        </td>
+
+</tr>
+
+</table>
+
+<td><script>dw(vlan_wan_note1)</script> </td>
+<br>
+<td> <script>dw(vlan_wan_note2)</script> </td>
+
+<p>
+<table cellSpacing=1 cellPadding=2 border=0 width=375>
+<tr>
+  <td colspan=3 align=center>
+<% getInfo("apply_prompt_comment_start");%>	
+   		<input type="submit"  value="Apply" name="apply" onclick="return check_param()">
+   		<script>document.net_form.apply.value = vlan_wan_apply;</script>
+   		&nbsp;&nbsp;&nbsp;&nbsp;
+   		<input type="reset" value="Reset" name="reset">
+   		<script>document.net_form.reset.value = vlan_wan_reset;</script>
+<% getInfo("apply_prompt_comment_end");%>
+<% getInfo("apply_direct_comment_start");%>
+   		<input type="submit" value="Save"  name="save" onclick="return check_param()">
+   		<script>document.net_form.save.value = vlan_wan_save;</script>
+   		&nbsp;&nbsp;&nbsp;&nbsp;
+   		<input type="submit"  value="Save & Apply"  name="save_apply"onclick="return check_param()">
+   		<script>document.net_form.save_apply.value = vlan_wan_save_apply;</script>
+   		&nbsp;&nbsp;&nbsp;&nbsp;		
+   		<input type="reset" value="Reset"  name="reset">
+   		<script>document.net_form.reset.value = vlan_wan_reset;</script>
+<% getInfo("apply_direct_comment_end");%>
+   	</td>
+</tr>
+</table>
+
+</p>
+</form>
+</body>
+</html>

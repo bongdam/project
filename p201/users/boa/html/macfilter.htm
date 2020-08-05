@@ -1,0 +1,196 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+var macfilterNum = <% getIndex("macFilterNum"); %>;
+
+function addClick()
+{
+	if (document.formFilterAdd.enabled.selectedIndex == 1) {
+
+		if (document.formFilterAdd.mac_addr.value == "" && document.formFilterAdd.comment.value == "" ) {
+			document.formFilterAdd.save_apply.disabled = true;
+			document.formFilterAdd.showScan.disabled = true;
+			disableDelButton();
+			document.formFilterAdd.submit();
+			return true;
+		}
+
+		if (macfilterNum >= 20) {
+			alert(portfw_table_full);
+			return false;
+		}
+
+		var str = document.formFilterAdd.mac_addr.value;
+		if ( str.length < 12) {
+			alert(macfilter_macaddr_nocomplete);
+			document.formFilterAdd.mac_addr.focus();
+			return false;
+		}
+
+		// add for "All MAC Address field can't reject 00:00:00:00:00:00/ff:ff:ff:ff:ff:ff MAC Address" issue
+		with(document.formFilterAdd)
+		{
+			if(!checkMacAddr(mac_addr,macfilter_macaddr_invalid))
+				return false;
+		}
+	}
+
+	document.formFilterAdd.save_apply.disabled = true;
+	document.formFilterAdd.showScan.disabled = true;
+	disableDelButton();
+	document.formFilterAdd.submit();
+	return true;
+}
+
+function deleteClick()
+{
+	if ( !confirm(macfilter_delete_confirm) )
+		return false;
+	else {
+		document.formFilterAdd.save_apply.disabled = true;
+		document.formFilterAdd.showScan.disabled = true;
+		disableDelButton();
+		document.formFilterDel.deleteSelFilterMac.value = "delete";
+		document.formFilterDel.deleteAllFilterMac.value = "";
+		document.formFilterDel.submit();
+		return true;
+	}
+}
+
+function deleteAllClick()
+{
+	if ( !confirm(macfilter_delete_all_confirm) )
+		return false;
+	else {
+		document.formFilterAdd.save_apply.disabled = true;
+		document.formFilterAdd.showScan.disabled = true;
+		disableDelButton();
+		document.formFilterDel.deleteSelFilterMac.value = "";
+		document.formFilterDel.deleteAllFilterMac.value = "alldelete";
+		document.formFilterDel.submit();
+		return true;
+	}
+}
+
+function disableDelButton()
+{
+	disableButton(document.formFilterDel.deleteSelFilterMacBt);
+	disableButton(document.formFilterDel.deleteAllFilterMacBt);
+}
+
+function updateState()
+{
+	if (document.formFilterAdd.enabled.selectedIndex == 1) {
+		document.formFilterAdd.showScan.disabled = false;
+		enableTextField(document.formFilterAdd.mac_addr);
+		enableTextField(document.formFilterAdd.comment);
+	} else {
+		document.formFilterAdd.showScan.disabled = true;
+		disableTextField(document.formFilterAdd.mac_addr);
+		disableTextField(document.formFilterAdd.comment);
+	}
+}
+
+function Load_Setting()
+{
+	if ( <% getIndex("macFilterEnabled"); %> )
+		document.formFilterAdd.enabled.selectedIndex = 1;
+	updateState();
+}
+
+function macTblClick(url) {
+	openWindow(url, 'P201', 600, 400);
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(macfilter_header)</script></h2>
+<table border=0 width="600" cellspacing=4 cellpadding=0 >
+	<tr>
+		<td><font size=2><script>dw(macfilter_header_explain)</script></font></td>
+	</tr>
+	<tr>
+		<td><hr size=1 noshade align=top></td>
+	</tr>
+</table>
+
+<form action=/boafrm/formFilter method=POST name="formFilterAdd">
+<input type="hidden" name="submit-url" value="/macfilter.htm" >
+<table border=0 width="600" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(macfilter_onoff)</script></b></font></td>
+		<td width="60%">
+			<select name="enabled" id="enabled" onclick="updateState();">
+				<option value='OFF'><script>dw(macfilter_disable)</script></option>
+				<option value='ON'><script>dw(macfilter_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+</table>
+
+<br>
+<table border=0 width="600" cellspacing=0 cellpadding=0 >
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(macfilter_macaddr)</script></b></font></td>
+		<td width="60%">
+			<input type="text" name="mac_addr" id="mac_addr" size="20" maxlength="12" >&nbsp;
+			<input type="button" id="showScan" value="showScan" name="showScan" onClick="macTblClick('/mactbl.htm')" >
+			<script>document.formFilterAdd.showScan.value = tcpip_dhcp_static_scan;</script>
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(macfilter_comm)</script></b></font></td>
+		<td width="60%"><input type="text" name="comment" size="20" maxlength="10" ></td>
+	</tr>
+</table>
+
+<br>
+<table border=0 width="600" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td>
+			<input type="button" value="Save & Apply" name="save_apply" onClick="return addClick()">
+        	<script>document.formFilterAdd.save_apply.value = macfilter_apply;</script>
+        	<input type="hidden" value="1" name="addFilterMacFlag">
+        </td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formFilter method=POST name="formFilterDel">
+<input type="hidden" name="submit-url" value="/macfilter.htm" >
+<input type="hidden" name="deleteSelFilterMac" value="" >
+<input type="hidden" name="deleteAllFilterMac" value="" >
+<table border="0" width=600 >
+	<tr><font size=2><b><script>dw(macfilter_current_table)</script></b></font></tr>
+	<% macFilterList(); %>
+</table>
+<br>
+<table border="0" width=600 >
+	<tr>
+		<td>
+			<input type="submit" value="Delete Selected" name="deleteSelFilterMacBt" onClick="return deleteClick()">
+  			<script>document.formFilterDel.deleteSelFilterMacBt.value = macfilter_delete;</script>&nbsp;&nbsp;
+  			<input type="submit" value="Delete All" name="deleteAllFilterMacBt" onClick="return deleteAllClick()">
+  			<script>document.formFilterDel.deleteAllFilterMacBt.value = macfilter_delete_all;</script>
+		</td>
+	</tr>
+</table>
+<script>
+	if ( <% getIndex("macFilterNum"); %> == 0 )
+		disableDelButton();
+if ( <% getIndex("macfilterErr"); %> )
+	alert(ipfilter_rule_exist);
+</script>
+</form>
+</blockquote>
+</body>
+</html>

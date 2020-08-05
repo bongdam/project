@@ -1,0 +1,50 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<% language=javascript %>
+<% getInfo("include_css"); %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script>
+
+function Load_Setting()
+{
+	document.getElementById("ID_LOGOUT").value = logout_button;
+}
+
+function clicklogout()
+{
+	if ( !confirm(logout_confm) ) {
+		return false;
+	} else
+		document.logout.submit();
+
+	return true;
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(logout_header)</script></h2>
+<form action=/boafrm/formLogout method=POST name="logout">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+  <tr><font size=2>
+    <script>dw(logout_header_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+  <tr height=3>
+  </tr>
+  <tr>
+      <td ><font size=2>
+        <input type="submit" id="ID_LOGOUT" name="ID_LOGOUT value="logout" onclick="return clicklogout();">
+      </td>
+  </tr>
+</table>
+</form>
+<blockquote>
+</body>
+</html>
+
+

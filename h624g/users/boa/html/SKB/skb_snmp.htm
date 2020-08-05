@@ -1,0 +1,197 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>SNMP 설정</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+
+function updateState()
+{
+   if(document.formSNMP.snmpEnable.checked) {
+   	document.formSNMP.getsnmpEnable.disabled =false;
+   	document.formSNMP.setsnmpEnable.disabled =false;
+   	document.formSNMP.getType.disabled = false;
+   	document.formSNMP.setType.disabled = false;
+ 		enableTextField(document.formSNMP.getCom);
+ 		enableTextField(document.formSNMP.setCom);
+    	document.formSNMP.snmpTrapEnable.disabled = false;
+
+    if(!document.formSNMP.getsnmpEnable.checked){
+    	document.formSNMP.getType.disabled = true;
+    	disableTextField(document.formSNMP.getCom);
+    }
+
+    if(!document.formSNMP.setsnmpEnable.checked){
+    	document.formSNMP.setType.disabled = true;
+    	disableTextField(document.formSNMP.setCom);
+    }
+
+	 if(document.formSNMP.snmpTrapEnable.checked){
+ 		enableTextField(document.formSNMP.trapCommunity);
+ 		enableTextField(document.formSNMP.trapServer);
+ 		enableTextField(document.formSNMP.trapServer2);
+	 }
+	 else {
+ 		disableTextField(document.formSNMP.trapCommunity);
+ 		disableTextField(document.formSNMP.trapServer);
+ 		disableTextField(document.formSNMP.trapServer2);
+	 }
+  }
+  else {
+  		document.formSNMP.getsnmpEnable.disabled =true;
+  		document.formSNMP.setsnmpEnable.disabled =true;
+  		document.formSNMP.getType.disabled = true;
+   	document.formSNMP.setType.disabled = true;
+ 		disableTextField(document.formSNMP.getCom);
+ 		disableTextField(document.formSNMP.setCom);
+		document.formSNMP.snmpTrapEnable.disabled = true;
+ 		disableTextField(document.formSNMP.trapCommunity);
+ 		disableTextField(document.formSNMP.trapServer);
+ 		disableTextField(document.formSNMP.trapServer2);
+  }
+}
+
+function resetClicked()
+{
+	document.location.assign("skb_snmp.htm");
+}
+
+function do_apply()
+{
+	var com1;
+	var com2;
+	var trap1, trap2, trap3;
+	if(document.formSNMP.getsnmpEnable.checked == true){
+   		com1 = document.formSNMP.getCom.value;
+   		com2 = document.formSNMP.setCom.value;
+
+   		if(com1=='' || com2==''){
+   			alert('Community 를 입력해주세요');
+   			return resetClicked();
+   		}
+
+   		if (document.formSNMP.getCom.value.length < 8 || document.formSNMP.getCom.value.length > 22 ||
+   			document.formSNMP.setCom.value.length < 8 || document.formSNMP.setCom.value.length > 22) {
+   			alert('Community의 값은 8자리 이상 22자리 이하로 입력해주세요');
+   			return resetClicked();
+   		}
+   	}
+
+   	if(document.formSNMP.snmpTrapEnable.checked == true){
+
+   		trap1 = document.formSNMP.trapCommunity.value;
+   		trap2 = document.formSNMP.trapServer.value;
+   		trap3 = document.formSNMP.trapServer2.value;
+
+   		if(trap1==''){
+   			alert('Trap community 를 입력해주세요');
+   			return resetClicked();
+   		}
+
+   		if (document.formSNMP.trapCommunity.value.length < 8 || document.formSNMP.trapCommunity.value.length > 22) {
+   			alert('Trap Community의 값은 8자리 이상 22자리 이하로 입력해주세요');
+   			return resetClicked();
+   		}
+
+   		if(trap2 == "" || trap3 == ""){
+   			alert('Trap Server 를 입력해주세요');
+   			return resetClicked();
+   		}
+   	}
+
+   	document.formSNMP.submit();
+}
+
+
+function load()
+{
+	if("<%getInfo("snmp_com1_check");%>") {
+		if (<%getIndex("snmp_com1");%>==0) {
+			document.formSNMP.getType.value = "read_only";
+		} else if (<%getIndex("snmp_com1");%>==1) {
+			document.formSNMP.getType.value = "write_only";
+		}
+	}
+
+	if("<%getInfo("snmp_com2_check");%>") {
+		if (<%getIndex("snmp_com2");%>==0) {
+			document.formSNMP.setType.value = "read_only";
+		} else if (<%getIndex("snmp_com2");%>==1) {
+			document.formSNMP.setType.value = "write_only";
+		}
+	}
+}
+</script>
+</head>
+
+<body onload="load();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>SNMP 설정</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+<tr><td><font size=2>
+ 네트워크 관리를 위한 SNMP를 설정하는 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formSNMP method=POST name="formSNMP">
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+<tr><td colspan="2"><font size=2><b>
+	 <input type='checkbox' name='snmpEnable' value='ON' <% getIndex("snmp_enable"); %> ONCLICK='updateState()'>&nbsp;&nbsp;SNMP 사용
+</td></tr>
+
+<tr><td width="50%"><font size=1.5><b>
+	<input type='checkbox' name='getsnmpEnable' value='ON' <% getInfo("snmp_com1_check"); %> ONCLICK='updateState()'>&nbsp;&nbsp;SNMP Get Community&nbsp;&nbsp;</b>
+		<select size="1" name="getType">
+	    <option value="read_only" >Read Only</option>
+		<option value="write_only">Read-Write</option>
+	</select></td>
+<td width="50%"><input type='password' name="getCom" size="22" maxlength="30" value="********"></font>
+</td></tr>
+
+<tr><td width="50%"><font size=1.5><b>
+	<input type='checkbox' name='setsnmpEnable' value='ON' <% getInfo("snmp_com2_check"); %> ONCLICK='updateState()'>&nbsp;&nbsp;SNMP Set Communit&nbsp;&nbsp;</b>
+		<select size="1" name="setType">
+	    <option value="read_only" >Read Only</option>
+		<option value="write_only" >Read-Write</option>
+	</select></td>
+<td width="50%"><input type='password' name="setCom" size="22" maxlength="30" value="********"></font>
+</td></tr>
+<tr><td colspan="2"><font size=2><b>
+     <input type='checkbox' name='snmpTrapEnable' value='ON' <% getIndex("snmp_trap_enable"); %> ONCLICK='updateState()'>&nbsp;&nbsp;SNMP TRAP 사용
+</td></tr>
+<tr><td>
+     <font size=2><b>Trap 커뮤니티: </b>
+	 </td><td>
+	 <input type="password" name="trapCommunity" size="22" maxlength="32" value="********"  ></font>
+</td></tr>
+<tr><td>
+     <font size=2><b>Trap-1서버: </b>
+	 </td><td>
+	 <input type="password" name="trapServer" size="22" maxlength="64" value="********"  ></font>
+</td></tr>
+<tr><td>
+     <font size=2><b>Trap-2서버: </b>
+	 </td><td>
+	 <input type="password" name="trapServer2" size="22" maxlength="64" value="********"  ></font>
+</td></tr>
+<tr><td>
+   <br>
+     <input type="button" value="적용" name="save" onClick="do_apply()">&nbsp;&nbsp;
+        <input type="hidden" value="/skb_snmp.htm" name="submit-url">
+</td></tr>
+     <script> updateState(); </script>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

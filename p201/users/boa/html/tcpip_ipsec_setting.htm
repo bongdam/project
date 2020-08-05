@@ -1,0 +1,407 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>IPSec VPN Setup</title>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<style>
+.on {display:on}
+.off {display:none}
+</style>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT>
+var ipsec_tbl = 0;
+
+function Load_Setting()
+{
+	var ipsec_enable = "<% getInfo("ipsec_vpn_enable");%>";
+	var ipsec_interval = "<% getInfo("ipsec_vpn_interval");%>";
+	var ipaddr = "<% getInfo("ipsec_local_addr");%>".split('.');
+	var subnet = "<% getInfo("ipsec_local_subnet");%>".split('.');
+
+	if (ipsec_enable == "0")
+		document.IpsecVpnEnable.ID_IPSEC_ENABLE.selectedIndex = 0;
+	else
+		document.IpsecVpnEnable.ID_IPSEC_ENABLE.selectedIndex = 1;
+
+	document.IpsecVpnEnable.ID_IPSEC_INTERVAL.value = ipsec_interval;
+
+	ipsec_tbl = <% getIndex("ipsec_table_num"); %>;
+
+	document.IpsecVpnSetting.ID_LOCAL_IP_1.value = ipaddr[0];
+	document.IpsecVpnSetting.ID_LOCAL_IP_2.value = ipaddr[1];
+	document.IpsecVpnSetting.ID_LOCAL_IP_3.value = ipaddr[2];
+	document.IpsecVpnSetting.ID_LOCAL_IP_4.value = 0;
+
+	if (subnet[3] == "0")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "24";
+	else if (subnet[3] == "128")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "25";
+	else if (subnet[3] == "192")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "26";
+	else if (subnet[3] == "224")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "27";
+	else if (subnet[3] == "240")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "28";
+	else if (subnet[3] == "248")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "29";
+	else if (subnet[3] == "252")
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "30";
+	else
+		document.IpsecVpnSetting.ID_LOCAL_SUBNET.value = "31";
+
+	document.IpsecVpnSetting.ID_IPSEC_NAME.value = "";
+	document.IpsecVpnSetting.ID_IPSEC_MODE.value = "1";
+	document.IpsecVpnSetting.ID_IPSEC_R_HOST.value = "";
+	document.IpsecVpnSetting.ID_REMOTE_IP_1.value = "";
+	document.IpsecVpnSetting.ID_REMOTE_IP_2.value = "";
+	document.IpsecVpnSetting.ID_REMOTE_IP_3.value = "";
+	document.IpsecVpnSetting.ID_REMOTE_IP_4.value = "";
+	document.IpsecVpnSetting.ID_REMOTE_SUBNET.value = "";
+	document.IpsecVpnSetting.ID_IPSEC_LOCAL_ID.value = "";
+	document.IpsecVpnSetting.ID_IPSEC_REMOTE_ID.value = "";
+	document.IpsecVpnSetting.ID_IPSEC_POLICY.selectedIndex = 0;
+	document.IpsecVpnSetting.ID_IPSEC_PROPOSAL.selectedIndex = 0;
+	document.IpsecVpnSetting.ID_IPSEC_KEY.value = "";
+	document.IpsecVpnSetting.ID_IPSEC_STATUS.value = "1";
+}
+
+function onApplyEnable()
+{
+	var vpn_interval = parseInt(document.IpsecVpnEnable.ID_IPSEC_INTERVAL.value);
+
+	if (vpn_interval < 5 || vpn_interval > 604800) {
+		alert(tcpip_ipsec_interval_error);
+		return;
+	}
+
+	document.IpsecVpnEnable.submit();
+}
+
+function onApplySetting()
+{
+	var engNum_check = /^[A-Za-z0-9]*$/;
+	var local_ipaddr = "";
+	var local_ip = 0;
+	var local_subnet = 0;
+	var remote_ipaddr = "";
+	var remote_subnet = 0;
+
+	if (ipsec_tbl >= 5) {
+		alert(tcpip_ipsec_ipsec_tbl_error);
+		return;
+	}
+
+	if (document.IpsecVpnSetting.ID_IPSEC_NAME.value.length == 0 || engNum_check.test(document.IpsecVpnSetting.ID_IPSEC_NAME.value) == false) {
+		alert(tcpip_ipsec_name_error);
+		return;
+	}
+
+	if (document.IpsecVpnSetting.ID_IPSEC_NAME.value.length < 4) {
+		alert(tcpip_ipsec_name_short);
+		return;
+	}
+
+	if (document.IpsecVpnSetting.ID_IPSEC_R_HOST.value.length == 0) {
+		alert(tcpip_ipsec_r_host_error);
+		return;
+	}
+
+	if (document.IpsecVpnSetting.ID_IPSEC_LOCAL_ID.value.length == 0) {
+		alert(tcpip_ipsec_local_id_error);
+		return;
+	}
+
+	if (document.IpsecVpnSetting.ID_IPSEC_REMOTE_ID.value.length == 0) {
+		alert(tcpip_ipsec_r_id_error);
+		return;
+	}
+
+	local_ipaddr = document.IpsecVpnSetting.ID_LOCAL_IP_1.value + "." + document.IpsecVpnSetting.ID_LOCAL_IP_2.value + "." + document.IpsecVpnSetting.ID_LOCAL_IP_3.value + "." + document.IpsecVpnSetting.ID_LOCAL_IP_4.value;
+	local_ip = Number(document.IpsecVpnSetting.ID_LOCAL_IP_4.value);
+	local_subnet = Number(document.IpsecVpnSetting.ID_LOCAL_SUBNET.value);
+
+	if ( CheckIP(local_ipaddr) == -1 || local_ip < 0 || local_ip >= 255 )
+	{
+		alert(tcpip_ipsec_local_ip_error);
+		return;
+	}
+
+	if ( 24 > local_subnet || 31 < local_subnet )
+	{
+		alert(tcpip_ipsec_local_subnet_error);
+		return;
+	}
+
+	remote_ipaddr = document.IpsecVpnSetting.ID_REMOTE_IP_1.value + "." + document.IpsecVpnSetting.ID_REMOTE_IP_2.value + "." + document.IpsecVpnSetting.ID_REMOTE_IP_3.value + "." + document.IpsecVpnSetting.ID_REMOTE_IP_4.value;
+	remote_subnet = Number(document.IpsecVpnSetting.ID_REMOTE_SUBNET.value);
+
+	if ( CheckIP(remote_ipaddr) == -1 )
+	{
+		alert(tcpip_ipsec_remote_ip_error);
+		return;
+	}
+
+	if ( 24 > remote_subnet || 31 < remote_subnet )
+	{
+		alert(tcpip_ipsec_remote_subnet_error);
+		return;
+	}
+
+	if (document.IpsecVpnSetting.ID_IPSEC_KEY.value.length < 8) {
+		alert(tcpip_ipsec_key_error);
+		return;
+	}
+
+	document.IpsecVpnSetting.x_ipsec_local_subnet.value = local_ipaddr + "/" + local_subnet;
+	document.IpsecVpnSetting.x_ipsec_remote_subnet.value = remote_ipaddr + "/" + remote_subnet;
+	document.IpsecVpnSetting.x_ipsec_remote_idtype.value = "1"
+	document.IpsecVpnSetting.x_ipsec_local_idtype.value = "1";
+	document.IpsecVpnSetting.x_ipsec_tbl.value = ipsec_tbl
+	document.IpsecVpnSetting.x_ipsec_protocol.value = "esp";
+
+	document.IpsecVpnSetting.submit();
+}
+
+function subnet_change(submask)
+{
+	var sb = Number(submask);
+
+	if( 24 > sb || 31 < sb )
+	{
+		showWarningDialog( _("Subnet Mask is invalid."));
+		return;
+	}
+}
+
+function onCancel()
+{
+	window.location.reload();
+}
+
+function onDelete()
+{
+  if ( !confirm(tcpip_ipsec_delete_confirm) )
+	return false;
+  else
+	document.IpsecVpnDelete.submit();
+}
+
+function EngNumOnly(e)
+{
+	var evt=(e)?e:(window.event)?window.event:null;
+	if(evt){
+		var key=(evt.charCode)?evt.charCode:
+			((evt.keyCode)?evt.keyCode:((evt.which)?evt.which:0));
+		if ((65 <= key && key <= 90) || (97 <= key && key <= 122))
+			return true;
+		if ((48 <= key && key <= 57) || (key == 8))
+			return true;
+	}
+	return false;
+}
+
+function numberOnly(e)
+{
+	var evt=(e)?e:(window.event)?window.event:null;
+	if(evt){
+		var key=(evt.charCode)?evt.charCode:
+			((evt.keyCode)?evt.keyCode:((evt.which)?evt.which:0));
+		if(key > 31 && (key < 48 || key > 57))
+			return false;
+	}
+	return true;
+}
+
+function onSettingApply(F)
+{
+	if ( !confirm(tcpip_ipsec_setting_apply) )
+		return false;
+
+	F.submit();
+	return true;
+}
+
+</SCRIPT>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(tcpip_ipsec_header)</script></h2>
+<form action=/boafrm/formIpsecVpnEnable method=POST name="IpsecVpnEnable">
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+	<tr><font size=2>
+		<script>dw(tcpip_ipsec_explain)</script>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+	<tr></tr>
+</table>
+
+<table border="0" width="440">
+	<tr>
+		<td height="35" colspan="2"><font size=2><b><script>dw(tcpip_ipsec_header)</script></b></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec)</script></b></td>
+		<td>
+			<select id="ID_IPSEC_ENABLE" name="ID_IPSEC_ENABLE" >
+				<option value="0" id="oIpsecDisable"><script>dw(tcpip_ipsec_disable)</script></option>
+				<option value="1" id="oIpsecEnable"><script>dw(tcpip_ipsec_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_interval)</script></b></td>
+		<td><font size=2><input type="text" name="ID_IPSEC_INTERVAL" onKeyPress="return numberOnly(event);" size="3" maxlength="6" value="">&nbsp;Sec (5 ~ 604800)</td>
+	</tr>
+
+	<tr>
+		<td width="50%" height="55" align="right">
+			<input type="button" value="APPLY" name="ipsec_enable" onClick="onApplyEnable();" >
+			<script>document.IpsecVpnEnable.ipsec_enable.value = tcpip_ipsec_apply;</script>
+		</td>
+		<td align="left">
+			<input type="button" value="CANCEL" name="ipsec_cancel" onClick="onCancel();" >
+			<script>document.IpsecVpnEnable.ipsec_cancel.value = tcpip_ipsec_cancel;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formIpsecVpnSetting method=POST name="IpsecVpnSetting">
+<input type="hidden" value="" name="x_ipsec_local_subnet">
+<input type="hidden" value="" name="x_ipsec_remote_subnet">
+<input type="hidden" value="" name="x_ipsec_remote_idtype">
+<input type="hidden" value="" name="x_ipsec_local_idtype">
+<input type="hidden" value="" name="x_ipsec_tbl">
+<input type="hidden" value="" name="x_ipsec_protocol">
+<table border="0" width="440">
+	<tr>
+		<td height="35" colspan="2"><font size=2><b><script>dw(tcpip_ipsec_header)</script></b></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_conn_name)</script></b></td>
+		<td><font size=2><input type="text" name="ID_IPSEC_NAME" onKeyPress="return EngNumOnly(event);" size="20" maxlength="20" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_mode)</script></b></td>
+		<td>
+			<select id="ID_IPSEC_MODE" name="ID_IPSEC_MODE" >
+				<option value="1" id="oServerMode"><script>dw(tcpip_ipsec_server)</script></option>
+				<option value="0" id="oClientMode"><script>dw(tcpip_ipsec_client)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_remote_host)</script></b></td>
+		<td><font size=2><input type="text" name="ID_IPSEC_R_HOST" size="20" maxlength="30" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_local_host_subnet)</script></b></td>
+		<td><font size=2>
+			<input type="text" disabled style="width:25px" maxlength="3" name="ID_LOCAL_IP_1" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" disabled style="width:25px" maxlength="3" name="ID_LOCAL_IP_2" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" disabled style="width:25px" maxlength="3" name="ID_LOCAL_IP_3" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:25px" maxlength="3" name="ID_LOCAL_IP_4" onKeyPress="return numberOnly(event);" />
+			&nbsp;&nbsp;/&nbsp;&nbsp;
+			<input type="text" style="width:25px" maxlength="2" name="ID_LOCAL_SUBNET" onChange="subnet_change(this.value);" />
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_remote_host_subnet)</script></b></td>
+		<td><font size=2>
+			<input type="text" style="width:25px" maxlength="3" name="ID_REMOTE_IP_1" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:25px" maxlength="3" name="ID_REMOTE_IP_2" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:25px" maxlength="3" name="ID_REMOTE_IP_3" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:25px" maxlength="3" name="ID_REMOTE_IP_4" onKeyPress="return numberOnly(event);" />
+			&nbsp;&nbsp;/&nbsp;&nbsp;
+			<input type="text" style="width:25px" maxlength="2" name="ID_REMOTE_SUBNET" onChange="subnet_change(this.value);" />
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_local_id)</script></b></td>
+		<td><font size=2><input type="text" name="ID_IPSEC_LOCAL_ID" size="20" maxlength="30" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_remote_id)</script></b></td>
+		<td><font size=2><input type="text" name="ID_IPSEC_REMOTE_ID" size="20" maxlength="30" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_policy)</script></b></td>
+		<td>
+			<select id="ID_IPSEC_POLICY" name="ID_IPSEC_POLICY" >
+				<option value="auto">AUTO</option>
+				<option value="aes128-md5-modp1536">aes128-md5-modp1536</option>
+				<option value="aes128-sha1-modp1536">aes128-sha1-modp1536</option>
+				<option value="3des-md5-modp1536">3des-md5-modp1536</option>
+				<option value="3des-sha1-modp2048">3des-sha1-modp2048</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_proposal)</script></b></td>
+		<td>
+			<select id="ID_IPSEC_PROPOSAL" name="ID_IPSEC_PROPOSAL" >
+				<option value="auto">AUTO</option>
+				<option value="aes128-md5">aes128-md5</option>
+				<option value="aes128-sha1">aes128-sha1</option>
+				<option value="3des-md5">3des-md5</option>
+				<option value="3des-sha1">3des-sha1</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_key)</script></b></td>
+		<td><font size=2><input type="password" name="ID_IPSEC_KEY" size="20" maxlength="20" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_ipsec_status)</script></b></td>
+		<td>
+			<select id="ID_IPSEC_STATUS" name="ID_IPSEC_STATUS" >
+				<option value="1">Activate</option>
+				<option value="0">Inactivate</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width="50%" height="55" align="right">
+			<input type="button" value="APPLY" name="ipsec_setting" onClick="onApplySetting();" >
+			<script>document.IpsecVpnSetting.ipsec_setting.value = tcpip_ipsec_apply;</script>
+		</td>
+		<td align="left">
+			<input type="button" value="CANCEL" name="ipsec_cancel" onClick="onCancel();" >
+			<script>document.IpsecVpnSetting.ipsec_cancel.value = tcpip_ipsec_apply;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formIpsecVpnDelete method=POST name="IpsecVpnDelete">
+<table border=0 width=550 >
+  <tr>
+  	<font size=2><b><script>dw(tcpip_ipsec_tbl)</script></b></font>
+  </tr>
+  <% IPSecVPNList(); %>
+</table>
+<br>
+<input type="button" value="Delete" name="ipsec_delete" onClick="onDelete();" >
+</form>
+
+<form action=/boafrm/formSaveConfigReset method=POST name="formSaveConfigReset">
+<br>
+<table border="0" width="440">
+	<tr>
+		<td width="50%"><font size=2><b><script>dw(tcpip_ipsec_setting_info)</script></b></td>
+		<td><font size=2>
+			<input type="button" value="apply" name="ipsec_apply" onClick="onSettingApply(this.form);" >
+			<script>document.formSaveConfigReset.ipsec_apply.value = tcpip_ipsec_setting;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

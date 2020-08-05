@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>yfecho-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>yfecho(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>yfecho - 파일에 형식화된 문자열을 출력</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+int yfecho(const char *<a href="#">pathname</a>, int <a href="#">flags</a>, mode_t <a href="#">mode</a>, const char *<a href="#">fmt</a>, ...);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 짧은 형식화된 문자열을 <a href="#">pathname</a>에 지정된 파일에 출력하는 함수이다. 일반적인 fopen과 fprintf 그리고 fclose라는 일련의 호출로 구현하는 방법을 단일 함수화 한 것이다. 
+<dl>
+	<dt><a href="#">pathname</a></dt>
+	<dd>절대 경로 또는 상대경로로 지정된 파일이름이다.</dd>
+	<dt><a href="#">flags</a></dt>
+	<dd>시스템 콜인 <a href="#">open</a>(2)의 두번째 인자와 같다. <b>O_APPEND</b>, <b>O_AYNC</b>, <b>O_CREAT</b>, <b>O_EXEL</b> 등의 미리 정의된 상수들을 <i>Bitwise-or</i>해서 전달한다.</dd>
+	<dt><a href="#">mode</a></dt>
+	<dd><a href="#">flags</a>가 O_CREAT일 때 의미있는 인자로 user/group/others의 접근 유형을 지정한다.</dd>
+	<dt><a href="#">fmt</a></dt>
+	<dd>형식화된(Formatted)문자열로 변환 지시어('%')를 포함하거나 안할 수 있다. 표준 라이브러리의 형식화된 출력 함수들의 변환 기준과 같다.</dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>파일에 출력한 문자의 수를 리턴한다. 파일을 열지 못하거나 파일에 쓰기가 실패하면 -1을 리턴한다. -1일 경우는 errno로 구체적인 에러를 확인할 수 있다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>./a.out</b>
+$ <b>cat wanip
+</b>255.255.255.0
+$ <b>cat resolv.conf
+</b>nameserver 168.126.63.1
+nameserver 168.126.63.2
+$ <b>cat udhcpd.conf
+</b>interface br0
+server 192.168.123.254
+start 192.168.123.2
+end 192.168.123.100
+opt subnet 255.255.255.0
+opt router 192.168.123.254
+opt dns 168.126.63.1
+</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;sys/socket.h&gt;
+<span style="color:Blue;">#include</span> &lt;netinet/in.h&gt;
+<span style="color:Blue;">#include</span> &lt;arpa/inet.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">#define</span> NIPQUAD(addr) \
+    ((<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)&amp;addr)[0], \
+    ((<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)&amp;addr)[1], \
+    ((<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)&amp;addr)[2], \
+    ((<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)&amp;addr)[3]
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+    <span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span> lanIp = inet_addr(<span style="color:#A31515;">"192.168.123.254"</span>);
+    <span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span> mask = inet_addr(<span style="color:#A31515;">"255.255.255.0"</span>);
+    <span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span> dnsServer[2];
+    <span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span> startIp, endIp;
+
+    <span style="color:Green;">/* 일반 파일 생성과 쓰기 */</span>
+    yfecho(<span style="color:#A31515;">"wanip"</span>, O_WRONLY|O_CREAT|O_TRUNC, 0644, <span style="color:#A31515;">"%u.%u.%u.%u\n"</span>, NIPQUAD(mask));
+
+    <span style="color:Green;">/* Proc 파일에 쓰기 */</span>
+    yfecho(<span style="color:#A31515;">"/proc/sys/net/ipv4/ip_forward"</span>, O_WRONLY|O_TRUNC, 0644, <span style="color:#A31515;">"1"</span>);
+
+    <span style="color:Green;">/* 여러 줄을 개별적으로 쓰기 */</span>
+    dnsServer[0] = inet_addr(<span style="color:#A31515;">"168.126.63.1"</span>);
+    dnsServer[1] = inet_addr(<span style="color:#A31515;">"168.126.63.2"</span>);
+    yfecho(<span style="color:#A31515;">"resolv.conf"</span>, O_WRONLY|O_CREAT|O_TRUNC, 0644, <span style="color:#A31515;">"nameserver %u.%u.%u.%u\n"</span>, NIPQUAD(dnsServer[0]));
+    yfecho(<span style="color:#A31515;">"resolv.conf"</span>, O_WRONLY|O_APPEND, 0644, <span style="color:#A31515;">"nameserver %u.%u.%u.%u\n"</span>, NIPQUAD(dnsServer[1]));
+
+    <span style="color:Green;">/* 여러 줄을 한번에 쓰기 */</span>
+    startIp = htonl((ntohl(lanIp) &amp; ~0xff) + 2);
+    endIp = htonl((ntohl(lanIp) &amp; ~0xff) + 100);
+
+    yfecho(<span style="color:#A31515;">"udhcpd.conf"</span>, O_WRONLY|O_CREAT|O_TRUNC, 0644,
+           <span style="color:#A31515;">"interface %s\n"</span>
+           <span style="color:#A31515;">"server %u.%u.%u.%u\n"</span>
+           <span style="color:#A31515;">"start %u.%u.%u.%u\n"</span>
+           <span style="color:#A31515;">"end %u.%u.%u.%u\n"</span>
+           <span style="color:#A31515;">"opt subnet %u.%u.%u.%u\n"</span>
+           <span style="color:#A31515;">"opt router %u.%u.%u.%u\n"</span>
+           <span style="color:#A31515;">"opt dns %u.%u.%u.%u\n"</span>,
+           <span style="color:#A31515;">"br0"</span>,
+           NIPQUAD(lanIp),
+           NIPQUAD(startIp),
+           NIPQUAD(endIp),
+           NIPQUAD(mask),
+           NIPQUAD(lanIp),
+           NIPQUAD(dnsServer[0]));
+
+    <span style="color:Blue;">return</span> 0;
+}</pre>
+<!-- See Also Section -->
+<h2>See Also</h2>
+<p><a href="yfcat-man.html">yfcat</a>(3)
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+</body>
+</html>

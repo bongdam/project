@@ -1,0 +1,73 @@
+ArpON's install:
+================
+
+In order to use the ArpON daemon you need these following libraries and software installed in your system:
+
+    - LibPcap >= 0.9.8
+    - LibNet11 >= 1.1.2.1
+    - LibDNet >= 1.11 
+    - LibPthread >= all
+    - Cmake >= 2.6
+
+To install ArpON in default path /usr/ do these command:
+
+    $ cd /path/ArpON-$VERSION/
+
+    where $VERSION is the current version of your ArpON tarball, then:
+
+    $ mkdir build
+    $ cd build
+    $ cmake ..
+    $ make
+    $ sudo make install
+
+To install ArpON in a specific destination dir do these command:
+
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_INSTALL_PREFIX=/path/to/install ..
+    $ make
+    $ sudo make install
+
+    Usually, the paths of the installation are: /, /usr/ or /usr/local/
+
+If you want personalize the compilation parameters with the your custom CFLAGS do these commands:
+
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_INSTALL_PREFIX=/path/to/install -DCMAKE_C_FLAGS="-your-personal-cflags" ..
+    $ make
+    $ sudo make install
+
+To uninstall ArpON do this command:
+
+    $ sudo make uninstall
+
+If the your dependencies are installed in the other specific paths, you can add this with:
+
+    -DCMAKE_INCLUDE_PATH="/path/to/include/"
+    -DCMAKE_LIBRARY_PATH="/path/to/library/"
+
+To use ArpON:
+
+    $ arpon -h
+
+For any questions about:
+
+  1) The general options and example of ArpON daemon you can read:
+
+    $ man 8 arpon
+
+  2) The algorithms documentation you can read:
+
+    /path/ArpON-$VERSION/doc/algorithms/algorithms.html
+
+  3) The documentation you can read:
+
+    /path/ArpON-$VERSION/doc/documentation/documentation.html
+
+Please send problems, bugs, questions, desirable enhancements, patch, source code contributions, etc. to:
+
+  Andrea Di Pasquale <spikey.it@gmail.com>
+
+Thank you very much.

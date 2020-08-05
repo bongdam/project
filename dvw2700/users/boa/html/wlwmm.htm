@@ -1,0 +1,63 @@
+﻿<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>WMM 매핑</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+ function clickReset()
+ {
+ 	document.location.assign( "wlwmm.htm");
+ }
+
+</script>
+</head>
+<body onload='mouse_r_click();'>
+<blockquote>
+<b><font size=3 face="arial" color="#3c7A95">WMM(QoS) 매핑
+	<script>
+	 if (<% getIndex("wlan_num") %> > 1) {
+	 	if (<% getIndex("wlan_idx") %> == 1) {
+	 		document.write("- 2.4G");
+		} else if (<% getIndex("wlan_idx") %> == 0) {
+			document.write("- 5G");
+		}
+	}
+	</script>
+</font></b>
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+<tr><td><font size=2><br>
+ DSCP 의 Priority 매핑 값을 보여주는  페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formWlwmm method=POST name="formWlwmm">
+	WMM(QoS) 모드:
+	<br>
+
+	<div id="dscp_tbl">
+		<table border=0 width="490" cellspacing=2>
+		<tr class='tbl_head' align="center">
+		<td width=250>DSCP Number</td>
+		<td colspan=8> Priority</td>
+		</tr>
+		<% print_wme_dscp(); %>
+		</table>
+	</div>
+<p>
+  <input type="submit" value="저장/적용" name="saveApply">&nbsp;&nbsp;
+  <input type="button" value="다시 보기" name="refresh" onClick="clickReset()">&nbsp;&nbsp;
+  <input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();"></p>
+   <input type="hidden" value="/wlwmm.htm" name="submit-url">
+</p></tr>
+</form>
+ <br>
+
+
+</blockquote>
+</body>
+</html>

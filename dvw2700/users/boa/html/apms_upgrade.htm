@@ -1,0 +1,60 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache">
+<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta http-equiv="Expires" content="-1">
+<% getIndex("no-cache"); %>
+<title>APMS 관리 시스템</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script language="javascript">
+
+function frmOnload() {
+	document.aupform.server_url.value = "<% getInfo("apms_server"); %>";
+}
+
+function valid_check(auto_form)
+{
+	var v_url = auto_form.server_url.value;
+
+	if ( (v_url.length == 0) && (v_use == 1) ) {
+		alert('서버 URL 이 비어 있습니다.') ;
+		return;
+	}
+	auto_form.submit();
+}
+
+function resetClick()
+{
+	document.location.reload();
+}
+</script>
+
+</head>
+<body onload="frmOnload(); mouse_r_click();">
+<blockquote>
+<h2>APMS 관리 시스템</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+	APMS 관리 시스템 설정 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form method="post" action="boafrm/formautoupgrade" name="aupform" onSubmit="return check_form();">
+<table border=0>
+	<tr>
+	<td>APMS 관리 시스템 연동 설정:</td>
+	<td><input type="text" name="server_url" size="40" maxlength="127" disabled></td>
+	</tr>
+	<% showAutoUpState(); %>
+</table>
+<br>
+<br>
+<input type="button" value="적용" name="save" onclick="valid_check(this.form);">
+<input type="hidden" value="/apms_upgrade.htm" name="submit-url" >
+<input type="reset" value="취소" name="reset" onclick="resetClick();">
+</form>
+</blockquote>
+</body>
+</html>

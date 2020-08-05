@@ -1,0 +1,178 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Port Filtering</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function addClick()
+{
+  if (!document.formFilterAdd.enabled.checked)
+  	return true;
+
+  if (document.formFilterAdd.fromPort.value=="" && document.formFilterAdd.toPort.value==""
+  		&& document.formFilterAdd.comment.value=="" )
+	return true;
+
+  if (document.formFilterAdd.fromPort.value=="") {
+  	alert(portfilter_noport);
+	document.formFilterAdd.fromPort.focus();
+	return false;
+  }
+  if ( validateKey( document.formFilterAdd.fromPort.value ) == 0 ) {
+	alert(portfilter_port_invalid);
+	document.formFilterAdd.fromPort.focus();
+	return false;
+  }
+  d1 = getDigit(document.formFilterAdd.fromPort.value, 1);
+  if (d1 > 65535 || d1 < 1) {
+	alert(portfilter_port_invalid_num);
+	document.formFilterAdd.fromPort.focus();
+	return false;
+  }
+  if (document.formFilterAdd.toPort.value!="") {
+  	if ( validateKey( document.formFilterAdd.toPort.value ) == 0 ) {
+		alert(portfilter_port_invalid);
+		document.formFilterAdd.toPort.focus();
+		return false;
+  	}
+	d2 = getDigit(document.formFilterAdd.toPort.value, 1);
+ 	if (d2 > 65535 || d2 < 1) {
+		alert(portfilter_port_invalid_num);
+		document.formFilterAdd.toPort.focus();
+		return false;
+  	}
+	if (d1 > d2 ) {
+		alert(portfilter_port_invalid_range);
+		document.formFilterAdd.fromPort.focus();
+		return false;
+
+	}
+   }
+   return true;
+}
+
+
+function deleteClick()
+{
+  if ( !confirm(portfilter_delete_selectconfm) ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function deleteAllClick()
+{
+   if ( !confirm(portfilter_delete_allconfm) ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function disableDelButton()
+{
+	disableButton(document.formFilterDel.deleteSelFilterPort);
+	disableButton(document.formFilterDel.deleteAllFilterPort);
+}
+
+function updateState()
+{
+  if (document.formFilterAdd.enabled.checked) {
+ 	enableTextField(document.formFilterAdd.fromPort);
+ 	enableTextField(document.formFilterAdd.toPort);
+	enableTextField(document.formFilterAdd.protocol);
+ 	enableTextField(document.formFilterAdd.comment);
+  }
+  else {
+ 	disableTextField(document.formFilterAdd.fromPort);
+ 	disableTextField(document.formFilterAdd.toPort);
+ 	disableTextField(document.formFilterAdd.protocol);
+	disableTextField(document.formFilterAdd.comment);
+  }
+}
+
+function Load_Setting()
+{
+	if ( <% getIndex("portFilterEnabled"); %> )
+		document.formFilterAdd.enabled.checked = true;
+	updateState();
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(portfilter_header)</script></h2>
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+<script>dw(portfilter_header_explain)</script>
+</font></td></tr>
+
+<tr><td><hr size=1 noshade align=top></td></tr>
+
+<form action=/boafrm/formFilter method=POST name="formFilterAdd">
+<tr><td><font size=2><b>
+	<input type="checkbox" name="enabled" value="ON" ONCLICK=updateState()>&nbsp;&nbsp;<script>dw(portfiletr_enable)</script></b><br>
+    </td>
+</tr>
+
+<tr><td>
+     <p><b><font size=2><script>dw(portfiletr_port_range)</script></b></font>
+  		<input type="text" name="fromPort" size="4"><b>-</b>
+      		<input type="text" name="toPort" size="4"></font>&nbsp;&nbsp;
+  	<b><font size=2><script>dw(portfiletr_proto)</script></b> <select name="protocol">
+    		<option select value="0"><script>dw(portfw_both)</script></option>
+    		<option value="1">TCP</option>
+    		<option value="2">UDP</option>
+    		</select></font>&nbsp;&nbsp
+  	<b><font size=2><script>dw(portfiletr_comm)</script></b> <input type="text" name="comment" size="16" maxlength="20"></font>
+</p>
+<% getInfo("apply_prompt_comment_start");%>
+     <p><input type="submit" value="Apply Changes" name="addFilterPort" onClick="return addClick()">&nbsp;&nbsp;
+        <input type="reset" value="Reset" name="reset">
+<% getInfo("apply_prompt_comment_end");%>
+<% getInfo("apply_direct_comment_start");%>
+     <p><input type="submit" value="Save" name="addFilterPort" onClick="return addClick()">
+      <script>document.formFilterAdd.addFilterPort.value = portfiletr_save;</script>&nbsp;&nbsp;
+	    <input type="submit" value="Save & Apply" name="save_apply" onClick="return addClick()">
+	    <script>document.formFilterAdd.save_apply.value = portfiletr_apply;</script>&nbsp;&nbsp;	   
+        <input type="reset" value="Reset" name="reset">
+        <script>document.formFilterAdd.reset.value = portfiletr_reset;</script>
+        <input type="hidden" value="1" name="addFilterPortFlag">
+<% getInfo("apply_direct_comment_end");%>
+        <input type="hidden" value="/portfilter.htm" name="submit-url">
+     </p>
+<script> updateState(); </script>
+</td><tr>
+</form>
+</table>
+
+<br>
+<form action=/boafrm/formFilter method=POST name="formFilterDel">
+  <table border="0" width=500>
+  <tr><font size=2><b><script>dw(portfiletr_filtertbl)</script></b></font></tr>
+  <% portFilterList(); %>
+  </table>
+  <br>
+  <input type="submit" value="Delete Selected" name="deleteSelFilterPort" onClick="return deleteClick()">
+  <script>document.formFilterDel.deleteSelFilterPort.value = portfilter_delete;</script>&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteAllFilterPort" onClick="return deleteAllClick()">
+  <script>document.formFilterDel.deleteAllFilterPort.value = portfilter_delete_all;</script>&nbsp;&nbsp;&nbsp;
+  <input type="reset" value="Reset" name="reset">
+  <script>document.formFilterDel.reset.value = portfiletr_reset;</script>
+  <input type="hidden" value="/portfilter.htm" name="submit-url">
+ <script>
+	if ( <% getIndex("portFilterNum"); %> == 0 )
+		disableDelButton();
+ </script>
+</form>
+
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+<title>포트 필터링</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<link rel='STYLESHEET' type='text/css' href='style.css'>
+<script>
+var chk_btn=0;
+function addClick()
+{
+  if (chk_btn==1)
+	  return false;
+
+  if (document.formFilterAdd.fromPort.value=="" && document.formFilterAdd.toPort.value==""
+  		&& document.formFilterAdd.comment.value=="" ){
+	alert('입력된 정보가 없습니다.');
+	return false;
+  }
+
+  if (document.formFilterAdd.fromPort.value=="") {
+  	alert("포트 범위가 비어있습니다.");
+	document.formFilterAdd.fromPort.focus();
+	return false;
+  }
+  if ( validateKey( document.formFilterAdd.fromPort.value ) == 0 ) {
+	alert("포트 번호가 올바르지 않습니다! 숫자를 입력해야 합니다. (0-9)");
+	document.formFilterAdd.fromPort.focus();
+	return false;
+  }
+  d1 = getDigit(document.formFilterAdd.fromPort.value, 1);
+  if (d1 > 65535 || d1 < 1) {
+	alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+	document.formFilterAdd.fromPort.focus();
+	return false;
+  }
+  if (document.formFilterAdd.toPort.value!="") {
+  	if ( validateKey( document.formFilterAdd.toPort.value ) == 0 ) {
+		alert("포트 번호가 올바르지 않습니다! 숫자를 입력해야 합니다. (0-9)");
+		document.formFilterAdd.toPort.focus();
+		return false;
+  	}
+	d2 = getDigit(document.formFilterAdd.toPort.value, 1);
+ 	if (d2 > 65535 || d2 < 1) {
+		alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		document.formFilterAdd.toPort.focus();
+		return false;
+  	}
+	if (d1 > d2 ) {
+		alert("포트 범위가 올바르지 않습니다! 첫번째 포트 값이 두번째 포트 값보다 작아야 합니다.");
+		document.formFilterAdd.fromPort.focus();
+		return false;
+
+	}
+   }
+   chk_btn++;
+   return true;
+}
+
+function deleteClick(i)
+{
+	if (chk_btn==1)
+		return false;
+	if ( !confirm('선택한 목록을 삭제하시겠습니까?') )
+		return false;
+	else {
+		document.formFilterAdd.elements["portdel"].name = "select"+i;
+		chk_btn++;
+		return true;
+	}
+}
+
+function updateState()
+{
+	var flag = false;
+	var opmode = <% getIndex("opMode"); %>;
+
+	if (opmode) {
+		alert("허브모드에서는 사용 할 수 없습니다.");
+		flag = true;
+	}
+
+	document.formFilterAdd.fromPort.disabled = flag;
+	document.formFilterAdd.toPort.disabled = flag;
+	document.formFilterAdd.protocol.disabled = flag;
+	document.formFilterAdd.comment.disabled = flag;
+	document.formFilterAdd.addFilterPort.disabled = flag;
+
+	var portFilter_num = <% write(getIndex("portFilterNum")); %> ;
+	for (var i = 1 ; i <= portFilter_num ; i++) {
+		get_by_id("deleteSelFilterPort"+i).disabled = flag;
+	}
+
+}
+
+function modeChange()
+{
+	var f = document.formFilterAdd;
+	f.submit();
+}
+
+function resetForm()
+{
+	document.location.assign("portfilter.htm");
+}
+</script>
+</head>
+
+<body onload='mouse_r_click();'>
+<blockquote>
+<h2>포트 필터링</h2>
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+	<tr>
+		<font size=2>해당 포트를 사용하는 데이터 패킷의 흐름을 제한할 수 있는 페이지입니다.<br>설정된 포트는 액세스가 불가능합니다.</font>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formFilter method=POST name="formFilterAdd">
+<input type="hidden" name="pageName" value="PORTF">
+
+<br>
+<table border="0" width=500>
+	<tr>
+		<font size=2><b>포트 필터링 리스트:</b></font>
+	</tr>
+</table>
+<table border="0" width=500>
+	<% portFilterList(); %>
+	<br>
+	<tr align="center">
+		<td>
+			<input type="text" name="fromPort" size="4"><b>-</b><input type="text" name="toPort" size="4"></font>
+		</td>
+		<td>
+			<select name="protocol">
+				<option select value="0">TCP+UDP</option>
+				<option value="1">TCP</option><option value="2">UDP</option>
+			</select>
+		</td>
+    	<td>
+    		<input type="text" name="comment" size="16" maxlength="20">
+    	</td>
+    	<td>
+    		<input type="submit" value="추가" name="addFilterPort" onClick="return addClick()">
+    	</td>
+    	<script> updateState(); </script>
+	</tr>
+</table>
+
+<input type="hidden" name="portdel" value="ON">
+<input type="hidden" value="/portfilter.htm" name="submit-url">
+</form>
+
+</blockquote>
+</body>
+</html>

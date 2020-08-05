@@ -1,0 +1,25 @@
+#
+# Davolink Custom Package Configuration
+#
+# 2020-04-23 young
+#
+
+menu "Davolink custom package(cpkg) devices"
+
+config BCMNVRAM
+	bool "Broadcom nvram device support"
+
+config BRDIO
+	bool "Board specific helper"
+	default y
+
+config DVFLAG
+	bool "Notification of bitwised system event"
+	default y
+
+config GPIO_BUTTON_FSM
+	bool "Execute finite state machine with gpio button or switch"
+	depends on BRDIO && DVFLAG
+	default y
+
+endmenu

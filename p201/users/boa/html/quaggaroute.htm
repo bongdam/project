@@ -1,0 +1,463 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>OSPF Setup</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script>
+
+function deleteClick()
+{
+  if ( !confirm('Do you really want to delete the selected entry?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function deleteAllClick()
+{
+   if ( !confirm('Do you really want to delete the all entries?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+function checkIpSubnetAddr(field, msg)
+{
+  if (field.value=="") {
+	alert("IP address cannot be empty! It should be filled with 4 digit numbers as xxx.xxx.xxx.xxx.");
+	field.value = field.defaultValue;
+	field.focus();
+	return false;
+  }
+   if ( validateKey(field.value) == 0) {
+      alert(msg + ' value. It should be the decimal number (0-9).');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,1,1,223) ) {
+      alert(msg+' range in 1st digit. It should be 1-223.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,2,0,255) ) {
+      alert(msg + ' range in 2nd digit. It should be 0-255.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,3,0,255) ) {
+      alert(msg + ' range in 3rd digit. It should be 0-255.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,4,0,255) ) {
+      alert(msg + ' range in 4th digit. It should be 0-255.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   return true;
+}
+function ospfaddClick()
+{
+   var t1; 	
+   var first_ip;
+   var route_meteric;
+  if (!document.ospf.ospf_on.checked)
+  	return true;
+
+  if (document.ospf.ospfnetwork.value=="" && document.ospf.ospfsubnet.value==""
+  		&& document.ospf.ospfarea.value=="" )
+	return true;
+  if ( checkIpSubnetAddr(document.ospf.ospfnetwork, 'Invalid network address value! ') == false )
+              return false;
+  if (checkIPMask(document.ospf.ospfsubnet) == false)
+		        return false ;
+  t1 = parseInt(document.ospf.ospfarea.value);
+  if((document.ospf.ospfarea.value=="") || (t1 > 65535 ) || (t1 < 0)){
+  	alert('Invalid area value! The range of Metric is 0 ~ 65535.');
+  	return false
+  }
+
+   return true;
+
+
+}
+
+function disablenetDelButton()
+{
+	disableButton(document.ospfnetworkset.deleteospfnetwork);
+	disableButton(document.ospfnetworkset.deleteallospfnetwork);
+}
+
+
+function disableifDelButton()
+{
+	disableButton(document.ospfinterfacesetup.deleteospfinterface);
+	disableButton(document.ospfinterfacesetup.deleteallospfinterface);
+}
+
+function disableareaDelButton()
+{
+	disableButton(document.ospfareasetup.deleteospfarea);
+	disableButton(document.ospfareasetup.deleteallospfarea);
+}
+
+
+function ospf_on_update()
+{
+ if (document.ospf.ospf_on.checked) {
+ 	enableTextField(document.ospf.ospfrouteid);
+	enableButton(document.ospf.showdebug);
+  }
+  else {
+ 
+	disableTextField(document.ospf.ospfrouteid);
+	disableButton(document.ospf.showdebug);
+  
+  }
+
+}
+
+function ospfaddinterfaceClick()
+{
+	var t1; 
+	//String t2;
+	
+	t1 = parseInt(document.ospfinterfacesetup.Cost.value);
+	 if((document.ospfinterfacesetup.Cost.value!="")&&((t1 > 65535 ) || (t1 < 0))){
+  		alert('Invalid area value! The range of cost is 1 ~ 65535.');
+  	return false;
+  	}
+	 
+	
+	t1 = parseInt(document.ospfinterfacesetup.interface_authentication.value);
+	//if(t1!=0){
+	/*  t2= document.ospfinterfacesetup.interface_key.value;
+	 if((document.ospfinterfacesetup.interface_key.value=="") || (t2.length > 16 ) || (t2.length < 0)){
+  		alert('Invalid key value!out of range ');
+  	return false;
+	 	}
+	}*/
+	  return true;
+  	
+}
+function ospfaddareaClick()
+{
+	var t1; 
+	//String t2;
+	t1 = parseInt(document.ospfareasetup.area_authentication.value);
+	if(t1==0)
+		return false;
+	/* t2= document.ospfareasetup.area_key.value;
+	 if((document.ospfareasetup.area_key.value=="") || (t2.length > 16 ) || (t2.length < 0)){
+  		alert('Invalid key value!out of range ');
+  		return false;
+	 }*/
+	
+	t1 = parseInt(document.ospfareasetup.area_id.value);
+	if(document.ospfareasetup.area_id.value==""){
+		alert('please input the area id');
+		return false;
+	}
+
+	 if((document.ospfareasetup.area_id.value!="")&&((t1 > 32768 ) || (t1 < 0))){
+  		alert('Invalid area value! The range of cost is 1 ~ 65535.');
+  		return false;
+  	}
+	 
+	  return true;
+}
+
+function debug_update()
+{
+ if (document.ospf.ospf_debug.checked) {
+	enableButton(document.ospf.showdebug);
+  }
+  else {
+ 
+	disableButton(document.ospf.showdebug);
+  
+  }
+
+}
+
+function StaticRouteTblClick(url) {
+		openWindow(url, 'ospfdebug',1000, 800 );
+}
+function ospf_LoadSetting()
+{
+	var dF=document.ospf;
+	var ospf_enabled=<%getIndex("ospf_on");%>;
+	var ospf_debug=<%getIndex("ospf_debug");%>;
+	var route_id=<%getIndex("route_id");%>;
+	
+	if(ospf_enabled==1)	
+	{
+		dF.ospf_on.checked=true;
+		enableTextField(document.ospf.ospfrouteid);
+		enableButton(document.ospf.showdebug);
+		if(route_id)
+			document.ospf.ospfrouteid.value=route_id;
+	}
+	else
+	{
+	
+		dF.ospf_on.checked=false;
+		disableTextField(document.ospf.ospfrouteid);
+		disableButton(document.ospf.showdebug);
+		
+	}
+	if(ospf_debug==1)
+	{
+		dF.ospf_debug.checked=true;
+		enableButton(document.ospf.showdebug);
+	}
+
+	else
+	{
+		dF.ospf_debug.checked=false;
+		disableButton(document.ospf.showdebug);
+		
+		
+	}
+	if ( <% getIndex("ospfnetworkNum"); %> == 0 )
+		disablenetDelButton();	
+	if ( <% getIndex("ospfinterfaceNum"); %> == 0 )
+		disableifDelButton();		
+	if ( <% getIndex("ospfareaNum"); %> == 0 )
+		disableareaDelButton();
+
+}
+</script>
+</head>
+<body onload="ospf_LoadSetting();">
+<blockquote>
+
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<h2><font color="#0000FF">Ospf Routing Setup</font></h2>
+
+
+<tr><td colspan= 2><font size=2>
+ This page is used to setup ospf routing.
+</font></td></tr>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+
+
+<form action=/boafrm/formquaggaroute method=POST name="ospf">
+<tr><td><font size=2><b>OSPF SETUP</b></font></td></tr>
+	<tr>
+		<td><font size=2><b>OSPF:</b></font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="ospf_on" value="ON" onClick="ospf_on_update()">&nbsp;&nbsp;Enable ospf </b>
+   	
+
+		</font></td>
+		
+	</tr>
+	<tr>
+		<td><font size=2><b>OSPF DEBUG:</b></font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="ospf_debug" value="ON" onClick="debug_update()">&nbsp;&nbsp;Enable Debug </b><br>
+
+		</font></td>
+		<input type="button" value="Show debug info" name="showdebug" onClick="StaticRouteTblClick('/ospfdebug.htm')">
+	</tr>
+<tr>
+       <td width="30%"><font size=2><b>Route ID(1~65535):</b></td>
+       <td width="70%"><font size=2>
+        <input type="text" name="ospfrouteid" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+
+<tr>
+	<br><td><input type="submit" value="Apply Changes" name="ospfset" ></td>
+</tr>
+<tr>
+	<td colspan= 2><font size=2>
+ [After modify the config,must restart the ospf]
+</font></td>
+<td><input type="submit" value="restart" name="restart" ></td>
+</tr>
+<input type="hidden" value="/quaggaroute.htm" name="submit-url">
+  </table>      
+</form>
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b> INTERFACE SETUP</b></font></td></tr>
+<form action=/boafrm/formquaggaroute method=POST name="ospfinterfacesetup">
+
+<tr>
+		<td width="30%"><font size=2><b>Authentication type:</b></td>
+		<td>
+			<select name="interface_authentication">
+			 <option value="0">None</option>
+ 			
+			<option value="1">Simple password</option>
+			<option value="2">MD5</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+       <td width="30%"><font size=2><b>Key(1~16 byte):</b></td>
+       <td width="70%"><font size=2>
+        <input type="text" name="interface_key" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+<tr>
+		<td width="30%"><font size=2><b>Interface:</b></td>
+		<td>
+			<select name="ospf_if">
+			<% interfaceList(); %>
+			</select>
+		</td>
+	</tr>
+<tr>
+       <td width="30%"><font size=2><b>Cost(1~65535):</b></td>
+       <td width="70%"><font size=2>
+        <input type="text" name="Cost" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+
+
+
+
+
+
+   <tr><td colspan=2>
+     <p><input type="submit" value="Add interface " name="addospfinterface" onClick="return ospfaddinterfaceClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+
+<table border="0" width=500>
+  <tr><font size=2><b>Ospf  interface table:</b></font></tr>
+  <% ospfinterfaceList(); %>
+  </table>
+<input type="submit" value="Delete Selected" name="deleteospfinterface" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallospfinterface" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/quaggaroute.htm" name="submit-url">
+</form>
+  
+
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b> AREA ID SETUP</b></font></td></tr>
+<form action=/boafrm/formquaggaroute method=POST name="ospfareasetup">
+<tr>
+       <td width="30%"><font size=2><b>Area Id(0~32768):</b></td>
+       <td width="70%"><font size=2>
+        <input type="text" name="area_id" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+
+<tr>
+		<td width="30%"><font size=2><b>Authentication type:</b></td>
+		<td>
+			<select name="area_authentication">
+			 <option value="0">None</option>
+ 			<option value="1">Simple password</option>
+			<option value="2">MD5</option>
+			</select>
+		</td>
+	</tr>
+	
+   <tr><td colspan=2>
+     <p><input type="submit" value="Area setup" name="addospfarea" onClick="return ospfaddareaClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+
+<table border="0" width=500>
+  <tr><font size=2><b>Ospf area Table:</b></font></tr>
+  <% ospfareaList(); %>
+  </table>
+<input type="submit" value="Delete Selected" name="deleteospfarea" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallospfarea" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/quaggaroute.htm" name="submit-url">
+</form>
+
+<table border="0" width=500>
+
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b> NETWORK SETUP</b></font></td></tr>
+<form action=/boafrm/formquaggaroute method=POST name="ospfnetworkset">
+
+
+
+	<tr>
+       <td width="30%"><font size=2><b>Network:</b></td>
+       <td width="70%"><font size=2>
+        <input type="text" name="ospfnetwork" size="18" maxlength="15" value="">
+      </td>
+    </tr>
+    <tr>
+      <td width="30%"><font size=2><b>Subnet Mask:</b></td>
+      <td width="70%"><font size=2><input type="text" name="ospfsubnet" size="18" maxlength="15" value=""></td>
+    </tr>
+    <tr>
+      <td width="30%"><font size=2><b>Area Id(0~32768):</b></td>
+      <td width="70%"><font size=2><input type="text" name="ospfnetarea" size="18" maxlength="15" value=""></td>
+    </tr>
+    
+     
+ 
+ 
+    <tr><td colspan=2>
+     <p><input type="submit" value="Add ospf network" name="addospfnet" onClick="return ospfaddClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+  <table border="0" width=500>
+  <tr><font size=2><b>Ospf network Table:</b></font></tr>
+  <% ospfnetworkList(); %>
+  </table>
+  <br>
+  <input type="submit" value="Delete Selected" name="deleteospfnetwork" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallospfnetwork" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/quaggaroute.htm" name="submit-url">
+</form>
+ <script>
+	if ( <% getIndex("ospfnetworkNum"); %> == 0 )
+		disablenetDelButton();
+	if ( <% getIndex("ospfinterfaceNum"); %> == 0 )
+		disableifDelButton();
+	if ( <% getIndex("ospfareaNum"); %> == 0 )
+		disableareaDelButton();
+ </script>
+
+  
+
+	</blockquote>
+</body>
+
+</html>
+

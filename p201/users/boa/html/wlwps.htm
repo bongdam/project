@@ -1,0 +1,229 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2007. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<style>
+.on {display:on}
+.off {display:none}
+</style>
+<script>
+function validate_pin_code(code)
+{
+	var accum = 0;
+
+	accum += 3 * (parseInt(code / 10000000) % 10);
+	accum += 1 * (parseInt(code / 1000000) % 10);
+	accum += 3 * (parseInt(code / 100000) % 10);
+	accum += 1 * (parseInt(code / 10000) % 10);
+	accum += 3 * (parseInt(code / 1000) % 10);
+	accum += 1 * (parseInt(code / 100) % 10);
+	accum += 3 * (parseInt(code / 10) % 10);
+	accum += 1 * (parseInt(code / 1) % 10);
+	return (0 == (accum % 10));
+}
+
+function check_pin_code(str)
+{
+	var i;
+	var code_len;
+	var codestr = "";
+
+	code_len = str.length;
+	for (i = 0; i < str.length; i++) {
+		if ((str.charAt(i) == ' ') || (str.charAt(i) == '-')) {
+			code_len --;
+			continue ;
+		} else
+			codestr += str.charAt(i);
+
+		if ((str.charAt(i) < '0') || (str.charAt(i) > '9'))
+			return 2;
+	}
+
+	if (code_len != 8 && code_len != 4)
+		return 1;
+
+	if (code_len == 8) {
+		var code = parseInt(codestr, 10);
+		if (!validate_pin_code(code))
+			return 3;
+		else
+			return 0;
+	} else
+		return 0;
+}
+
+function start_wps(F)
+{
+	var ret;
+
+	if (F.method.value == "push") {
+		F.startPBC.value = "trigger";
+		F.startPIN.value = "";
+	} else {
+		F.startPBC.value = "";
+		F.startPIN.value = "trigger";
+		ret = check_pin_code(F.cli_pin.value);
+		if (ret == 1) {
+			alert(wlwps_pinstart_pinlen);
+			document.forms["formWsc"].peerPin.focus();
+			return false;
+		} else if (ret == 2) {
+			alert(wlwps_pinstart_pinnum);
+			document.forms["formWsc"].peerPin.focus();
+			return false;
+		} else if (ret == 3) {
+			alert(wlwps_pinstart_pinchecksum);
+			document.forms["formWsc"].peerPin.focus();
+			return false;
+		}
+	}
+
+	F.stopWps.value = "";
+	F.regenPIN.value = "";
+	F.submit();
+	return true;
+}
+
+function stop_wps(F)
+{
+	if ( !confirm(wps_stop_button) )
+		return false;
+
+	F.stopWps.value = "ON";
+	F.startPBC.value = "";
+	F.startPIN.value = "";
+	F.regenPIN.value = "";
+
+	F.submit();
+	return true;
+}
+
+function sel_method(val)
+{
+	if (val == "push")
+		document.formWps.cli_pin.disabled = true;
+	else
+		document.formWps.cli_pin.disabled = false;
+}
+
+function sel_wps_use(val)
+{
+	if (val == "OFF") {
+		document.formWps.method.disabled = true;
+		document.formWps.cli_pin.disabled = true;
+	} else {
+		document.formWps.method.disabled = false;
+		document.formWps.cli_pin.disabled = false;
+	}
+}
+
+function setup_wps(F)
+{
+	F.submit();
+	return true;
+}
+
+function regen_wps(F)
+{
+	F.regenPIN.value = "regen";
+	F.stopWps.value = "";
+	F.startPBC.value = "";
+	F.startPIN.value = "";
+
+	F.submit();
+	return true;
+}
+
+function LoadConfig()
+{
+	var wps_disable = <% getIndex("wscDisable"); %>;
+
+	if (wps_disable)
+		document.formWpsStatus.wps_use.selectedIndex = 0;
+	else
+		document.formWpsStatus.wps_use.selectedIndex = 1;
+
+	sel_wps_use(document.formWpsStatus.wps_use.value);
+	sel_method(document.formWps.method.value);
+}
+</script>
+</head>
+
+<body onload="LoadConfig();">
+<blockquote>
+<form action=/boafrm/formWpsStatus method=POST name="formWpsStatus">
+<table border=0 width="650" cellspacing=0 cellpadding=0>
+	<tr>
+		<h2><script>dw(wlwps_header)</script></h2>
+	</tr>
+	<tr>
+		<font size=2><script>dw(wlwps_header_explain)</script></font>
+	</tr>
+	<hr size=1 noshade align=top>
+</table>
+
+<table border=0 width="650" cellspacing=0 cellpadding=0>
+	<tr height="40">
+		<td width="40%"><font size=2><b><script>dw(wps_onoff)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="wps_use" id="wps_use" onchange="sel_wps_use(this.value)">
+				<option value="OFF" ><script>dw(wps_disable)</script></option>
+				<option value="ON"><script>dw(wps_enable)</script></option>
+			</select>&nbsp;&nbsp;&nbsp;
+			<input type="button" name="ok" id="ok" value="ok" onclick="setup_wps(this.form);">
+			<script>document.formWpsStatus.ok.value = wps_apply;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formWps method=POST name="formWps">
+<input type="hidden" name="stopWps" value="">
+<input type="hidden" name="startPBC" value="">
+<input type="hidden" name="startPIN" value="">
+<input type="hidden" name="regenPIN" value="">
+<table border=0 width="650" cellspacing=0 cellpadding=0>
+	<tr height="30">
+		<td width="40%"><font size="2"><b><script>dw(wps_pin)</script></b></td>
+		<td width="60%"><font size="2" color="#0052ff">
+			<b><% getInfo("wscLoocalPin");%></b>&nbsp;&nbsp;
+			<input type="button" name="regen" id="regen" value="regen" onclick="regen_wps(this.form);">
+			<script>document.formWps.regen.value = wps_regen;</script>
+		</td>
+	</tr>
+
+	<tr height="30">
+		<td width="40%"><font size=2><b><script>dw(wps_method)</script></b></td>
+		<td width="60%"><font size=2>
+			<select name="method" id="method" onchange="sel_method(this.value)">
+				<option value="push"><script>dw(wps_push_button)</script></option>
+				<option value="pin"><script>dw(wps_pin)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr height="30">
+		<td width="40%"><font size=2><b><script>dw(wps_client_pin)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="text" name="cli_pin" id="cli_pin" value="" maxlength="8">
+		</td>
+	</tr>
+</table>
+<br>
+<table border=0 width="650" cellspacing=0 cellpadding=0 >
+	<input type="button" name="conn" id="conn" value="conn" onclick="start_wps(this.form);">&nbsp;&nbsp;
+	<script>document.formWps.conn.value = wps_conn;</script>
+	<input type="button" name="stop" id="stop" value="stop" onclick="stop_wps(this.form);">
+	<script>document.formWps.stop.value = wps_stop;</script>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

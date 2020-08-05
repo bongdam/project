@@ -1,0 +1,143 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script language="javascript" type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+var ap_ssid = "";
+var security_method = "";
+var wpa = "";
+var wpa2 = "";
+
+function trim(value) {
+  return value.replace(/^\s+|\s+$/g, "");
+}
+
+function check_ssid(ssid, methed, wpa_tkip_aes, wpa2_tkip_aes)
+{
+	ap_ssid = ssid;
+	security_method = trim(methed);
+	wpa = trim(wpa_tkip_aes);
+	wpa2 = trim(wpa2_tkip_aes);
+}
+
+function select_SSID()
+{
+	if (ap_ssid == "" || security_method == "")
+		return;
+
+	window.opener.document.getElementById('repeater_ssid').value = trim(ap_ssid);
+	var method_type = trim(security_method);
+
+	if (method_type == "WPA3/WPA2-PSK-PMF" || method_type == "WPA-PSKWPA3/WPA2-PMF") {
+		window.opener.document.getElementById('method').selectedIndex = 0;
+		window.opener.document.getElementById('pskValue').value = "";
+		window.opener.document.forms[0].wpa2ciphersuite[0].checked = false;
+		window.opener.document.forms[0].wpa2ciphersuite[1].checked = true;
+	} else if (method_type == "WPA3") {
+		window.opener.document.getElementById('method').selectedIndex = 1;
+		window.opener.document.getElementById('pskValue').value = "";
+		window.opener.document.forms[0].wpa2ciphersuite[0].checked = false;
+		window.opener.document.forms[0].wpa2ciphersuite[1].checked = true;
+	} else if (method_type == "WPA-PSK/WPA2-PSK") {
+		window.opener.document.getElementById('method').selectedIndex = 2;
+		window.opener.document.getElementById('pskValue').value = "";
+		if (wpa == "aes/tkip" || wpa == "aes") {
+			window.opener.document.forms[0].ciphersuite[0].checked = false;
+			window.opener.document.forms[0].ciphersuite[1].checked = true;
+		} else if (wpa == "tkip") {
+			window.opener.document.forms[0].ciphersuite[0].checked = true;
+			window.opener.document.forms[0].ciphersuite[1].checked = false;
+		}
+
+		if (wpa2 == "aes/tkip" || wpa2 == "aes") {
+			window.opener.document.forms[0].wpa2ciphersuite[0].checked = false;
+			window.opener.document.forms[0].wpa2ciphersuite[1].checked = true;
+		} else if (wpa == "tkip") {
+			window.opener.document.forms[0].wpa2ciphersuite[0].checked = true;
+			window.opener.document.forms[0].wpa2ciphersuite[1].checked = false;
+		}
+	} else if (method_type == "WPA2-PSK") {
+		window.opener.document.getElementById('method').selectedIndex = 3;
+		window.opener.document.getElementById('pskValue').value = "";
+		if (wpa2 == "aes/tkip" || wpa2 == "aes") {
+			window.opener.document.forms[0].wpa2ciphersuite[0].checked = false;
+			window.opener.document.forms[0].wpa2ciphersuite[1].checked = true;
+		} else if (wpa == "tkip") {
+			window.opener.document.forms[0].wpa2ciphersuite[0].checked = true;
+			window.opener.document.forms[0].wpa2ciphersuite[1].checked = false;
+		}
+	} else if (method_type == "WPA-PSK") {
+		window.opener.document.getElementById('method').selectedIndex = 4;
+		window.opener.document.getElementById('pskValue').value = "";
+		if (wpa == "aes/tkip" || wpa == "aes") {
+			window.opener.document.forms[0].ciphersuite[0].checked = false;
+			window.opener.document.forms[0].ciphersuite[1].checked = true;
+		} else if (wpa == "tkip") {
+			window.opener.document.forms[0].ciphersuite[0].checked = true;
+			window.opener.document.forms[0].ciphersuite[1].checked = false;
+		}
+	} else if (method_type == "WEP") {
+		window.opener.document.getElementById('method').selectedIndex = 5;
+		window.opener.document.forms[0].key1.value = "";
+		window.opener.document.forms[0].key2.value = "";
+		window.opener.document.forms[0].key3.value = "";
+		window.opener.document.forms[0].key4.value = "";
+		window.opener.document.forms[0].select_key.selectedIndex = 0;
+		window.opener.document.forms[0].wep_key.value = "";
+	} else if (method_type == "no") {
+		window.opener.document.getElementById('method').selectedIndex = 6;
+	}
+
+	 window.opener.change_authentication();
+
+	window.close();
+}
+</script>
+</head>
+
+<body>
+<blockquote>
+<form name="formSearchAP" action="/boafrm/formSearchAP" method="POST">
+<table border=0 width="650" cellspacing=4 cellpadding=0>
+	<tr>
+		<h2>
+			<script type="text/javascript">
+			var wlan_num =  <% getIndex("wlan_idx"); %>;
+			if (wlan_num == 1)
+				document.write(wlsurvey_morewlan_header_2g);
+			else
+				document.write(wlsurvey_morewlan_header_5g);
+			</script>
+		</h2>
+	</tr>
+	<tr>
+		<font size=2><script>dw(wlsurvey_header_explain)</script></font>
+	</tr>
+	<hr size=1 noshade align=top>
+</table>
+
+<table border=0 width="650" cellspacing=0 cellpadding=0>
+	<tr>
+		<td align="right">
+			<input type="button" value="select" name="select_ap" onclick="select_SSID()">&nbsp;
+			<script>document.formSearchAP.select_ap.value = operation_wisp_select;</script>
+			<input type="button" value="close" name="close" onClick="javascript: window.close();">
+			<script>document.formSearchAP.close.value = operation_wisp_close;</script>
+		</td>
+	</tr>
+</table>
+<br>
+
+<table border=0 width="650" cellspacing=0 cellpadding=0>
+	<% wlSiteSurveyTbl("search_ap"); %>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

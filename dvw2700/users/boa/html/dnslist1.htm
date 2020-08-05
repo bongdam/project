@@ -1,0 +1,179 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Active DHCP Client Table</title>
+<% getInfo("include_css"); %>
+
+<script type="text/javascript">
+function dnsInput(dnsSelectValue)
+{
+  	document.forms[0].selectDns1.value = dnsSelectValue;
+}
+
+function dnsSelect()
+{
+	with ( document.forms[0] ) {
+		var obj;
+
+		if (selectDns1.value==""){
+   	 		alert('DNS1 주소가 없습니다!');
+			return false;
+  		}
+
+   		if (window.opener.document.forms[0].page.value == "tcpipwan.htm" ) {
+			obj = window.opener.document.getElementsByName('dns1');
+	 		obj[0].value = selectDns1.value;
+  		}
+	}
+	window.close();
+}
+
+</script>
+</head>
+
+<body>
+<blockquote>
+<h2>DNS Address 테이블</h2>
+
+<table border=0 width="480" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+  	사업자와 DNS IP 목록을 보여주는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form>
+<table border='1' width="100%">
+	<tr class="tbl_head" align="center">
+		<td width="30%"><font size=2><b>사업자</b></td>
+		<td width="25%"><font size=2><b>DNS 주소</b></td>
+		<td width="10%"><font size=2><b>선택</b></td>
+		<td width="25%"><font size=2><b>DNS 주소</b></td>
+		<td width="10%"><font size=2><b>선택</b></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%"><font size=2><b>CJ헬로비전</b></td>
+		<td width="25%"><font size=2><b>180.182.54.1</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("180.182.54.1")></td>
+		<td width="25%"><font size=2><b>180.182.54.2</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("180.182.54.2")></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%"><font size=2><b>KT</b></td>
+		<td width="25%"><font size=2><b>168.126.63.1</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("168.126.63.1")></td>
+		<td width="25%"><font size=2><b>168.126.63.2</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("168.126.63.2")></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%" rowspan="3"><font size=2><b>LG U+</b></td>
+		<td width="25%"><font size=2><b>164.124.107.9</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("164.124.107.9")></td>
+		<td width="25%"><font size=2><b>164.124.101.2</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("164.124.101.2")></td>
+	</tr>
+
+	<tr align="center">
+		<td width="25%"><font size=2><b>203.248.252.2</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("203.248.252.2")></td>
+		<td width="25%"><font size=2><b>203.248.240.31</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("203.248.240.31")></td>
+	</tr>
+
+	<tr align="center">
+		<td width="25%"><font size=2><b>61.41.153.2</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("61.41.153.2")></td>
+		<td width="25%"><font size=2><b>1.214.68.2</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("1.214.68.2")></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%" rowspan="5"><font size=2><b>SKBB</b></td>
+		<td width="25%"><font size=2><b>210.220.163.82</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.220.163.82")></td>
+		<td width="25%"><font size=2><b>219.250.36.130</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("219.250.36.130")></td>
+	</tr>
+
+	<tr align="center">
+		<td width="25%"><font size=2><b>210.94.0.73</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.94.0.73")></td>
+		<td width="25%"><font size=2><b>221.139.13.130</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("221.139.13.130")></td>
+	</tr>
+
+	<tr align="center">
+		<td width="25%"><font size=2><b>210.180.98.74</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.180.98.74")></td>
+		<td width="25%"><font size=2><b>211.58.252.62</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("211.58.252.62")></td>
+	</tr>
+
+	<tr align="center">
+		<td width="25%"><font size=2><b>211.58.252.94</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("211.58.252.94")></td>
+		<td width="25%"><font size=2><b>210.181.1.41</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.181.1.41")></td>
+	</tr>
+
+	<tr align="center">
+		<td width="25%"><font size=2><b>210.181.4.51</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.181.4.51")></td>
+		<td width="25%"><font size=2></td>
+		<td width="10%"></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%"><font size=2><b>드림라인</b></td>
+		<td width="25%"><font size=2><b>210.181.1.24</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.181.1.24")></td>
+		<td width="25%"><font size=2><b>210.181.4.25</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("210.181.4.25")></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%" class="tbl_head"><font size=2><b>온세텔레콤</b></td>
+		<td width="25%"><font size=2><b>202.30.143.11</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("202.30.143.11")></td>
+		<td width="25%"><font size=2></td>
+		<td width="10%"></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%"><font size=2><b>Open DNS</b></td>
+		<td width="25%"><font size=2><b>208.67.222.222</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("208.67.222.222")></td>
+		<td width="25%"><font size=2><b>208.67.220.220</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("208.67.220.220")></td>
+	</tr>
+
+	<tr align="center">
+		<td class="tbl_title" width="30%"><font size=2><b>Google</b></td>
+		<td width="25%"><font size=2><b>8.8.8.8</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("8.8.8.8")></td>
+		<td width="25%"><font size=2><b>8.8.4.4</b></td>
+		<td width="10%"><input type="radio" name="dnsChecked" value="dnsChecked" onClick=dnsInput("8.8.4.4")></td>
+	</tr>
+</table>
+
+<input type="hidden" value="" name="selectDns1">
+
+<table border='0' width="100%">
+	<tr bgcolor="#f0f0f0">
+		<td align="center">
+			<input type="button" value=" 선택 " name="select" onClick="dnsSelect()">&nbsp;&nbsp;
+			<input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();">
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

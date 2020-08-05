@@ -1,0 +1,78 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>점보 프레임 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function init_load()
+{
+	var enable = parseInt(<% getInfo("jumbo_enable"); %>, 10);
+	var frmsize = parseInt(<% getInfo("jumbo_size"); %>, 10);
+	if (enable == 0) {
+		document.formJumbo.jumbo_size.selectedIndex=0;
+	} else if (enable == 1 && frmsize == 9000){
+		document.formJumbo.jumbo_size.selectedIndex=1;
+	}
+	/* else if (enable == 1 && frmsize == 16000){
+		document.formJumbo.jumbo_size.selectedIndex=2;
+	}*/
+}
+
+function save_valid()
+{
+	if (document.formJumbo.jumbo_size.selectedIndex == 0) {
+		document.formJumbo.jumbo_enable.value = 0;
+	} else {
+		document.formJumbo.jumbo_enable.value = 1;
+	}
+	document.formJumbo.submit();
+}
+
+function resetClick()
+{
+	document.location.assign("jumbo.htm");
+}
+
+</script>
+</head>
+<blockquote>
+<body onload="init_load();">
+<b><font size=3 face="arial" color="#3c7A95">점보 프레임</font></b>
+<table border=0 width="650" cellspacing=4 cellpadding=0>
+<tr><td><font size=2><br>
+ Jumbo frame (2000byte 이상 L2-overhead포함)을 처리를 위한 설정 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form name="formJumbo" action=/boafrm/formJumbo method="POST" onSubmit="return false;">
+	<input type="hidden" name="jumbo_enable" value="" >
+	<table border=0 width="650" cellspacing=0 cellpadding=0>
+		<tr>
+			<td width="15%" align="center">
+				&nbsp;선택 :
+			</td>
+			<td align="left">&nbsp;&nbsp;&nbsp;
+				<select name="jumbo_size" id="jumbo_size" >
+    			<option value="1500">Disable</option>
+    			<option value="9000">9000 Byte</option>
+    			<!--option value=16000>16000 Byte</option-->
+    		</select>
+				<!--input type="checkbox" name="jumbo_check" value="1" -->
+			</td>
+		</tr>
+	</table>
+	<br>
+	<input type="button" value="적용" name="save" onclick="save_valid();">
+	<input type="hidden" value="/jumbo.htm" name="submit-url" >
+	<input type="reset" value="취소" name="reset" onclick="resetClick();">
+</form>
+</blockquote>
+
+</body>
+</html>

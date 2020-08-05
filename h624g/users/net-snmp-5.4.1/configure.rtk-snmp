@@ -1,0 +1,45 @@
+#!/bin/sh
+for i in $*; do
+        echo $i
+        eval $i
+done
+
+# Dynamic Link Files, External Reference.
+#APMIBINC=`pwd`/../goahead-2.1.1/LINUX/
+#APMIBLIB=`pwd`/../goahead-2.1.1/LINUX/apmib.so
+
+# Configured ?
+CONFIGURE=1
+
+HOST=`gcc -dumpmachine`
+
+# Configure
+if [ $CONFIGURE = 1 ]; then
+make distclean
+./configure \
+--host=$HOST \
+--with-cc="$CROSS_COMPILE"gcc \
+--with-linkcc="$CROSS_COMPILE"gcc \
+--with-ar="$CROSS_COMPILE"ar \
+--target=mips-linux \
+--enable-mfd-rewrites \
+--enable-shared \
+--enable-static \
+--with-endianness=big \
+--with-persistent-directory=/usr/lib/snmp/ \
+--with-mibdirs=/usr/lib/snmp/ \
+--with-default-snmp-version=2 \
+--with-sys-contact=root@localhost \
+--with-sys-location=Unknown \
+--enable-applications \
+--disable-agent \
+--disable-debugging \
+--disable-manuals \
+--disable-mibs \
+--disable-scripts \
+--without-openssl \
+--without-libwrap \
+--without-rpm \
+--without-zlib \
+--without-logfile
+fi

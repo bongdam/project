@@ -1,0 +1,82 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Logout</title>
+<% language=javascript %>
+<% getInfo("include_css"); %>
+</head>
+
+<script>
+
+function clearAuthData()
+{
+
+  if (document.all)
+  {
+    // Internet Explorer: 'ClearAuthenticationCache' is only available in IE
+    document.execCommand('ClearAuthenticationCache');
+
+	}
+	else
+	{
+    var xmlhttp;
+    if (window.XMLHttpRequest)
+   	{
+        xmlhttp = new XMLHttpRequest();
+    }
+    else if (window.ActiveXObject)
+    {
+        try {
+            xmlhttp = new ActiveXObject('Msxml2.XMLHTTP');
+        } catch (ex) {
+            try {
+                xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
+            } catch (ex) {}
+        }
+    }
+    if (xmlhttp.readyState < 4)
+    {
+        xmlhttp.abort();
+    }
+    // Firefox/Mozilla: use anonymous "login" to trigger a "logout"
+    xmlhttp.open('GET', '/?sling:authRequestLogin=1', false, 'anonymous', 'null');
+    xmlhttp.send('');
+}
+		document.logout.submit();
+		return true;
+
+}
+</script>
+<BODY >
+<blockquote>
+<h2>로그아웃</h2>
+<form action=/boafrm/formLogout method=POST name="logout">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+  <tr><font size=2>
+    로그아웃을 위한 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+
+  <tr>
+      <td ><font size=3><b>로그 아웃 하시겠습니까?</b></td>
+  </tr>
+  <tr height=3>
+  </tr>
+  <tr>
+      <td ><font size=2>
+        <input type="button" value="확인" name="logout" onclick="return clearAuthData()">
+      </td>
+  </tr>
+</table>
+<input type="hidden" value="logout" name="logout">
+<input type="hidden" value="/skb_login.htm" name="return-url">
+</form>
+<blockquote>
+</body>
+</html>
+
+

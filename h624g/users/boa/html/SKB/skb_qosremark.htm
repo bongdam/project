@@ -1,0 +1,404 @@
+﻿<html><head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Remark 환경 설정</title>
+<script type="text/javascript" src="skb_util_gw.js"></script>
+<% getInfo("include_css"); %>
+<script language="javascript">
+
+function Validate_DSCP(en)
+{
+//	if (en == 46 || en == 32 || en == 24 || en == 0)
+//		return true;
+//	else
+		return false;
+}
+function saveChanges()
+{
+/*
+	if (!Validate_DSCP(document.qos.dscp_7.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_7.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_6.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_6.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_5.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_5.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_4.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_4.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_3.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_3.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_2.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_2.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_1.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_1.focus();
+		return false;
+	}
+	if (!Validate_DSCP(document.qos.dscp_0.value)) {
+		alert("DSCP 값은 0, 24, 32, 46 중의 하나이어야 합니다.");
+		document.qos.dscp_0.focus();
+		return false;
+	}
+*/
+
+	var v_tag_7 =document.qos.tag_7.value;
+	var v_tag_6 =document.qos.tag_6.value;
+	var v_tag_5 =document.qos.tag_5.value;
+	var v_tag_4 =document.qos.tag_4.value;
+	var v_tag_3 =document.qos.tag_3.value;
+	var v_tag_2 =document.qos.tag_2.value;
+	var v_tag_1 =document.qos.tag_1.value;
+	var v_tag_0 =document.qos.tag_0.value;
+	var v_dscp_7 =document.qos.dscp_7.value;
+	var v_dscp_6 =document.qos.dscp_6.value;
+	var v_dscp_5 =document.qos.dscp_5.value;
+	var v_dscp_4 =document.qos.dscp_4.value;
+	var v_dscp_3 =document.qos.dscp_3.value;
+	var v_dscp_2 =document.qos.dscp_2.value;
+	var v_dscp_1 =document.qos.dscp_1.value;
+	var v_dscp_0 =document.qos.dscp_0.value;
+
+	if(document.qos.use_tag.checked==true)
+	{
+		if (!IsDigit(v_tag_7)==true || (v_tag_7 < 0 || v_tag_7 > 7)) {
+			document.qos.tag_7.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+
+			return false;
+		}
+
+		if (!IsDigit(v_tag_6)==true || (v_tag_6 < 0 || v_tag_6 > 7)) {
+			document.qos.tag_6.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_tag_5)==true || (v_tag_5 < 0 || v_tag_5 > 7)) {
+			document.qos.tag_5.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_tag_4)==true || (v_tag_4 < 0 || v_tag_4 > 7)) {
+			document.qos.tag_4.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_tag_3)==true || (v_tag_3 < 0 || v_tag_3 > 7)) {
+			document.qos.tag_3.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_tag_2)==true || (v_tag_2 < 0 || v_tag_2 > 7)) {
+			document.qos.tag_2.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_tag_1)==true || (v_tag_1 < 0 || v_tag_1 > 7)) {
+			document.qos.tag_1.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_tag_0)==true || (v_tag_0 < 0 || v_tag_0 > 7)) {
+			document.qos.tag_0.focus();
+			alert('0 ~ 7 사이의 값을 입력하세요.');
+			return false;
+		}
+	}
+
+	if(document.qos.use_dscp.checked==true)
+	{
+		if (!IsDigit(v_dscp_7)==true || (v_dscp_7 < 0 || v_dscp_7 > 63)) {
+			document.qos.dscp_7.focus();
+			alert('0 ~ 63 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_dscp_6)==true || (v_dscp_6 < 0 || v_dscp_6 > 63)) {
+			document.qos.dscp_6.focus();
+			alert('0 ~ 63 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_dscp_5)==true || (v_dscp_5 < 0 || v_dscp_5 > 63)) {
+			document.qos.dscp_5.focus();
+			alert('0 ~ 63 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_dscp_4)==true || (v_dscp_4 < 0 || v_dscp_4 > 63)) {
+			document.qos.dscp_4.focus();
+			alert('0 ~ 63 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_dscp_3)==true || (v_dscp_3 < 0 || v_dscp_3 > 63)) {
+			document.qos.dscp_3.focus();
+			alert('0 ~ 63 사이의 값을 입력하세요.');
+			return false;
+		}
+
+		if (!IsDigit(v_dscp_2)==true || (v_dscp_2 < 0 || v_dscp_2 > 63)) {
+			document.qos.dscp_2.focus();
+			alert('0 ~ 63 사이의 값을 입력하세요.');
+			return false;
+		}
+		document.qos.dscp_1.value=v_dscp_2;
+		document.qos.dscp_0.value=v_dscp_2;
+	}
+
+	if(document.qos.use_tag.checked==false && document.qos.use_dscp.checked==false) {
+		alert("아무 것도 체크하지 않았습니다.");
+		return false;
+	}
+
+	alert("설정 되었습니다!");
+}
+
+function toggle_802_tag_enable(en)
+{
+	document.qos.tag_wan.disabled=!en;
+	document.qos.tag_lan1.disabled=!en;
+	document.qos.tag_lan2.disabled=!en;
+	document.qos.tag_lan3.disabled=!en;
+	document.qos.tag_lan4.disabled=!en;
+	document.qos.tag_7.disabled=!en;
+	document.qos.tag_6.disabled=!en;
+	document.qos.tag_5.disabled=!en;
+	document.qos.tag_4.disabled=!en;
+	document.qos.tag_3.disabled=!en;
+	document.qos.tag_2.disabled=!en;
+	document.qos.tag_1.disabled=!en;
+	document.qos.tag_0.disabled=!en;
+}
+
+function toggle_dscp_enable(en)
+{
+	document.qos.dscp_wan.disabled=!en;
+	document.qos.dscp_lan1.disabled=!en;
+	document.qos.dscp_lan2.disabled=!en;
+	document.qos.dscp_lan3.disabled=!en;
+	document.qos.dscp_lan4.disabled=!en;
+	document.qos.dscp_7.disabled=!en;
+	document.qos.dscp_6.disabled=!en;
+	document.qos.dscp_5.disabled=!en;
+	document.qos.dscp_4.disabled=!en;
+	document.qos.dscp_3.disabled=!en;
+	document.qos.dscp_2.disabled=!en;
+	document.qos.dscp_1.disabled=!en;
+	document.qos.dscp_0.disabled=!en;
+}
+
+function onEnChanged(dummy)
+{
+	toggle_dscp_enable(document.qos.use_dscp.checked);
+	toggle_802_tag_enable(document.qos.use_tag.checked);
+}
+
+function resetClick()
+{
+	do_init();
+}
+
+
+
+q_tag_p = new Array(5);
+q_tag   = new Array(8);
+q_dscp_p = new Array(5);
+q_dscp   = new Array(8);
+
+//q_use_tag;
+//q_use_dscp;
+<% getInfo("qos_remark_js"); %>
+
+function do_init()
+{
+	document.qos.use_tag.checked = q_use_tag;
+	document.qos.tag_wan.checked = q_tag_p[4];
+	document.qos.tag_lan1.checked = q_tag_p[0];
+	document.qos.tag_lan2.checked = q_tag_p[1];
+	document.qos.tag_lan3.checked = q_tag_p[2];
+	document.qos.tag_lan4.checked = q_tag_p[3];
+	document.qos.tag_7.value = q_tag[7];
+	document.qos.tag_6.value = q_tag[6];
+	document.qos.tag_5.value = q_tag[5];
+	document.qos.tag_4.value = q_tag[4];
+	document.qos.tag_3.value = q_tag[3];
+	document.qos.tag_2.value = q_tag[2];
+	document.qos.tag_1.value = q_tag[1];
+	document.qos.tag_0.value = q_tag[0];
+	document.qos.use_dscp.checked = q_use_dscp;
+	document.qos.dscp_wan.checked = q_dscp_p[4];
+	document.qos.dscp_lan1.checked = q_dscp_p[0];
+	document.qos.dscp_lan2.checked = q_dscp_p[1];
+	document.qos.dscp_lan3.checked = q_dscp_p[2];
+	document.qos.dscp_lan4.checked = q_dscp_p[3];
+	document.qos.dscp_7.value = q_dscp[7];
+	document.qos.dscp_6.value = q_dscp[6];
+	document.qos.dscp_5.value = q_dscp[5];
+	document.qos.dscp_4.value = q_dscp[4];
+	document.qos.dscp_3.value = q_dscp[3];
+	document.qos.dscp_2.value = q_dscp[2];
+	document.qos.dscp_1.value = q_dscp[1];
+	document.qos.dscp_0.value = q_dscp[0];
+
+	onEnChanged(0);
+}
+
+</script>
+</head>
+<body onLoad="do_init();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>Remarking 설정</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+<tr><td><font size=2>
+ Qos Remarking 설정을 위한 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<b><font color="#3c7a95" face="arial" size="3">802.1p Priority Remarking</font></b>
+<form method=POST action=/boafrm/formRemark name="qos">
+<table border="0" cellpadding="2" cellspacing="1" width="300">
+	<tbody align="center" >
+
+	<tr height="20" valign="middle" align="center">
+		<td class="mn24" bgcolor="white" colspan="2" >802.1p remarking 사용</td>
+		<td class="content" bgcolor="white">
+		  <input name="use_tag" type="checkbox" onClick="onEnChanged(0);"></input>
+		</td>
+	</tr>
+	<tr class="tbl_head" height="20">
+		<td width="30%">포트</td>
+		<td width="35%">Internal Priority</td>
+		<td width="35%">802.1p Priority</td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td style="" rowspan="8" valign="top">
+			WAN<input name="tag_wan" type="checkbox"><br>
+			LAN1<input name="tag_lan1" type="checkbox"><br>
+			LAN2<input name="tag_lan2" type="checkbox"><br>
+			LAN3<input name="tag_lan3" type="checkbox"><br>
+			LAN4<input name="tag_lan4" type="checkbox">
+		</td>
+		<td>7</td>
+		<td><input name="tag_7" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>6</td>
+		<td><input name="tag_6" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>5</td>
+		<td><input name="tag_5" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>4</td>
+		<td><input name="tag_4" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>3</td>
+		<td><input name="tag_3" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>2</td>
+		<td><input name="tag_2" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>1</td>
+		<td><input name="tag_1" size="5" maxlength="1" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>0</td>
+		<td><input name="tag_0" size="5" maxlength="1" type="text"></td>
+	</tr>
+</tbody></table>
+<br>
+<br>
+<b><font color="#3c7a95" face="arial" size="3">DSCP Remarking</font></b>
+<table border="0" cellpadding="2" cellspacing="1" width="300">
+	<tbody align=center><tr height="20" valign="middle" align=center>
+
+		<td class="mn24" bgcolor="white"  colspan="2">DSCP remarking 사용</td>
+		<td class="content" bgcolor="white">
+		  <input name="use_dscp" type="checkbox" onClick="onEnChanged(1);">
+		</td>
+	</tr>
+	<tr class="tbl_head" height="20">
+		<td width="30%">포트</td>
+		<td width="35%">Internal Priority</td>
+		<td width="35%">DSCP<font size="2">(0 ~ 63)</font>
+		<br><font size="1.5">* 단위는 Decimal</font></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td style="" rowspan="6" valign="top">
+			WAN<input name="dscp_wan" type="checkbox"><br>
+			LAN1<input name="dscp_lan1" type="checkbox"><br>
+			LAN2<input name="dscp_lan2" type="checkbox"><br>
+			LAN3<input name="dscp_lan3" type="checkbox"><br>
+			LAN4<input name="dscp_lan4" type="checkbox">
+		</td>
+		<td>7</td>
+		<td><input name="dscp_7" size="5" maxlength="2" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>6</td>
+		<td><input name="dscp_6" size="5" maxlength="2" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>5</td>
+		<td><input name="dscp_5" size="5" maxlength="2" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>4</td>
+		<td><input name="dscp_4" size="5" maxlength="2" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>3</td>
+		<td><input name="dscp_3" size="5" maxlength="2" type="text"></td>
+	</tr>
+	<tr class="content" bgcolor="#DDDDDD">
+		<td>2 / 1 / 0</td>
+		<td>
+		    <input name="dscp_2" size="5" maxlength="2" type="text">
+		    <input name="dscp_1" size="5" maxlength="2" type="hidden">
+		    <input name="dscp_0" size="5" maxlength="2" type="hidden">
+		</td>
+	</tr>
+</tbody></table>
+<br>
+<br>
+<input type="submit" value="저장" name="save" onClick="return saveChanges()">&nbsp;&nbsp;
+<input type="button" value="취소" name="reset" onClick="resetClick()">
+<input type="hidden" value="/skb_qosremark.htm" name="submit-url">
+</form>
+
+</blockquote>
+</body>
+</html>

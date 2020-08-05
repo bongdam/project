@@ -1,0 +1,179 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>DMZ 호스트</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+var mode = document.getElementsByName('dmzMode');
+
+function macTblClick(url) {
+	openWindow(url, 'macTbl', 600, 400);
+}
+
+function saveClick()
+{
+	var sys_gateway = "<% getInfo("ip-rom"); %>";
+	var sys_netmask = "<% getInfo("mask-rom"); %>";
+	var lan_ipaddr = inet_aton(sys_gateway);
+	var lan_netmask = inet_aton(sys_netmask);
+	var set_dmzip = inet_aton(document.formDMZ.ip.value);
+
+	if (mode[0].checked) {
+		if (document.formDMZ.ip.value=="")
+			return false;
+
+		if ( checkIpAddr(document.formDMZ.ip, '유효하지 않은 IP 주소입니다.') == false )
+			return false;
+
+		if ((lan_ipaddr & lan_netmask) != (set_dmzip & lan_netmask)) {
+			alert('현재 서브넷에 맞는 IP 주소를 설정해 주세요.');
+			return false;
+		}
+
+		if ( sys_gateway == document.formDMZ.ip.value ) {
+			alert('AP의 게이트웨이 주소는 설정할 수 없습니다.');
+			return false;
+		}
+
+	} else if (mode[1].checked) {
+		return true;
+	} else {
+		str = document.formDMZ.mac.value;
+		var tmp = "";
+		var org_mac = "";
+		for (var i=0; i<str.length; i++) {
+			if ((str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+					(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+					(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+					(str.charAt(i) == ':')){
+
+				org_mac += str.charAt(i);
+				if(str.charAt(i) != ':')
+					tmp += str.charAt(i);
+				continue;
+			}
+		}
+		document.formDMZ.mac.value = tmp;
+		if ( !checkMacAddr(document.formDMZ.mac, '유효하지 않은 MAC 주소입니다.') ) {
+			return false;
+		}
+	}
+}
+
+function updateState()
+{
+	if (mode[0].checked) {
+		mode[0].checked = true;
+		mode[1].checked = false;
+		enableTextField(document.formDMZ.ip);
+		disableTextField(document.formDMZ.mac);
+		document.formDMZ.ip.value = '<% getInfo("dmzHost"); %>';
+		document.formDMZ.ip.style.backgroundColor = 'white';
+		document.formDMZ.mac.style.backgroundColor = '#DCDCDC';
+		get_by_id("macSearch").disabled = true;
+	}
+	else if (mode[1].checked) {
+		mode[0].checked = false;
+		mode[1].checked = true;
+		disableTextField(document.formDMZ.ip);
+		disableTextField(document.formDMZ.mac);
+		document.formDMZ.ip.style.backgroundColor = '#DCDCDC';
+		document.formDMZ.mac.style.backgroundColor = '#DCDCDC';
+		get_by_id("macSearch").disabled = true;
+	}
+	else {
+		mode[0].checked = false;
+		mode[1].checked = false;
+		disableTextField(document.formDMZ.ip);
+		enableTextField(document.formDMZ.mac);
+		document.formDMZ.mac.value = '<% getInfo("sdmzHost"); %>';
+		document.formDMZ.ip.style.backgroundColor = '#DCDCDC';
+		document.formDMZ.mac.style.backgroundColor = 'white';
+		get_by_id("macSearch").disabled = false;
+	}
+}
+
+function resetForm()
+{
+	document.location.assign("skb_dmz.htm");
+}
+
+function Load_Setting()
+{
+
+	if ( <% getIndex("dmzEnabled"); %> == 1) {
+		mode[0].checked = true;
+		enableTextField(document.formDMZ.ip);
+		disableTextField(document.formDMZ.mac);
+		document.formDMZ.ip.style.backgroundColor = 'white';
+		document.formDMZ.mac.style.backgroundColor = '#DCDCDC';
+		get_by_id("macSearch").disabled = true;
+	}
+	else if ( <% getIndex("sdmzEnabled"); %> ) {
+		disableTextField(document.formDMZ.ip);
+		enableTextField(document.formDMZ.mac);
+		document.formDMZ.mac.value = '<% getInfo("sdmzHost"); %>';
+		document.formDMZ.ip.style.backgroundColor = '#DCDCDC';
+		document.formDMZ.mac.style.backgroundColor = 'white';
+		get_by_id("macSearch").disabled = false;
+	}
+	else if ( <% getIndex("dmzEnabled"); %> == 0){
+		mode[1].checked = true;
+		disableTextField(document.formDMZ.ip);
+		disableTextField(document.formDMZ.mac);
+		document.formDMZ.ip.style.backgroundColor = '#DCDCDC';
+		document.formDMZ.mac.style.backgroundColor = '#DCDCDC';
+		get_by_id("macSearch").disabled = true;
+	}
+	updateState();
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2>DMZ</h2>
+
+<table border=0 width="650" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+DMZ를 설정할 수 있는 페이지 입니다.<br>
+DMZ란 로컬 개인 네트워크로의 권한없는 접근을 제한하지 않는 것을 말합니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<br>
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<form action=/boafrm/formDMZ method=POST name="formDMZ">
+<input type="hidden" name="current_ip" value="<%getInfo("ip"); %>">
+<input type="hidden" name="subnet" value="<%getInfo("mask"); %>">
+<input type="hidden" name="page" value="skb_dmz.htm">
+<tr><td><font size=2><b>
+   	<input type="radio" name="dmzMode" value="dmz" ONCLICK=updateState()>&nbsp;&nbsp;DMZ
+		<input type="radio" name="dmzMode" value="disable" ONCLICK=updateState()>&nbsp;&nbsp;disable
+		</b></td>
+</tr>
+<tr><td>
+     <font size=2><b>DMZ 호스트 IP 주소 : </b><input type="text" name="ip" size="15" maxlength="15" value=<% getInfo("dmzHost"); %> >
+</td></tr>
+
+<tr style="display:none"><td>
+     <b>SDMZ 호스트 MAC 주소 : </b><input type="text" name="mac" size="17" maxlength="17" value=<% getInfo("sdmzHost"); %> ></font>
+	  <input type="button" id="macSearch" name="macSearch" value="MAC search" onCLick=macTblClick('/skb_mactbl.htm')>
+</td></tr>
+
+<tr><td>
+   <br>
+     <input type="submit" value="적용" name="save" onClick="return saveClick()">&nbsp;&nbsp;
+        <input type="reset" value="초기화" name="reset" onClick=resetForm()>
+        <input type="hidden" value="/skb_dmz.htm" name="submit-url">
+</td></tr>
+     <script> updateState(); </script>
+</form>
+</table>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+[ -f "/etc/udhcpc/udhcpc-${1}.pid" ] && {
+	read pid < "/etc/udhcpc/udhcpc-${1}.pid"
+	({ kill -USR2 ${pid} && { sleep 1; kill -USR1 ${pid}; } }) &
+}

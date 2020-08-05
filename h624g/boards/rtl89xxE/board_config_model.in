@@ -1,0 +1,3 @@
+config BOARD_CONFIG_MODEL
+string
+default 'RTL8954E_8812_92E_VOIP_GW'

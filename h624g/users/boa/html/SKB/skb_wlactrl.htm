@@ -1,0 +1,523 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>무선 인터넷 접근 제어</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+var wlan_idx= <% getIndex("wlan_idx"); %>;
+var wlan_mode = <% getIndex("wlanMode");%>;
+var wlanAcEnabled=new Array();
+
+wlanAcEnabled[0] = <% getVirtualIndex("wlanAcEnabled", "0"); %>;
+wlanAcEnabled[1] = <% getVirtualIndex("wlanAcEnabled", "1"); %>;
+wlanAcEnabled[2] = <% getVirtualIndex("wlanAcEnabled", "2"); %>;
+wlanAcEnabled[3] = <% getVirtualIndex("wlanAcEnabled", "3"); %>;
+wlanAcEnabled[4] = <% getVirtualIndex("wlanAcEnabled", "4"); %>;
+
+function macTblClick(url) {
+    openWindow(url, 'wlMacTbl', 700, 400 );
+}
+
+function addClick(f)
+{
+	document.formWlAcAdd.comment.value = trim(document.formWlAcAdd.comment.value);
+
+	var comment_val = document.formWlAcAdd.comment.value;
+
+    var str = document.formWlAcAdd.mac.value;
+    var tmpMac = "";
+
+	f.addFilterMac_.disabled=true;
+	f.reset.disabled=true;
+	f.macSearch.disabled=true;
+	document.formWlAcDel.reset.disabled=true;
+	document.formWlAcDel.deleteSelFilterMac_.disabled=true;
+	document.formWlAcDel.deleteAllFilterMac_.disabled=true;
+    if (document.formWlAcAdd.wlanAcEnabled.selectedIndex == 0) {
+    	f.submit();
+        return true;
+    }
+
+    str = trim(str);
+
+    if ( !(str.length == 12 || str.length == 17) ) {
+        alert("MAC 주소가 올바르지 않습니다. 16진수 12자리 또는 콜론(:)을 포함한 17자리를 입력해주십시오.");
+        document.formWlAcAdd.mac.focus();
+        f.addFilterMac_.disabled=false;
+		f.reset.disabled=false;
+		f.macSearch.disabled=false;
+		document.formWlAcDel.reset.disabled=false;
+		document.formWlAcDel.deleteSelFilterMac_.disabled=false;
+		document.formWlAcDel.deleteAllFilterMac_.disabled=false;
+        return false;
+    }
+    if (str.length==17) {
+        if (str.charAt(2)!=':' || str.charAt(5)!=':' || str.charAt(8)!=':' || str.charAt(11)!=':' || str.charAt(14)!=':' ) {
+            alert("MAC 주소가 올바르지 않습니다. 16진수 12자리 또는 콜론(:)을 포함한 17자리를 입력해주십시오.");
+            document.formWlAcAdd.mac.focus();
+            f.addFilterMac_.disabled=false;
+			f.reset.disabled=false;
+			f.macSearch.disabled=false;
+			document.formWlAcDel.reset.disabled=false;
+			document.formWlAcDel.deleteSelFilterMac_.disabled=false;
+			document.formWlAcDel.deleteAllFilterMac_.disabled=false;
+            return false;
+        }
+    }
+    for (var i=0; i<str.length; i++) {
+        if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			    (str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+			    (str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+			    (str.charAt(i) == ':') ) {
+            if(str.charAt(i) != ':')
+	            tmpMac += str.charAt(i);
+	        continue;
+        }
+	    alert("MAC 주소가 올바르지 않습니다. 16진수를 입력해주십시오.(0-9 또는 a-f).");
+	    document.formWlAcAdd.mac.focus();
+	    f.addFilterMac_.disabled=false;
+		f.reset.disabled=false;
+		f.macSearch.disabled=false;
+		document.formWlAcDel.reset.disabled=false;
+		document.formWlAcDel.deleteSelFilterMac_.disabled=false;
+		document.formWlAcDel.deleteAllFilterMac_.disabled=false;
+	    return false;
+    }
+
+    if ( IsHtmlComment(comment_val)) {
+		alert('Html 주석문을 입력할 수 없습니다.!');
+		document.formWlAcAdd.comment.value = document.formWlAcAdd.comment.defaultValue;
+		document.formWlAcAdd.comment.focus();
+		f.addFilterMac_.disabled=false;
+		f.reset.disabled=false;
+		f.macSearch.disabled=false;
+		document.formWlAcDel.reset.disabled=false;
+		document.formWlAcDel.deleteSelFilterMac_.disabled=false;
+		document.formWlAcDel.deleteAllFilterMac_.disabled=false;
+		return false;
+  }
+
+    document.formWlAcAdd.mac.value = tmpMac;
+
+  	f.submit();
+    return true;
+}
+
+
+function deleteClick(f)
+{
+    var target = document.getElementById("dynamicTable");
+    acl_num = target.rows.length - 2;
+
+    delNum = 0 ;
+    document.formWlAcAdd.addFilterMac_.disabled=true;
+	document.formWlAcAdd.reset.disabled=true;
+	document.formWlAcAdd.macSearch.disabled=true;
+	f.reset.disabled=true;
+	f.deleteSelFilterMac_.disabled=true;
+	f.deleteAllFilterMac_.disabled=true;
+	f.deleteAllFilterMac.disabled=true;
+  for(i=1 ; i <= acl_num ; i++){
+  	if(document.formWlAcDel.elements["select"+i].checked)
+  		delNum ++ ;
+  }
+  if(document.formWlAcAdd.wlanAcEnabled.selectedIndex==1 && delNum==acl_num){
+		if ( !confirm('모든 목록을 삭제하면 어떠한 클라이언트도 AP에 연결할 수 없게 됩니다. 진행하시겠습니까?') ) {
+			document.formWlAcAdd.addFilterMac_.disabled=false;
+			document.formWlAcAdd.reset.disabled=false;
+			document.formWlAcAdd.macSearch.disabled=false;
+			f.reset.disabled=false;
+			f.deleteSelFilterMac_.disabled=false;
+			f.deleteAllFilterMac_.disabled=false;
+			f.deleteAllFilterMac.disabled=false;
+			return false;
+		}
+   }
+  else if ( !confirm('선택한 목록을 삭제하시겠습니까?') ) {
+	document.formWlAcAdd.addFilterMac_.disabled=false;
+	document.formWlAcAdd.reset.disabled=false;
+	document.formWlAcAdd.macSearch.disabled=false;
+	f.reset.disabled=false;
+	f.deleteSelFilterMac_.disabled=false;
+	f.deleteAllFilterMac_.disabled=false;
+	f.deleteAllFilterMac.disabled=false;
+	return false;
+  }
+  f.submit();
+  return true;
+}
+
+function deleteAllClick(f)
+{
+	document.formWlAcAdd.addFilterMac_.disabled=true;
+	document.formWlAcAdd.reset.disabled=true;
+	document.formWlAcAdd.macSearch.disabled=true;
+	f.reset.disabled=true;
+	f.deleteSelFilterMac_.disabled=true;
+	f.deleteAllFilterMac_.disabled=true;
+	f.deleteSelFilterMac.disabled=true;
+
+   if(document.formWlAcAdd.wlanAcEnabled.selectedIndex==1){
+		if ( !confirm('모든 목록을 삭제하면 어떠한 클라이언트도 AP에 연결할 수 없게 됩니다. 진행하시겠습니까?') ) {
+			document.formWlAcAdd.addFilterMac_.disabled=false;
+			document.formWlAcAdd.reset.disabled=false;
+			document.formWlAcAdd.macSearch.disabled=false;
+			f.reset.disabled=false;
+			f.deleteSelFilterMac_.disabled=false;
+			f.deleteAllFilterMac_.disabled=false;
+			f.deleteSelFilterMac.disabled=false;
+			return false;
+		}
+   }else if ( !confirm('선택한 목록을 삭제하시겠습니까?') ) {
+	document.formWlAcAdd.addFilterMac_.disabled=false;
+	document.formWlAcAdd.reset.disabled=false;
+	document.formWlAcAdd.macSearch.disabled=false;
+	f.reset.disabled=false;
+	f.deleteSelFilterMac_.disabled=false;
+	f.deleteAllFilterMac_.disabled=false;
+	f.deleteSelFilterMac.disabled=false;
+	return false;
+  }
+  f.submit();
+  return true;
+}
+function enableDelButton()
+{
+	enableButton(document.formWlAcDel.deleteSelFilterMac);
+	enableButton(document.formWlAcDel.deleteAllFilterMac);
+}
+
+function disableDelButton()
+{
+	disableButton(document.formWlAcDel.deleteSelFilterMac);
+	disableButton(document.formWlAcDel.deleteAllFilterMac);
+}
+
+function enableAc()
+{
+  enableTextField(document.formWlAcAdd.mac);
+  enableTextField(document.formWlAcAdd.comment);
+}
+
+function disableAc()
+{
+  disableTextField(document.formWlAcAdd.mac);
+  disableTextField(document.formWlAcAdd.comment);
+}
+
+function updateState(filed)
+{
+
+  wlanDisabled = <% getIndex("wlanDisabled"); %> ;
+  wlanMode = <% getIndex("wlanMode"); %>;
+  var wlanState="<%getScheduleInfo("wlan_state");%>";
+  if(wlanDisabled || wlanMode == 1 || wlanMode ==2 || wlanState=='Disabled'){
+	disableDelButton();
+	disableButton(document.formWlAcDel.reset);
+	disableButton(document.formWlAcAdd.reset);
+	disableButton(document.formWlAcAdd.addFilterMac);
+  	disableTextField(document.formWlAcAdd.wlanAcEnabled);
+  	disableAc();
+  }
+  else{
+  if ( filed.selectedIndex > 0)
+ 	enableAc();
+  else
+  	disableAc();
+  }
+
+}
+
+function resetForm()
+{
+	document.formACL.SSID_Setting.selectedIndex = 0;
+	SSIDSelected(document.formACL.SSID_Setting.value);
+	document.formWlAcAdd.mac.value="";
+	document.formWlAcAdd.comment.value="";
+
+}
+
+function delMacList()
+{
+    var target = document.getElementById("dynamicTable");
+    var currentRowIndex = target.rows.length;
+    var i;
+
+    for (i=currentRowIndex; i>2; i--)
+    {
+        target.deleteRow(i-1);
+    }
+}
+
+function addMacList(SSIDnum)
+{
+	document.formWlAcAdd.wlan_ssid_id.value = SSIDnum;
+	document.formWlAcDel.wlan_ssid_id.value = SSIDnum;
+
+    delMacList();
+	if (SSIDnum == 0) {
+        var MACList = new Array(<% wlAcMACList("0"); %>);
+        var COMMENTList = new Array(<% wlAcCommentList("0"); %>);
+    } else if (SSIDnum == 1) {
+        var MACList = new Array(<% wlAcMACList("1"); %>);
+        var COMMENTList = new Array(<% wlAcCommentList("1"); %>);
+    } else if (SSIDnum == 2) {
+        var MACList = new Array(<% wlAcMACList("2"); %>);
+        var COMMENTList = new Array(<% wlAcCommentList("2"); %>);
+    } else if (SSIDnum == 3) {
+        var MACList = new Array(<% wlAcMACList("3"); %>);
+        var COMMENTList = new Array(<% wlAcCommentList("3"); %>);
+    } else if (SSIDnum == 4) {
+        var MACList = new Array(<% wlAcMACList("4"); %>);
+        var COMMENTList = new Array(<% wlAcCommentList("4"); %>);
+    } else if (SSIDnum == 5) {
+            var MACList = new Array(<% wlAcMACList("5"); %>);
+        var COMMENTList = new Array(<% wlAcCommentList("5"); %>);
+    }
+    var target = document.getElementById("dynamicTable");
+    var currentRowIndex = target.rows.length;
+    i = 0;
+    while (MACList[i]!=undefined) {
+        var row = target.insertRow(-1);
+        var cell = row.insertCell(0);
+        cell.innerHTML = "<font size='2'>"+MACList[i]+"</font>";
+        var cell = row.insertCell(1);
+        cell.innerHTML = "<font size='2'>"+COMMENTList[i]+"</font>";
+        var cell = row.insertCell(2);
+        cell.innerHTML = "<font size='2'><input type='checkbox' name='select"+(i+1)+"' value='ON'></font>";
+        i = i + 1;
+    }
+    if (i==0) {
+        disableDelButton();
+    } else {
+        enableDelButton();
+    }
+    document.formWlAcAdd.wlanAcEnabled.selectedIndex = wlanAcEnabled[SSIDnum] ;
+    updateState(document.formWlAcAdd.wlanAcEnabled);
+}
+
+function LoadWlanintf()
+{
+	if(wlan_idx) {
+		document.formACL.Wlanintf.options[0].selected = true;
+		document.formWlAcAdd.Wlanintf.value = 1;
+		document.formWlAcDel.Wlanintf.value = 1;
+	} else {
+		document.formACL.Wlanintf.options[1].selected = true;
+		document.formWlAcAdd.Wlanintf.value = 0;
+		document.formWlAcDel.Wlanintf.value = 0;
+	}
+
+	addMacList(<% getIndex("mssid_idx"); %>);
+}
+
+function SetSSIDSettingOption()
+{
+	var mode = <% getIndex("wlanMode");%>;
+	var mssid_num=<% getIndex("wlan_mssid_num");%>;
+	var isAdmin = <% getIndex("isAdmin"); %>;
+
+
+	if (mode != 1) {
+		var ssid="<% getInfo("ssid"); %>";
+		var val="Root AP - " + ssid;
+		var disable=new Array()
+		disable[0] = 0;
+		/*disable[1] = <% write(getVirtualIndex("wlanDisabled", "1")); %>;*/
+		disable[1] = 1;
+		disable[2] = <% getVirtualIndex("wlanDisabled", "2"); %>;
+		disable[3] = <% getVirtualIndex("wlanDisabled", "3"); %>;
+		/*disable[4] = <% getVirtualIndex("wlanDisabled", "4"); %>;*/
+		disable[4] = 1;
+		if (isAdmin) {
+			document.write("<option value=\"0\"><font face=\"Arial\" style=\"font-size: 8pt\">");
+			document.write(val);
+			document.write("</font></option>");
+		} else {
+			for (i=0; i<=mssid_num; i++) {
+				if (!disable[i]) {
+					document.write("<option value=\"" + i + "\"><font face=\"Arial\" style=\"font-size: 8pt\">");
+					document.write(val);
+					document.write("</font></option>");
+				}
+				if (i != 4 && !disable[i+1]) {
+					id =  i+1;
+					if (id == 1)
+						ssid =  " - ";
+					else if (id == 2)
+						ssid =  " - <% getVirtualInfo("ssid", "2"); %>";
+					else if (id == 3)
+						ssid =  " - <% getVirtualInfo("ssid", "3"); %>";
+					else
+						ssid =  " - <% getVirtualInfo("ssid", "4"); %>";
+
+					if(id > 2)
+						id = i;
+					val = "AP" + id + ssid;
+				}
+			}
+		}
+	}
+	else { // client mode
+		var ssid="Root Client - " + "<% getInfo("ssid"); %>";
+		document.write("<option value=0><font face=\"Arial\" style=\"font-size: 8pt\">");
+		document.write(ssid);
+		document.write("</font></option>");
+	}
+	if (!isAdmin) {
+		var rp_enable = <% getIndex("repeaterEnabled"); %>;
+		var is_adhoc = <% getIndex("networkType"); %>;
+		if (rp_enable && ((mode == 0 || mode == 3) || (mode == 1 && !is_adhoc)) ) {
+			ssid =  " - <% getInfo("repeaterSSID"); %>";
+			if (mode == 1)
+				val = "Repeater AP" + ssid;
+			else
+				val = "Repeater Client" + ssid;
+			document.write("<option value=5><font face=\"Arial\" style=\"font-size: 8pt\">");
+			document.write(val);
+			document.write("</font></option>");
+		}
+	}
+	var select_ssid = <% getIndex("mssid_idx"); %>;
+	document.formACL.SSID_Setting.selectedIndex = select_ssid;
+}
+
+function apModeCheck()
+{
+	if( wlan_mode== 5 || wlan_mode==7 )
+	{
+		disableRadioGroup(document.formACL.SSID_Setting);
+	}
+}
+
+function SSIDSelected(index)
+{
+	if( wlan_mode !=5 && wlan_mode !=7 )
+	{
+	    addMacList(formACL.SSID_Setting.value);
+	}
+}
+
+function page_change(selectObj)
+{
+	if (selectObj.value==1)
+		location.href='boafrm/formWlanRedirect?redirect-url=skb_wlactrl.htm&wlan_id=1';
+	else
+		location.href='boafrm/formWlanRedirect?redirect-url=skb_wlactrl.htm&wlan_id=0';
+}
+
+</script>
+</head>
+<body onload="LoadWlanintf();">
+<blockquote>
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<h2>
+<script type="text/javascript">
+var wlan_num =  <% getIndex("wlan_num"); %>;
+if (wlan_num > 1) {
+	var wlan_idx_ = <% getIndex("wlan_idx"); %> + 1;
+	if(wlan_idx_==1)
+		document.write("접근 제어 설정 5G </p>");
+	else
+		document.write("접근 제어 설정 2.4G</p>");
+}
+else
+	document.write("Wireless Access Control</p>");
+</script>
+</h2>
+
+<tr><font size=2>
+무선 인터넷에 연결하려는 호스트들에 대해 접근을 허용할것인지 차단할것인지 설정할 수 있는 페이지 입니다.
+</font></tr>
+</table>
+
+<form name="formACL">
+<input type="hidden" name="page" value="skb_wlactrl.htm">
+<table width="540" height="25" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<font size=2><b>무선 : &nbsp;&nbsp;&nbsp;&nbsp;</b>
+    		<select size="1" name="Wlanintf" id="Wlanintf" onChange="page_change(this)">
+    			<option value=1>2.4 GHz</option>
+    			<option value=0>5 GHz</option>
+    		</select>
+    	</font>
+ 	</tr>
+	<tr>
+		<td height="20" class="MainTD"><font size="2"><b>SSID 선택:&nbsp;&nbsp;</b>
+			<select name="SSID_Setting" onChange="SSIDSelected( this.selectedIndex )">
+				<script>SetSSIDSettingOption()</script>
+			</select>
+ 			<script> apModeCheck();</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formWlAc method=POST name="formWlAcAdd">
+<tr><hr size=1 noshade align=top><br></tr>
+
+<!--
+<tr><font size=2><b>
+   <input type="checkbox" name="wlanAcEnabled" value="ON" <% if (getIndex("wlanAcEnabled")) write("checked");
+   %> onclick="updateState()">&nbsp;&nbsp;Enable Wireless Access Control</b>
+</tr>
+-->
+<tr><td><font size=2><b>
+   	무선 인터넷 접근 제어 모드: &nbsp;&nbsp;&nbsp;&nbsp;
+	<select size="1" name="wlanAcEnabled" onChange="updateState(this)">
+          <option value="0" >사용안함</option>
+          <option value="1" selected >연결허용</option>
+          <option value="2" >연결차단</option>
+    </select></b></font>
+	<script>
+		document.formWlAcAdd.wlanAcEnabled.selectedIndex = <% getIndex("wlanAcEnabled"); %>;
+	</script>
+</td>
+</tr>
+<tr><td>
+
+     <p><font size=2><b>MAC 주소: <input type="text" name="mac" size="17" maxlength="17">&nbsp;&nbsp;</font></b>
+   	<b><font size=2>설명: <input type="text" name="comment" size="16" maxlength="20"></font></b>
+   	<input type="button" id="macSearch" name="macSearch" value="MAC search" onClick="macTblClick('/skb_wlmactbl.htm')">
+     </p>
+     <p><input type="button" value="적용" name="addFilterMac_" onClick="return addClick(this.form)">&nbsp;&nbsp;
+     	<input type="hidden" value="적용" name="addFilterMac">
+        <input type="button" value="취소" name="reset" onClick="resetForm();">&nbsp;&nbsp;&nbsp;
+        <input type="hidden" value="/skb_wlactrl.htm" name="submit-url">
+        <input type="hidden" value="" name="Wlanintf">
+        <input type="hidden" value="" name="wlan_ssid_id">
+     </p>
+</form>
+</table>
+<br>
+<form action=/boafrm/formWlAc method=POST name="formWlAcDel">
+  <table border="0" width=440  id="dynamicTable">
+  <tr><font size=2><b>현재 접근 제어 목록:</b></font></tr>
+  <tr><td align=center width="45%" class="tbl_title"><font size="2" color="white"><b>MAC 주소</b></font></td>
+    <td align=center width="35%" class="tbl_title"><font size="2" color="white"><b>설명</b></font></td>
+    <td align=center width="20%" class="tbl_title"><font size="2" color="white"><b>선택</b></font></td></tr>
+  <!--% wlAcList(); %-->
+  </table>
+  <br>
+  <input type="button" value="선택 삭제" name="deleteSelFilterMac_" onClick="return deleteClick(this.form)">&nbsp;&nbsp;
+  <input type="hidden" value="선택 삭제" name="deleteSelFilterMac" >
+
+  <input type="button" value="전체 삭제" name="deleteAllFilterMac_" onClick="return deleteAllClick(this.form)">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="전체 삭제" name="deleteAllFilterMac" >
+  <input type="reset" value="취소" name="reset">
+  <input type="hidden" value="/skb_wlactrl.htm" name="submit-url">
+  <input type="hidden" value="" name="Wlanintf">
+  <input type="hidden" value="" name="wlan_ssid_id">
+ <script>
+	updateState(document.formWlAcAdd.wlanAcEnabled);
+ </script>
+</form>
+
+</blockquote>
+</body>
+</html>

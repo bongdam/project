@@ -1,0 +1,59 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>무선 인터넷 접속 리스트</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+</head>
+
+<body onload="mouse_r_click();">
+<blockquote>
+<h2>
+<script type="text/javascript">
+
+	var wlan_num =  <% getIndex("wlan_num"); %>;
+	if (wlan_num > 1) {
+		var wlan_idx_ = <% getIndex("wlan_idx"); %>;
+		var wlan_intf = wlan_idx_?"2.4GHz":"5GHz";
+		document.write("무선 인터넷 접속 리스트 - " + wlan_intf + "</p>");
+	}
+	else
+		document.write("무선 인터넷 접속 리스트</p>");
+</script>
+</h2>
+
+
+<table border=0 width="700" cellspacing=0 cellpadding=0>
+  <tr><font size="2">
+ 무선 인터넷에 접속된 호스트들의 각종 정보를 보여주는 페이지입니다.
+  </font></tr>
+  <tr><hr size="1" noshade align=top></hr></tr>
+</table>
+<form action=/boafrm/formWirelessTbl method=POST name="formWirelessTbl">
+<table border='1' width="700">
+<tr class="tbl_head" align="center">
+<td align="center" width="20%"><font size=2><b>MAC 주소</b></font></td>
+<td align="center" width="10%"><font size="2"><b>모드</b></font></td>
+<td align="center" width="10%"><font size="2"><b>RSSI</b></font></td>
+<td align="center" width="10%"><font size="2"><b>송신<br>kByte</b></font></td>
+<td align="center" width="10%"><font size="2"><b>수신<br>kByte</b></font></td>
+<td align="center" width="10%"><font size="2"><b>전송률 (Mbps)</b></font></td>
+<td align="center" width="10%"><font size="2"><b>전원<br>절약</b></font></td>
+<td align="center" width="10%"><font size="2"><b>남은시간</b></td></font></td>
+<td align="center" width="10%"><font size="2"><b>경과시간</b></font></td>
+</tr>
+<% wirelessClientList(); %>
+</table>
+
+<input type="hidden" value="/wlstatbl.htm" name="submit-url">
+  <p><input type="submit" value="다시 보기" name="refresh">&nbsp;&nbsp;
+  <input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();"></p>
+</form>
+</blockquote>
+</body>
+
+</html>

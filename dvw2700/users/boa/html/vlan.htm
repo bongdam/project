@@ -1,0 +1,2392 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>VLAN 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function form_onoff(index)
+{
+	var check 	= eval('document.vlan_form.use'+index);
+	var vid 	= eval('document.vlan_form.vid'+index);
+	var port0 	= eval('document.vlan_form.vlan'+index+'_port0');
+	var port1 	= eval('document.vlan_form.vlan'+index+'_port1');
+	var port2 	= eval('document.vlan_form.vlan'+index+'_port2');
+	var port3 	= eval('document.vlan_form.vlan'+index+'_port3');
+	var port4 	= eval('document.vlan_form.vlan'+index+'_port4');
+
+	if(check.checked == true)
+	{
+		formEnable(vid);
+		formEnable(port0);
+		formEnable(port1);
+		formEnable(port2);
+		formEnable(port3);
+		formEnable(port4);
+	}
+	else
+	{
+		formDisable(vid);
+		formDisable(port0);
+		formDisable(port1);
+		formDisable(port2);
+		formDisable(port3);
+		formDisable(port4);
+	}
+}
+
+function frmOnload()
+{
+	var i;
+	var vLan_val;
+	var vlan_port;
+	var vlan_tag;
+	var check;
+	var vid;
+	var port0;
+	var port1;
+	var port2;
+	var port3;
+	var port4;
+
+	document.vlan_form.wan_pvid.selectedIndex = <% getInfo("wan_vlan_pvid"); %>;
+	document.vlan_form.lan1_pvid.selectedIndex = <% getInfo("lan1_vlan_pvid"); %>;
+	document.vlan_form.lan2_pvid.selectedIndex = <% getInfo("lan2_vlan_pvid"); %>;
+	document.vlan_form.lan3_pvid.selectedIndex = <% getInfo("lan3_vlan_pvid"); %>;
+	document.vlan_form.lan4_pvid.selectedIndex = <% getInfo("lan4_vlan_pvid"); %>;
+
+//VLAN_0
+	check = eval('document.vlan_form.use0');
+	vid 	= eval('document.vlan_form.vid0');
+	port0 	= eval('document.vlan_form.vlan0_port0');
+	port1 	= eval('document.vlan_form.vlan0_port1');
+	port2 	= eval('document.vlan_form.vlan0_port2');
+	port3 	= eval('document.vlan_form.vlan0_port3');
+	port4 	= eval('document.vlan_form.vlan0_port4');
+
+	vLan_val = <% getInfo("vlan_id_0"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_0"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_0"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// LAN1
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN2
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN3
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x8 ) {	// LAN4
+			if (vlan_tag & 0x8)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// WAN
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(0);
+
+//VLAN_1
+	check = eval('document.vlan_form.use1');
+	vid 	= eval('document.vlan_form.vid1');
+	port0 	= eval('document.vlan_form.vlan1_port0');
+	port1 	= eval('document.vlan_form.vlan1_port1');
+	port2 	= eval('document.vlan_form.vlan1_port2');
+	port3 	= eval('document.vlan_form.vlan1_port3');
+	port4 	= eval('document.vlan_form.vlan1_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_1"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_1"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_1"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(1);
+
+//VLAN_2
+	check = eval('document.vlan_form.use2');
+	vid 	= eval('document.vlan_form.vid2');
+	port0 	= eval('document.vlan_form.vlan2_port0');
+	port1 	= eval('document.vlan_form.vlan2_port1');
+	port2 	= eval('document.vlan_form.vlan2_port2');
+	port3 	= eval('document.vlan_form.vlan2_port3');
+	port4 	= eval('document.vlan_form.vlan2_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_2"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_2"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_2"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(2);
+
+//VLAN_3
+	check = eval('document.vlan_form.use3');
+	vid 	= eval('document.vlan_form.vid3');
+	port0 	= eval('document.vlan_form.vlan3_port0');
+	port1 	= eval('document.vlan_form.vlan3_port1');
+	port2 	= eval('document.vlan_form.vlan3_port2');
+	port3 	= eval('document.vlan_form.vlan3_port3');
+	port4 	= eval('document.vlan_form.vlan3_port4');
+
+	vLan_val = <% getInfo("vlan_id_3"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_3"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_3"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(3);
+
+//VLAN_4
+	check = eval('document.vlan_form.use4');
+	vid 	= eval('document.vlan_form.vid4');
+	port0 	= eval('document.vlan_form.vlan4_port0');
+	port1 	= eval('document.vlan_form.vlan4_port1');
+	port2 	= eval('document.vlan_form.vlan4_port2');
+	port3 	= eval('document.vlan_form.vlan4_port3');
+	port4 	= eval('document.vlan_form.vlan4_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_4"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_4"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_4"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(4);
+
+//VLAN_5
+	check = eval('document.vlan_form.use5');
+	vid 	= eval('document.vlan_form.vid5');
+	port0 	= eval('document.vlan_form.vlan5_port0');
+	port1 	= eval('document.vlan_form.vlan5_port1');
+	port2 	= eval('document.vlan_form.vlan5_port2');
+	port3 	= eval('document.vlan_form.vlan5_port3');
+	port4 	= eval('document.vlan_form.vlan5_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_5"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_5"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_5"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(5);
+
+//VLAN_6
+	check = eval('document.vlan_form.use6');
+	vid 	= eval('document.vlan_form.vid6');
+	port0 	= eval('document.vlan_form.vlan6_port0');
+	port1 	= eval('document.vlan_form.vlan6_port1');
+	port2 	= eval('document.vlan_form.vlan6_port2');
+	port3 	= eval('document.vlan_form.vlan6_port3');
+	port4 	= eval('document.vlan_form.vlan6_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_6"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_6"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_6"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(6);
+
+//VLAN_7
+	check = eval('document.vlan_form.use7');
+	vid 	= eval('document.vlan_form.vid7');
+	port0 	= eval('document.vlan_form.vlan7_port0');
+	port1 	= eval('document.vlan_form.vlan7_port1');
+	port2 	= eval('document.vlan_form.vlan7_port2');
+	port3 	= eval('document.vlan_form.vlan7_port3');
+	port4 	= eval('document.vlan_form.vlan7_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_7"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_7"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_7"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(7);
+
+//VLAN_8
+	check = eval('document.vlan_form.use8');
+	vid 	= eval('document.vlan_form.vid8');
+	port0 	= eval('document.vlan_form.vlan8_port0');
+	port1 	= eval('document.vlan_form.vlan8_port1');
+	port2 	= eval('document.vlan_form.vlan8_port2');
+	port3 	= eval('document.vlan_form.vlan8_port3');
+	port4 	= eval('document.vlan_form.vlan8_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_8"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_8"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_8"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(8);
+
+//VLAN_9
+	check = eval('document.vlan_form.use9');
+	vid 	= eval('document.vlan_form.vid9');
+	port0 	= eval('document.vlan_form.vlan9_port0');
+	port1 	= eval('document.vlan_form.vlan9_port1');
+	port2 	= eval('document.vlan_form.vlan9_port2');
+	port3 	= eval('document.vlan_form.vlan9_port3');
+	port4 	= eval('document.vlan_form.vlan9_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_9"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_9"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_9"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(9);
+
+//VLAN_10
+	check = eval('document.vlan_form.use10');
+	vid 	= eval('document.vlan_form.vid10');
+	port0 	= eval('document.vlan_form.vlan10_port0');
+	port1 	= eval('document.vlan_form.vlan10_port1');
+	port2 	= eval('document.vlan_form.vlan10_port2');
+	port3 	= eval('document.vlan_form.vlan10_port3');
+	port4 	= eval('document.vlan_form.vlan10_port4');
+
+	vLan_val = <% getInfo("vlan_id_10"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_10"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_10"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(10);
+
+//VLAN_11
+	check = eval('document.vlan_form.use11');
+	vid 	= eval('document.vlan_form.vid11');
+	port0 	= eval('document.vlan_form.vlan11_port0');
+	port1 	= eval('document.vlan_form.vlan11_port1');
+	port2 	= eval('document.vlan_form.vlan11_port2');
+	port3 	= eval('document.vlan_form.vlan11_port3');
+	port4 	= eval('document.vlan_form.vlan11_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_11"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_11"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_11"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(11);
+
+//VLAN_12
+	check = eval('document.vlan_form.use12');
+	vid 	= eval('document.vlan_form.vid12');
+	port0 	= eval('document.vlan_form.vlan12_port0');
+	port1 	= eval('document.vlan_form.vlan12_port1');
+	port2 	= eval('document.vlan_form.vlan12_port2');
+	port3 	= eval('document.vlan_form.vlan12_port3');
+	port4 	= eval('document.vlan_form.vlan12_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_12"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_12"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_12"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(12);
+
+//VLAN_13
+	check = eval('document.vlan_form.use13');
+	vid 	= eval('document.vlan_form.vid13');
+	port0 	= eval('document.vlan_form.vlan13_port0');
+	port1 	= eval('document.vlan_form.vlan13_port1');
+	port2 	= eval('document.vlan_form.vlan13_port2');
+	port3 	= eval('document.vlan_form.vlan13_port3');
+	port4 	= eval('document.vlan_form.vlan13_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_13"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_13"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_13"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(13);
+
+//VLAN_14
+	check = eval('document.vlan_form.use14');
+	vid 	= eval('document.vlan_form.vid14');
+	port0 	= eval('document.vlan_form.vlan14_port0');
+	port1 	= eval('document.vlan_form.vlan14_port1');
+	port2 	= eval('document.vlan_form.vlan14_port2');
+	port3 	= eval('document.vlan_form.vlan14_port3');
+	port4 	= eval('document.vlan_form.vlan14_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_14"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_14"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_14"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(14);
+
+//VLAN_15
+	check = eval('document.vlan_form.use15');
+	vid 	= eval('document.vlan_form.vid15');
+	port0 	= eval('document.vlan_form.vlan15_port0');
+	port1 	= eval('document.vlan_form.vlan15_port1');
+	port2 	= eval('document.vlan_form.vlan15_port2');
+	port3 	= eval('document.vlan_form.vlan15_port3');
+	port4 	= eval('document.vlan_form.vlan15_port4');
+
+
+	vLan_val = <% getInfo("vlan_id_15"); %>;
+
+	if (vLan_val == 0) {
+		check.checked = false;
+		port0.selectedIndex = 0;
+		port1.selectedIndex = 0;
+		port2.selectedIndex = 0;
+		port3.selectedIndex = 0;
+		port4.selectedIndex = 0;
+	} else {
+		vlan_port = parseInt(<% getInfo("vlan_port_15"); %>);
+		vlan_tag = parseInt(<% getInfo("vlan_tagged_15"); %>);
+
+		check.checked = true;
+		vid.value = vLan_val;
+
+		if ( vlan_port & 0x01 ) {	// WAN
+			if (vlan_tag & 0x01)
+				port0.selectedIndex = 2;
+			else
+				port0.selectedIndex = 1;
+		} else {
+			port0.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x02 ) {	// LAN1
+			if (vlan_tag & 0x02)
+				port1.selectedIndex = 2;
+			else
+				port1.selectedIndex = 1;
+		} else {
+			port1.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x04 ) {	// LAN2
+			if (vlan_tag & 0x04)
+				port2.selectedIndex = 2;
+			else
+				port2.selectedIndex = 1;
+		} else {
+			port2.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x08 ) {	// LAN3
+			if (vlan_tag & 0x08)
+				port3.selectedIndex = 2;
+			else
+				port3.selectedIndex = 1;
+		} else {
+			port3.selectedIndex = 0;
+		}
+
+		if ( vlan_port & 0x10 ) {	// LAN4
+			if (vlan_tag & 0x10)
+				port4.selectedIndex = 2;
+			else
+				port4.selectedIndex = 1;
+		} else {
+			port4.selectedIndex = 0;
+		}
+	}
+
+	form_onoff(15);
+
+}
+
+function form_autoset(index, addcount)
+{
+	var check 	= eval('document.vlan_form.use'+index);
+	var vid 	= eval('document.vlan_form.vid'+index);
+	var port0 	= eval('document.vlan_form.vlan'+index+'_port0');
+	var port1 	= eval('document.vlan_form.vlan'+index+'_port1');
+	var port2 	= eval('document.vlan_form.vlan'+index+'_port2');
+	var port3 	= eval('document.vlan_form.vlan'+index+'_port3');
+	var port4 	= eval('document.vlan_form.vlan'+index+'_port4');
+
+	if(check.checked == true)
+	{
+		formEnable(vid);
+		formEnable(port0);
+		formEnable(port1);
+		formEnable(port2);
+		formEnable(port3);
+		formEnable(port4);
+
+		if (document.vlan_form.auto_vid.value != '')
+			vid.value = parseInt(document.vlan_form.auto_vid.value) + addcount;
+		port0.selectedIndex = document.vlan_form.auto_port0.selectedIndex;
+		port1.selectedIndex = document.vlan_form.auto_port1.selectedIndex;
+		port2.selectedIndex = document.vlan_form.auto_port2.selectedIndex;
+		port3.selectedIndex = document.vlan_form.auto_port3.selectedIndex;
+		port4.selectedIndex = document.vlan_form.auto_port4.selectedIndex;
+	}
+}
+
+function auto_apply()
+{
+	var count;
+
+	if (!IsDigit(document.vlan_form.auto_count.value) || !IsDigit(document.vlan_form.auto_vid.value)) {
+		alert("숫자를 입력해 주세요.");
+		return;
+	}
+
+	for (var i = 0; i < document.vlan_form.elements.length; i++){
+		var e = document.vlan_form.elements[i];
+
+		if( e.type == 'checkbox')
+		{
+			e.checked = true;
+		}
+	}
+	if ( document.vlan_form.auto_count.value != "")
+		count = parseInt(document.vlan_form.auto_count.value);
+	else
+		count = 1;
+	for(var i=0; i < 16; i++){
+		form_autoset(i, i*count);
+	}
+}
+
+function select_all()
+{
+	for (var i = 0; i < document.vlan_form.elements.length; i++){
+		var e = document.vlan_form.elements[i];
+
+		if(e.type == 'checkbox')
+		{
+			e.checked = true;
+		}
+	}
+
+	for(var i=0; i < 16; i++){
+		form_onoff(i);
+	}
+
+}
+
+function unselect_all()
+{
+	for (var i = 0; i < document.vlan_form.elements.length; i++){
+		var e = document.vlan_form.elements[i];
+
+		if(e.type == 'checkbox')
+		{
+			e.checked = false;
+		}
+	}
+	for(var i=0; i < 16; i++){
+		form_onoff(i);
+	}
+}
+
+function check_value()
+{
+	var flag=0;
+	var vid,num,use;
+
+	if(document.vlan_form.wan_pvid.selectedIndex != 0){
+		use = eval('document.vlan_form.use' + (document.vlan_form.wan_pvid.selectedIndex - 1));
+		if(use.checked == false){
+			alert("VLAN " + document.vlan_form.wan_pvid.selectedIndex + " 이(가) 비활성화되어 있습니다.");
+			flag++;
+		}
+		else{
+			vid = eval('document.vlan_form.vid' + (document.vlan_form.wan_pvid.selectedIndex - 1));
+			if(vid.value == ""){
+				alert("VLAN " + document.vlan_form.wan_pvid.selectedIndex + " 의 VLAN ID가 올바르지 않습니다.");
+				flag++;
+			}
+		}
+	}
+	for (var i=1; i < 5; i++){
+		var pvid = eval('document.vlan_form.lan'+i+'_pvid');
+		if(pvid.selectedIndex != 0){
+			use = eval('document.vlan_form.use' + (pvid.selectedIndex - 1));
+			if(use.checked == false){
+				alert("VLAN " + pvid.selectedIndex + " 이(가) 비활성화되어 있습니다.");
+				flag++;
+			}
+			else{
+				vid = eval('document.vlan_form.vid' + (pvid.selectedIndex - 1));
+				if(vid.value == ""){
+					alert("VLAN " + pvid.selectedIndex + " 의 VLAN ID가 올바르지 않습니다.");
+					flag++;
+				}
+			}
+		}
+	}
+	for (var i=0; i < 16; i++){
+		use = eval('document.vlan_form.use'+i);
+		if ( use.checked == true ){
+			vid = eval('document.vlan_form.vid'+i);
+			if (!IsDigit(vid.value)) {
+				flag++;
+				alert("VLAN ID가 올바르지 않습니다.\nVLAN ID는 1부터 4094 사이여야 합니다.");
+			}
+			num = parseInt(vid.value);
+			if (vid.value == ""){
+				flag++;
+				alert("VLAN ID가 없습니다...");
+			}
+			else if ((num < 1) || (num > 4094)){
+					flag++;
+					alert("VLAN ID가 올바르지 않습니다.\nVLAN ID는 1부터 4094 사이여야 합니다.");
+			}
+			else if ((num == 8) || (num == 9) || (num == 100)){
+					flag++;
+					alert("VLAN ID 8, 9, 100번은 설정이 불가합니다.");
+			}
+			else {
+				for (var j=i+1; j < 16; j++){
+					var use2 = eval('document.vlan_form.use'+j);
+					var vid2 = eval('document.vlan_form.vid'+j);
+					if(use2.checked == true && vid.value == vid2.value){
+						flag++;
+						alert("VLAN ID 동일합니다..... [" + vid2.value + "]");
+					}
+				}
+			}
+		}
+	}
+
+	if(!flag)
+		vlan_form.submit();
+}
+
+
+
+
+</script>
+</head>
+
+  <body onload="frmOnload();">
+  <script language="javascript">
+  var curLoginUser = <% getIndex("isAdmin"); %>;
+  if (curLoginUser == 1)
+	  history.back();
+  </script>
+  <blockquote>
+  <form action=/boafrm/formVlan method=POST name="vlan_form">
+  	<input type="hidden" value="/vlan.htm" name="submit-url">
+  <h2>VLAN 설정</h2>
+	<table border=0 width="550" cellspacing=4 cellpadding=0>
+	<tr><td><font size=2>
+		VLAN을 설정하여 가상 네트워크를 구성할 수 있는 페이지입니다.
+	</font></td></tr>
+    <tr><td><hr size="1" align="top" noshade="noshade"></td></tr>
+<!--  	<tr><td><font size=2><b>
+    <input type='hidden' id='vlan_onoff' name='vlan_onoff' value='<% getInfo("vlanOnOff"); %>'>
+		   	<input id="onoff" type="checkbox" onclick='vlan_onoff_select(this.checked);'>&nbsp;&nbsp;VLAN 설정</b><br>
+		    </td>
+    </tr>-->
+  </table>
+
+<table>
+	<tr><td colspan="5" align="left" ><font size="2"><b>PVID 설정</b></td></tr>
+	<tr class="tbl_head">
+	  	<td height="30" align=center width="20%"><font size="2"><b>WAN</b></font></td>
+  		<td align=center width="20%" ><font size="2"><b>LAN1</b></font></td>
+  		<td align=center width="20%" ><font size="2"><b>LAN2</b></font></td>
+		<td align=center width="20%" ><font size="2"><b>LAN3</b></font></td>
+		<td align=center width="20%" ><font size="2"><b>LAN4</b></font></td>
+  	</tr>
+	<tr>
+	<td class=''>
+		<select name="wan_pvid">
+			<option value="0"> 사용안함
+			<option value="1"> VLAN1
+			<option value="2"> VLAN2
+			<option value="3"> VLAN3
+			<option value="4"> VLAN4
+			<option value="5"> VLAN5
+			<option value="6"> VLAN6
+			<option value="7"> VLAN7
+			<option value="8"> VLAN8
+			<option value="9"> VLAN9
+			<option value="10"> VLAN10
+			<option value="11"> VLAN11
+			<option value="12"> VLAN12
+			<option value="13"> VLAN13
+			<option value="14"> VLAN14
+			<option value="15"> VLAN15
+			<option value="16"> VLAN16
+		</select>
+	</td>
+	<td>
+		<select name="lan1_pvid">
+			<option value="0" > 사용안함
+			<option value="1"  > VLAN1
+			<option value="2"  > VLAN2
+			<option value="3"  > VLAN3
+			<option value="4"  > VLAN4
+			<option value="5"  > VLAN5
+			<option value="6"  > VLAN6
+			<option value="7"  > VLAN7
+			<option value="8"  > VLAN8
+			<option value="9"  > VLAN9
+			<option value="10"  > VLAN10
+			<option value="11"  > VLAN11
+			<option value="12"  > VLAN12
+			<option value="13"  > VLAN13
+			<option value="14"  > VLAN14
+			<option value="15"  > VLAN15
+			<option value="16"  > VLAN16
+		</select>
+	</td>
+	<td>
+		<select name="lan2_pvid">
+			<option value="0"> 사용안함
+			<option value="1"> VLAN1
+			<option value="2"> VLAN2
+			<option value="3"> VLAN3
+			<option value="4"> VLAN4
+			<option value="5"> VLAN5
+			<option value="6"> VLAN6
+			<option value="7"> VLAN7
+			<option value="8"> VLAN8
+			<option value="9"> VLAN9
+			<option value="10"> VLAN10
+			<option value="11"> VLAN11
+			<option value="12"> VLAN12
+			<option value="13"> VLAN13
+			<option value="14"> VLAN14
+			<option value="15"> VLAN15
+			<option value="16"> VLAN16
+		</select>
+	</td>
+	<td>
+		<select name="lan3_pvid">
+			<option value="0"> 사용안함
+			<option value="1"> VLAN1
+			<option value="2"> VLAN2
+			<option value="3"> VLAN3
+			<option value="4"> VLAN4
+			<option value="5"> VLAN5
+			<option value="6"> VLAN6
+			<option value="7"> VLAN7
+			<option value="8"> VLAN8
+			<option value="9"> VLAN9
+			<option value="10"> VLAN10
+			<option value="11"> VLAN11
+			<option value="12"> VLAN12
+			<option value="13"> VLAN13
+			<option value="14"> VLAN14
+			<option value="15"> VLAN15
+			<option value="16"> VLAN16
+		</select>
+	</td>
+	<td>
+		<select name="lan4_pvid">
+			<option value="0"> 사용안함
+			<option value="1"> VLAN1
+			<option value="2"> VLAN2
+			<option value="3"> VLAN3
+			<option value="4"> VLAN4
+			<option value="5"> VLAN5
+			<option value="6"> VLAN6
+			<option value="7"> VLAN7
+			<option value="8"> VLAN8
+			<option value="9"> VLAN9
+			<option value="10"> VLAN10
+			<option value="11"> VLAN11
+			<option value="12"> VLAN12
+			<option value="13"> VLAN13
+			<option value="14"> VLAN14
+			<option value="15"> VLAN15
+			<option value="16"> VLAN16
+		</select>
+	</td>
+	</tr>
+</table>
+
+<br>
+<br>
+	<table  border=0>
+	<tr><td colspan="8" align="left"><font size="2"><b>VLAN 구성</b></font></td>
+	</tr>
+	<tr height="30" align=center>
+		<td colspan="8"><font size="2"><b>멤버 포트</b><font size="2"></font></td>
+	</tr>
+	<tr class="tbl_head" align=center>
+		<td>*</td>
+		<td>사용</td>
+		<td>VLAN ID</td>
+		<td>WAN</td>
+		<td>LAN1</td>
+		<td>LAN2</td>
+		<td>LAN3</td>
+		<td>LAN4</td>
+	</tr>
+	<tr>
+		<td align="center">1</td>
+		<td align="center">
+			<input type="checkbox" name="use0" value="1" onClick="form_onoff(0);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid0" size="10" maxlength="4" style="ime-mode:disabled;" value=''>
+		</td>
+		<td align="center">
+			<select name="vlan0_port4">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan0_port0">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan0_port1">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan0_port2">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan0_port3">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">2</td>
+		<td align="center">
+			<input type="checkbox" name="use1" value="1" onClick="form_onoff(1);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid1" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan1_port4">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan1_port0">
+                <option value="0">사용안함
+                <option value="1">태그없음
+                <option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan1_port1">
+                <option value="0">사용안함
+                <option value="1">태그없음
+                <option value="2">태그사용
+
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan1_port2">
+                <option value="0">사용안함
+                <option value="1">태그없음
+                <option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan1_port3">
+                <option value="0">사용안함
+                <option value="1">태그없음
+                <option value="2">태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">3</td>
+		<td align="center">
+			<input type="checkbox" name="use2" value="1" onClick="form_onoff(2);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid2" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan2_port4">
+				<option value="0">사용안함
+				<option value="1">태그없음
+				<option value="2">태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan2_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan2_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan2_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan2_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">4</td>
+		<td align="center">
+			<input type="checkbox" name="use3" value="1" onClick="form_onoff(3);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid3" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan3_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan3_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan3_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan3_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan3_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">5</td>
+		<td align="center">
+			<input type="checkbox" name="use4" value="1" onClick="form_onoff(4);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid4" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan4_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan4_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan4_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan4_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan4_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">6</td>
+		<td align="center">
+			<input type="checkbox" name="use5" value="1" onClick="form_onoff(5);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid5" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan5_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan5_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan5_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan5_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan5_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">7</td>
+		<td align="center">
+			<input type="checkbox" name="use6" value="1" onClick="form_onoff(6);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid6" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan6_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan6_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan6_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan6_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan6_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">8</td>
+		<td align="center">
+			<input type="checkbox" name="use7" value="1" onClick="form_onoff(7);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid7" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan7_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan7_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan7_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan7_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan7_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">9</td>
+		<td align="center">
+			<input type="checkbox" name="use8" value="1" onClick="form_onoff(8);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid8" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan8_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan8_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan8_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan8_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan8_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">10</td>
+		<td align="center">
+			<input type="checkbox" name="use9" value="1" onClick="form_onoff(9);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid9" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan9_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan9_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan9_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan9_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan9_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">11</td>
+		<td align="center">
+			<input type="checkbox" name="use10" value="1" onClick="form_onoff(10);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid10" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan10_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan10_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan10_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan10_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan10_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">12</td>
+		<td align="center">
+			<input type="checkbox" name="use11" value="1" onClick="form_onoff(11);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid11" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan11_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan11_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan11_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan11_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan11_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">13</td>
+		<td align="center">
+			<input type="checkbox" name="use12" value="1" onClick="form_onoff(12);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid12" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan12_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan12_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan12_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan12_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan12_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">14</td>
+		<td align="center">
+			<input type="checkbox" name="use13" value="1" onClick="form_onoff(13);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid13" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan13_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan13_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan13_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan13_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan13_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">15</td>
+		<td align="center">
+			<input type="checkbox" name="use14" value="1" onClick="form_onoff(14);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid14" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan14_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan14_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan14_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan14_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan14_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td align="center">16</td>
+		<td align="center">
+			<input type="checkbox" name="use15" value="1" onClick="form_onoff(15);" >
+		</td>
+		<td align="center">
+			<input type="text" name="vid15" size="10" maxlength="4" style="ime-mode:disabled;" value="">
+		</td>
+		<td align="center">
+			<select name="vlan15_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan15_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan15_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan15_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="vlan15_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td><input type="button" name="auto_conf" value="자동" onClick="auto_apply();"></td>
+		<td align="center">	<input type="text" name="auto_count" size="1" maxlength="4" value=""></td>
+		<td align="center">	<input type="text" name="auto_vid" size="10" maxlength="4" value=""> </td>
+		<td align="center">
+			<select name="auto_port4">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="auto_port0">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="auto_port1">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="auto_port2">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+		<td align="center">
+			<select name="auto_port3">
+				<option value="0">사용안함
+				<option value="1"  >태그없음
+				<option value="2"  >태그사용
+			</select>
+		</td>
+	</tr>
+
+</table>
+
+	<br>&nbsp;
+	<input type="button" value="적용" onClick="check_value();">&nbsp;&nbsp;
+	<input type="button" value="전체선택" onClick="select_all();">&nbsp;&nbsp;
+	<input type="button" value="전체선택 해제" onClick="unselect_all();">&nbsp;&nbsp;
+	<input type="button" value="취소" name="reset" onclick="frmOnload()">&nbsp;
+<!--  <table border="0" width=550>
+
+  <tr class="tbl_head">
+  	<td height="30" align=center width="10%"><font size="2"><b>&nbsp;Enable&nbsp;</b></font></td>
+  	<td align=center width="30%" ><font size="2"><b>Ethernet/Wireless</b></font></td>
+  	<td align=center width="15%" ><font size="2"><b>&nbsp;WAN/LAN&nbsp;</b></font></td>
+
+	<SCRIPT>
+	if(vlan_forwording_rule_show==1)
+		document.write("<td align=center width=\"%\"><font size=\"2\"><b>&nbsp;Forwarding<br>Rule</b></font></td>");
+	</SCRIPT>
+
+		<td align=center width="%" ><font size="2"><b>&nbsp;Tag&nbsp;</b></font></td>
+		<td align=center width="%" ><font size="2"><b>&nbsp;VID</b></font><font size="1">(1~4090)</font>&nbsp;</td>
+		<td align=center width="%" ><font size="2"><b>&nbsp;Priority&nbsp;</b></font></td>
+		<td align=center width="%" ><font size="2"><b>&nbsp;CFI&nbsp;</b></font></td>
+	</tr>-->
+
+    <!--
+      <tr>
+				<td align = center bgcolor="#C0C0C0">
+      		<input type='hidden' id='vlan_enable_1' name='vlan_enable_1' value='1'>
+      		<input type='checkbox' id='enable_1' onclick='vlan_enable_select(1,this.checked);'>
+      	</td>
+      	<td align=right bgcolor="#C0C0C0">Wireless Primary Interface</td>
+
+      	<td bgcolor="#C0C0C0">
+      		<input type='hidden' id='vlan_tag_1' name='vlan_tag_1' value='1'>
+      		<input id='tag_1' type="checkbox" onclick='vlan_tag_select(1,this.checked);'>
+      	</td>
+      	<td bgcolor="#C0C0C0"><input id='vlan_id_1' name='vlan_id_1' size='4' maxlength='4' type='text' value='20'></td>
+      	<td bgcolor="#C0C0C0">
+      		<input type='hidden' id='vlan_priority_1' name='vlan_priority_1' value="6">
+      		<select id="priority_1" size="1" onchange='vlan_priority_select(1,this.value);'>
+          	<option value="0">0</option>
+          	<option value="1">1</option>
+          	<option value="2">2</option>
+          	<option value="3">3</option>
+          	<option value="4">4</option>
+          	<option value="5">5</option>
+          	<option value="6">6</option>
+          	<option value="7">7</option>
+      		</select>
+      	</td>
+      	<td bgcolor="#C0C0C0">
+      		<input type='hidden' id='vlan_cfg_1' name='vlan_cfg_1' value='1'>
+      		<input id='cfg_1' type='checkbox' onclick='vlan_cfg_select(1,this.checked);'>
+      	</td>
+      </tr>
+    -->
+	<!--	<SCRIPT >webVlanList(MAXNUM_VLAN);</SCRIPT>
+
+		<br>
+		<tr><td>&nbsp;</td></tr>
+
+
+  </table>
+  <tr><td>
+    <input type=button name=apply value='Apply Changes' onclick="page_submit();">&nbsp;&nbsp;
+    <input type="button" value="Reset" onclick="page_reset();">
+  </td></tr>-->
+	</form>
+ 	<br>
+  <br>
+  <br>
+
+	</blockquote>
+  </body></html>

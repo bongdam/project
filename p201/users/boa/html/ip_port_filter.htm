@@ -1,0 +1,458 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script language=Javascript src="<% getInfo("lang");%>"></script>
+<% getInfo("include_css"); %>
+<script>
+var ipfilterNum = <% getIndex("ipFilterNum"); %>;
+
+function updateProtocol()
+{
+	if (document.formIpFilter.protocol.selectedIndex == 4)
+		document.formIpFilter.protoNum.disabled = false;
+	else
+		document.formIpFilter.protoNum.disabled = true;
+}
+
+function updateSport()
+{
+	if (document.formIpFilter.s_port.selectedIndex == 1)
+		document.formIpFilter.sportNum.disabled = false;
+	else
+		document.formIpFilter.sportNum.disabled = true;
+}
+
+function updateDport()
+{
+	if (document.formIpFilter.d_port.selectedIndex == 1)
+		document.formIpFilter.dportNum.disabled = false;
+	else
+		document.formIpFilter.dportNum.disabled = true;
+}
+
+function show_interface()
+{
+	var mode;
+	var ssid;
+	var main_disabled;
+	var mssid_num = <% getIndex("wlan_mssid_num"); %>;
+
+	for (var wl_idx = 0; wl_idx < 2; wl_idx++) {
+		if (wl_idx == 0) {
+			mode = <% dv_wlaninfo("wlanMode", "0"); %>;
+			main_disabled = <% dv_wlaninfo("wlanDisabled", "0"); %>;
+		} else {
+			mode = <% dv_wlaninfo("wlanMode", "1"); %>;
+			main_disabled = <% dv_wlaninfo("wlanDisabled", "1"); %>;
+		}
+		var val = "";
+
+		if (main_disabled)
+			continue;
+
+		if (mode != 1) {
+			if (wl_idx == 0)
+				ssid = "<% dv_wlaninfo("ssid", "0"); %>";
+			else
+				ssid = "<% dv_wlaninfo("ssid", "1"); %>";
+
+			val = ssid;
+			if (mode != 5) {	/*MESH mode do not have ROOT AP option*/
+				var disable = new Array();
+				disable[0] = 0;
+				if (wl_idx == 0) {
+					disable[1] = <% dv_wlaninfo("wlanDisabled", "0", "1"); %>;
+					disable[2] = <% dv_wlaninfo("wlanDisabled", "0", "2"); %>;
+					disable[3] = <% dv_wlaninfo("wlanDisabled", "0", "3"); %>;
+					disable[4] = <% dv_wlaninfo("wlanDisabled", "0", "4"); %>;
+				} else {
+					disable[1] = <% dv_wlaninfo("wlanDisabled", "1", "1"); %>;
+					disable[2] = <% dv_wlaninfo("wlanDisabled", "1", "2"); %>;
+					disable[3] = <% dv_wlaninfo("wlanDisabled", "1", "3"); %>;
+					disable[4] = <% dv_wlaninfo("wlanDisabled", "1", "4"); %>;
+				}
+
+				for (var i = 0; i <= mssid_num; i++) {
+					if (!disable[i]) {
+						if (i == 0)
+							document.write("<option value=\"wlan" + wl_idx + "\">");
+						else
+							document.write("<option value=\"wlan" + wl_idx + "-va" + (i - 1) + "\">");
+						document.write(val);
+						document.write("</option>");
+					}
+
+					if (i != 4 && !disable[i + 1]) {
+						id = i + 1;
+						if (wl_idx == 0) {
+							if (id == 1)
+								ssid = "<% dv_wlaninfo("vap_ssid", "0", "1"); %>";
+							else if (id == 2)
+								ssid = "<% dv_wlaninfo("vap_ssid", "0", "2"); %>";
+							else if (id == 3)
+								ssid = "<% dv_wlaninfo("vap_ssid", "0", "3"); %>";
+							else
+								ssid = "<% dv_wlaninfo("vap_ssid", "0", "4"); %>";
+						} else {
+							if (id == 1)
+								ssid = "<% dv_wlaninfo("vap_ssid", "1", "1"); %>";
+							else if (id == 2)
+								ssid = "<% dv_wlaninfo("vap_ssid", "1", "2"); %>";
+							else if (id == 3)
+								ssid = "<% dv_wlaninfo("vap_ssid", "1", "3"); %>";
+							else
+								ssid = "<% dv_wlaninfo("vap_ssid", "1", "4"); %>";
+						}
+						val = ssid;
+					}
+				}
+			}
+		}
+	}
+}
+
+function updateState()
+{
+	if (document.formIpFilter.enabled.selectedIndex == 1) {
+		document.formIpFilter.protocol.disabled = false;
+		document.formIpFilter.protoNum.disabled = false;
+		document.formIpFilter.s_ip1.disabled = false;
+		document.formIpFilter.s_ip2.disabled = false;
+		document.formIpFilter.s_ip3.disabled = false;
+		document.formIpFilter.s_ip4.disabled = false;
+		document.formIpFilter.s_mask.disabled = false;
+		document.formIpFilter.d_ip1.disabled = false;
+		document.formIpFilter.d_ip2.disabled = false;
+		document.formIpFilter.d_ip3.disabled = false;
+		document.formIpFilter.d_ip4.disabled = false;
+		document.formIpFilter.d_mask.disabled = false;
+		document.formIpFilter.s_port.disabled = false;
+		document.formIpFilter.sportNum.disabled = false;
+		document.formIpFilter.d_port.disabled = false;
+		document.formIpFilter.dportNum.disabled = false;
+		document.formIpFilter.interface.disabled = false;
+		document.formIpFilter.policy.disabled = false;
+	} else {
+		document.formIpFilter.protocol.disabled = true;
+		document.formIpFilter.protoNum.disabled = true;
+		document.formIpFilter.s_ip1.disabled = true;
+		document.formIpFilter.s_ip2.disabled = true;
+		document.formIpFilter.s_ip3.disabled = true;
+		document.formIpFilter.s_ip4.disabled = true;
+		document.formIpFilter.s_mask.disabled = true;
+		document.formIpFilter.d_ip1.disabled = true;
+		document.formIpFilter.d_ip2.disabled = true;
+		document.formIpFilter.d_ip3.disabled = true;
+		document.formIpFilter.d_ip4.disabled = true;
+		document.formIpFilter.d_mask.disabled = true;
+		document.formIpFilter.s_port.disabled = true;
+		document.formIpFilter.sportNum.disabled = true;
+		document.formIpFilter.d_port.disabled = true;
+		document.formIpFilter.dportNum.disabled = true;
+		document.formIpFilter.interface.disabled = true;
+		document.formIpFilter.policy.disabled = true;
+	}
+
+	updateProtocol();
+	updateSport();
+	updateDport();
+}
+
+function disableDelButton()
+{
+	disableButton(document.formIpFilterDel.deleteSelFilterBt);
+	disableButton(document.formIpFilterDel.deleteAllFilterBt);
+}
+
+function deleteClick()
+{
+	if ( !confirm(ipfilter_delete_confirm) )
+		return false;
+	else {
+		document.formIpFilter.save_apply.disabled = true;
+		disableDelButton();
+		document.formIpFilterDel.deleteSelFilterIp.value = "delete";
+		document.formIpFilterDel.deleteAllFilterIp.value = "";
+		document.formIpFilterDel.submit();
+		return true;
+	}
+}
+
+function deleteAllClick()
+{
+	if ( !confirm(ipfilter_delete_all_confirm) )
+		return false;
+	else {
+		document.formIpFilter.save_apply.disabled = true;
+		disableDelButton();
+		document.formIpFilterDel.deleteSelFilterIp.value = "";
+		document.formIpFilterDel.deleteAllFilterIp.value = "alldelete";
+		document.formIpFilterDel.submit();
+		return true;
+	}
+}
+
+function addClick(f)
+{
+	var ipaddr = "<% getInfo("ip-rom"); %>";
+
+	if (f.enabled.selectedIndex == 1) {
+		if (ipfilterNum >= 20) {
+			alert(ipfilter_table_full);
+			return false;
+		}
+
+		if (f.protocol.value == "specify") {
+			if (parseInt(f.protoNum.value, 10) < 1 || parseInt(f.protoNum.value, 10) > 255 || isNaN(parseInt(f.protoNum.value, 10))) {
+				alert(ipfilter_proto_error);
+				return false;
+			}
+		}
+
+		if (parseInt(f.s_ip4.value, 10) < 0 || parseInt(f.s_ip4.value, 10) > 255 || isNaN(parseInt(f.s_ip4.value, 10))) {
+			alert(ipfilter_srcip_error);
+			return false;
+		}
+
+		f.s_ipaddr.value = f.s_ip1.value + "." + f.s_ip2.value + "." + f.s_ip3.value + "." + f.s_ip4.value;
+		if (ipaddr == f.s_ipaddr.value) {
+			alert(ipfilter_srcip_lan_error);
+			return false;
+		}
+
+		if ( 24 > parseInt(f.s_mask.value, 10) || 32 < parseInt(f.s_mask.value, 10) || isNaN(parseInt(f.s_mask.value, 10))) {
+			alert(ipfilter_source_subnet_error);
+			return;
+		}
+
+		if (f.d_ip1.value == "" && f.d_ip2.value == "" && f.d_ip3.value == "" && f.d_ip4.value == "" && f.d_mask.value == "") {
+			f.d_ipaddr.value = "0.0.0.0";
+			f.d_mask.value = "0";
+		} else {
+			if (parseInt(f.d_ip1.value, 10) < 0 || parseInt(f.d_ip1.value, 10) > 255 || isNaN(parseInt(f.d_ip1.value, 10))) {
+				alert(ipfilter_dstip_error);
+				return false;
+			}
+			if (parseInt(f.d_ip2.value, 10) < 0 || parseInt(f.d_ip2.value, 10) > 255 || isNaN(parseInt(f.d_ip2.value, 10))) {
+				alert(ipfilter_dstip_error);
+				return false;
+			}
+			if (parseInt(f.d_ip3.value, 10) < 0 || parseInt(f.d_ip3.value, 10) > 255 || isNaN(parseInt(f.d_ip3.value, 10))) {
+				alert(ipfilter_dstip_error);
+				return false;
+			}
+			if (parseInt(f.d_ip4.value, 10) < 0 || parseInt(f.d_ip4.value, 10) > 255 || isNaN(parseInt(f.d_ip4.value, 10))) {
+				alert(ipfilter_dstip_error);
+				return false;
+			}
+
+			if ( 24 > parseInt(f.d_mask.value, 10) || 32 < parseInt(f.d_mask.value, 10) || isNaN(parseInt(f.d_mask.value, 10))) {
+				alert(ipfilter_destination_subnet_error);
+				return;
+			}
+
+			f.d_ipaddr.value = f.d_ip1.value + "." + f.d_ip2.value + "." + f.d_ip3.value + "." + f.d_ip4.value;
+		}
+
+		if (f.s_port.value == "specify") {
+			if (parseInt(f.sportNum.value, 10) < 1 || parseInt(f.sportNum.value, 10) > 65535 || isNaN(parseInt(f.sportNum.value, 10))) {
+				alert(ipfilter_srcport_error);
+				return false;
+			}
+		}
+
+		if (f.d_port.value == "specify") {
+			if (parseInt(f.dportNum.value, 10) < 1 || parseInt(f.dportNum.value, 10) > 65535 || isNaN(parseInt(f.dportNum.value, 10))) {
+				alert(ipfilter_dstport_error);
+				return false;
+			}
+		}
+	}
+	f.save_apply.disabled = true;
+	disableDelButton();
+	f.submit();
+	return true;
+}
+
+function onLoadSetting()
+{
+	var ipfilter = <% getIndex("ipFilterEnabled") %>;
+	var ipaddr = "<% getInfo("ip-rom"); %>".split('.');
+
+	document.formIpFilter.enabled.selectedIndex = ipfilter;
+
+	document.formIpFilter.s_ip1.value = ipaddr[0];
+	document.formIpFilter.s_ip2.value = ipaddr[1];
+	document.formIpFilter.s_ip3.value = ipaddr[2];
+
+	updateState();
+}
+</script>
+</head>
+<body onload="onLoadSetting();">
+<blockquote>
+<h2><script>dw(ipfilter_header)</script></h2>
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+ 	<tr><font size=2><script>dw(ipfilter_header_explain)</script></tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+<br>
+
+<form action=/boafrm/formFilter method=POST name="formIpFilter">
+<input type="hidden" name="submit-url" value="/ip_port_filter.htm" >
+<input type="hidden" name="s_ipaddr" value="" >
+<input type="hidden" name="d_ipaddr" value="" >
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+	<tr>
+		<td width="30%" height="40"><font size=2><b><script>dw(ipfilter_onoff)</script></b></font></td>
+		<td width="70%" colspan="2" height="40">
+			<select style="width:80px;" name="enabled" id="enabled" onchange="updateState();">
+				<option value='OFF'><script>dw(ipfilter_disable)</script></option>
+				<option value='ON'><script>dw(ipfilter_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr height="40">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_addRule)</script></b></font></td>
+		<td width="70%" colspan="2"></td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_protocol)</script></b></font></td>
+		<td width="30%">
+			<select style="width:80px;" name="protocol" id="protocol" onchange="updateProtocol();">
+				<option value='0'><script>dw(ipfilter_protocol_all)</script></option>
+				<option value="1"><script>dw(ipfilter_protocol_icmp)</script></option>
+				<option value="6"><script>dw(ipfilter_protocol_tcp)</script></option>
+				<option value="17"><script>dw(ipfilter_protocol_udp)</script></option>
+				<option value="specify"><script>dw(ipfilter_protocol_specify)</script></option>
+			</select>
+		</td>
+		<td width="40%">
+			<input type="text" name="protoNum" id="protoNum" size="11" maxlength="3" >
+		</td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_srcip)</script></b></font></td>
+		<td width="70%" colspan="2"><font size=2>
+			<input type="text" name="s_ip1" id="s_ip1" size="3" maxlength="3" readonly>.
+			<input type="text" name="s_ip2" id="s_ip2" size="3" maxlength="3" readonly>.
+			<input type="text" name="s_ip3" id="s_ip3" size="3" maxlength="3" readonly>.
+			<input type="text" name="s_ip4" id="s_ip4" size="3" maxlength="3">&nbsp;/&nbsp;
+			<input type="text" name="s_mask" id="s_mask" size="3" maxlength="2">
+		</td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_dstip)</script></b></font></td>
+		<td width="70%" colspan="2"><font size=2>
+			<input type="text" name="d_ip1" id="d_ip1" size="3" maxlength="3">.
+			<input type="text" name="d_ip2" id="d_ip2" size="3" maxlength="3">.
+			<input type="text" name="d_ip3" id="d_ip3" size="3" maxlength="3">.
+			<input type="text" name="d_ip4" id="d_ip4" size="3" maxlength="3">&nbsp;/&nbsp;
+			<input type="text" name="d_mask" id="d_mask" size="3" maxlength="2">
+		</td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_sport)</script></b></font></td>
+		<td width="30%">
+			<select style="width:80px;" name="s_port" id="s_port" onchange="updateSport();">
+				<option value='0'><script>dw(ipfilter_port_all)</script></option>
+				<option value="specify"><script>dw(ipfilter_port_specify)</script></option>
+			</select>
+		</td>
+		<td width="40%">
+			<input type="text" name="sportNum" id="sportNum" size="11" maxlength="5" >
+		</td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_dport)</script></b></font></td>
+		<td width="30%">
+			<select style="width:80px;" name="d_port" id="d_port" onchange="updateDport();">
+				<option value='0'><script>dw(ipfilter_port_all)</script></option>
+				<option value="specify"><script>dw(ipfilter_port_specify)</script></option>
+			</select>
+		</td>
+		<td width="40%">
+			<input type="text" name="dportNum" id="dportNum" size="11" maxlength="5" >
+		</td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_interface)</script></b></font></td>
+		<td width="70%" colspan="2">
+			<select name="interface" id="interface">
+				<option value="All"><script>dw(ipfilter_interface_all)</script></option>
+				<option value="eth1"><script>dw(ipfilter_interface_wan)</script></option>
+				<option value="br0"><script>dw(ipfilter_interface_lan)</script></option>
+				<script>show_interface()</script>
+			</select>
+		</td>
+	</tr>
+
+	<tr height="25">
+		<td width="30%"><font size=2><b><script>dw(ipfilter_policy)</script></b></font></td>
+		<td width="70%" colspan="2">
+			<select name="policy" id="policy">
+				<option value="0"><script>dw(ipfilter_policy_pass)</script></option>
+				<option value="1"><script>dw(ipfilter_policy_discard)</script></option>
+			</select>
+		</td>
+	</tr>
+</table>
+<br>
+<table border=0 width="550" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td>
+			<input type="button" value="Save & Apply" name="save_apply" onClick="return addClick(this.form)">
+        	<script>document.formIpFilter.save_apply.value = ipfilter_policy_apply;</script>
+        	<input type="hidden" value="1" name="addFilterIpFlag">
+        </td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formFilter method=POST name="formIpFilterDel">
+<input type="hidden" name="submit-url" value="/ip_port_filter.htm" >
+<input type="hidden" name="deleteSelFilterIp" value="" >
+<input type="hidden" name="deleteAllFilterIp" value="" >
+<table border="0" width=700 >
+	<tr>
+		<font size=2><b><script>dw(ipfilter_current_table)</script></b></font>
+	</tr>
+	<tr class="tbl_head">
+		<td align=center width="10%"><font size="2"><b><script>dw(ipfilter_interface)</script></b></font></td>
+		<td align=center width="10%"><font size="2"><b><script>dw(ipfilter_protocol)</script></b></font></td>
+		<td align=center width="18%"><font size="2"><b><script>dw(ipfilter_srcip)</script></b></font></td>
+		<td align=center width="18%"><font size="2"><b><script>dw(ipfilter_dstip)</script></b></font></td>
+		<td align=center width="14%"><font size="2"><b><script>dw(ipfilter_sport)</script></b></font></td>
+		<td align=center width="18%"><font size="2"><b><script>dw(ipfilter_dport)</script></b></font></td>
+		<td align=center width="7%"><font size="2"><b><script>dw(ipfilter_policy)</script></b></font></td>
+		<td align=center width="5%"><font size="2"><b><script>dw(ipfilter_select)</script></b></font></td>
+	</tr>
+	<% ipFilterList(); %>
+</table>
+<br>
+
+<table border="0" width=700 >
+	<tr>
+		<td>
+			<input type="submit" value="Delete Selected" name="deleteSelFilterBt" onClick="return deleteClick()">
+  			<script>document.formIpFilterDel.deleteSelFilterBt.value = ipfilter_delete;</script>&nbsp;&nbsp;
+  			<input type="submit" value="Delete All" name="deleteAllFilterBt" onClick="return deleteAllClick()">
+  			<script>document.formIpFilterDel.deleteAllFilterBt.value = ipfilter_delete_all;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

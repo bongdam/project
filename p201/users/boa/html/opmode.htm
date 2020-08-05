@@ -1,0 +1,127 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>模式设置</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+var wlan_num =<% getIndex("show_wlan_num"); %> ;
+var wispWanId = <% getIndex("wispWanId"); %> ;
+var isPocketRouter="<% getInfo("isPocketRouter"); %>"*1;
+function opModeClick()
+{
+	if(wlan_num > 1){
+		if(document.fmOpMode.opMode[2].checked)
+			enableTextField(document.fmOpMode.wispWanId);
+		else
+			disableTextField(document.fmOpMode.wispWanId);
+	}
+}
+</script>
+</head>
+<body>
+<blockquote>
+<h2><script>dw(opmode_header)</script></h2>
+
+
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+  <script>dw(opmode_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formOpMode method=POST name="fmOpMode">
+<table border="0" width=500>
+	<tr>
+		<td width ="23%" valign="top">
+		<input type="radio" value="0" name="opMode" onClick="opModeClick()" ></input>
+		<font size=2> <b> <script>dw(opmode_radio_gw)</script> </b> </font>
+		</td>
+		<td width ="77%">
+			<font size=2><script>dw(opmode_radio_gw_explain)</script></font>
+		</td>
+	</tr>
+	<td colspan="2" height="10"></tr>
+	<tr>
+		<td width ="23%" valign="top">
+		<input type="radio" value="1" name="opMode" onClick="opModeClick()" ></input>
+		<font size=2> <b> <script>dw(opmode_radio_br)</script> </b> </font>
+		</td>
+		<td width ="77%">
+			<font size=2> <script>dw(opmode_radio_br_explain)</script> </font>
+		</td>
+	</tr>
+	<td colspan="2" height="10"></tr>
+
+	<tr>
+		<td width ="23%" valign="top">
+		<input type="radio" value="2" name="opMode" onClick="opModeClick()" ></input>
+		<font size=2> <b> <script>dw(opmode_radio_wisp)</script> </b> </font>
+		</td>
+		<td width ="77%">
+			<font size=2><script>dw(opmode_radio_wisp_explain)</script></font>
+		</td>
+	</tr>
+
+	<tr>
+		<td width ="23%" valign="top"> </td>
+		<td width ="77%">
+			<script>
+			if(wlan_num > 1){
+				document.write('<font size=2><b>'+opmode_radio_wisp_wanif+' </b>');
+				document.write('<select size="1" name="wispWanId">');
+				for(i=0 ; i < wlan_num ; i++)
+					document.write('<option value="'+i+'">wlan'+(i+1)+'</option>');
+				document.write('</select>');
+			}
+			</script>
+		</td>
+	</tr>
+	
+</table>
+<script>
+	opmode = <% getIndex("opMode"); %> ;
+	document.fmOpMode.opMode[opmode].defaultChecked= true;
+	document.fmOpMode.opMode[opmode].checked= true;
+	
+	if(isPocketRouter == 1)
+	{
+		document.fmOpMode.opMode[0].disabled =true;
+		document.fmOpMode.opMode[1].disabled =true;
+		document.fmOpMode.opMode[2].disabled =true;
+	}
+		
+	var isWispDisplay =  <% getIndex("isWispDisplay"); %> ;
+	if(isWispDisplay == 0)
+		document.fmOpMode.opMode[2].disabled =true;
+		
+	if(wlan_num > 1){
+		document.fmOpMode.wispWanId.defaultSelected= wispWanId;
+		document.fmOpMode.wispWanId.selectedIndex= wispWanId;
+	}
+	opModeClick();
+</script>
+			<input type="hidden" value="/opmode.htm" name="submit-url">
+<% getInfo("apply_prompt_comment_start");%>			
+  <p><input type="submit" value="Apply Changes" name="apply"> <script>document.fmOpMode.apply.value = opmode_apply;</script>
+&nbsp;&nbsp;
+  <input type="reset" value="Reset" name="set" > <script>document.fmOpMode.set.value = opmode_reset;</script>
+  &nbsp;&nbsp;
+<% getInfo("apply_prompt_comment_end");%>
+<% getInfo("apply_direct_comment_start");%>
+  <p><input type="submit" value="Save" name="apply"> <script>document.fmOpMode.apply.value = opmode_save;</script>
+	&nbsp;&nbsp;
+	<input type="submit" value="Save & Apply" name="save_apply"> <script>document.fmOpMode.save_apply.value = opmode_save_apply;</script>
+	&nbsp;&nbsp;	
+  <input type="reset" value="Reset" name="set" ><script>document.fmOpMode.set.value = opmode_reset;</script>
+  &nbsp;&nbsp;
+<% getInfo("apply_direct_comment_end");%>
+</form>
+</blockquote>
+</font>
+</body>
+
+</html>

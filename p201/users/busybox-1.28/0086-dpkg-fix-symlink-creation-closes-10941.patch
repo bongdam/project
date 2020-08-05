@@ -1,0 +1,32 @@
+From dd56921e2d404c8fc9484290a36411a13d14df1a Mon Sep 17 00:00:00 2001
+From: Denys Vlasenko <vda.linux@googlemail.com>
+Date: Fri, 13 Apr 2018 13:26:33 +0200
+Subject: [PATCH 086/131] dpkg: fix symlink creation, closes 10941
+
+function                                             old     new   delta
+get_header_ar                                        434     442      +8
+
+Signed-off-by: Denys Vlasenko <vda.linux@googlemail.com>
+---
+ archival/libarchive/get_header_ar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/archival/libarchive/get_header_ar.c b/archival/libarchive/get_header_ar.c
+index 93e071c9f..a97970630 100644
+--- a/archival/libarchive/get_header_ar.c
++++ b/archival/libarchive/get_header_ar.c
+@@ -127,8 +127,10 @@ char FAST_FUNC get_header_ar(archive_handle_t *archive_handle)
+ 		archive_handle->action_header(typed);
+ #if ENABLE_DPKG || ENABLE_DPKG_DEB
+ 		if (archive_handle->dpkg__sub_archive) {
+-			while (archive_handle->dpkg__action_data_subarchive(archive_handle->dpkg__sub_archive) == EXIT_SUCCESS)
++			struct archive_handle_t *sa = archive_handle->dpkg__sub_archive;
++			while (archive_handle->dpkg__action_data_subarchive(sa) == EXIT_SUCCESS)
+ 				continue;
++			create_symlinks_from_list(sa->symlink_placeholders);
+ 		} else
+ #endif
+ 			archive_handle->action_data(archive_handle);
+-- 
+2.16.2
+

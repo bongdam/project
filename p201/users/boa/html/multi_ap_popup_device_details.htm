@@ -1,0 +1,149 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>EasyMesh Device Details Table</title>
+<% getInfo("include_css"); %>
+
+<SCRIPT>
+
+var count;
+var nbTableHtmlString = "";
+var staTableHtmlString = "";
+
+function loadInfo() {
+    // var urlParams = new URLSearchParams(window.location.search);
+    // count = urlParams.get('count');
+    var results = new RegExp('[\?&]' + 'count' + '=([^&#]*)').exec(window.location.href);
+    count = decodeURI(results[1]) || 0;
+
+	var string_json = '<% getInfo("topology_json_string"); %>';
+	var object_json = JSON.parse(string_json);
+
+    var curr_device = get_device_json(object_json);
+
+    nbTableHtmlString += '<tr class="tbl_head"><td width="80"><font size=2><b>MAC Address</b></td><td width="100"><font size=2><b>Name</b></td><td width="60"><font size=2><b>RSSI</b></td><td width="55"><font size=2><b>Connected Band</b></td></tr>';
+    staTableHtmlString += '<tr class="tbl_head"><td width="80"><font size=2><b>MAC Address</b></td><td width="30"><font size=2><b>RSSI</b></td><td width="55"><font size=2><b>Connected Band</b></td><td width="60"><font size=2><b>Downlink</b></td><td width="60"><font size=2><b>Uplink</b></td></tr>';
+
+    if (0 != curr_device["neighbor_devices"].length) {
+        for (nb in curr_device["neighbor_devices"]) {
+            nbTableHtmlString += '<tr class="tbl_body"><td><font size=2>';
+            nbTableHtmlString += curr_device["neighbor_devices"][nb].neighbor_mac;
+            nbTableHtmlString += '</td><td><font size=2>';
+            nbTableHtmlString += curr_device["neighbor_devices"][nb].neighbor_name;
+            nbTableHtmlString += '</td><td><font size=2>';
+            nbTableHtmlString += curr_device["neighbor_devices"][nb].neighbor_rssi;
+            nbTableHtmlString += '</td><td><font size=2>';
+            nbTableHtmlString += curr_device["neighbor_devices"][nb].neighbor_band;
+            nbTableHtmlString += '</td></tr>';
+
+        }
+    }
+
+    if (0 != curr_device["station_info"].length) {
+        for (nb in curr_device["station_info"]) {
+            staTableHtmlString += '<tr class="tbl_body"><td><font size=2>';
+            staTableHtmlString += curr_device["station_info"][nb].station_mac;
+            staTableHtmlString += '</td><td><font size=2>';
+            staTableHtmlString += curr_device["station_info"][nb].station_rssi;
+            staTableHtmlString += '</td><td><font size=2>';
+            staTableHtmlString += curr_device["station_info"][nb].station_connected_band;
+            staTableHtmlString += '</td><td><font size=2>';
+            staTableHtmlString += curr_device["station_info"][nb].station_downlink;
+            staTableHtmlString += '</td><td><font size=2>';
+            staTableHtmlString += curr_device["station_info"][nb].station_uplink;
+            staTableHtmlString += '</td></tr>';
+
+        }
+    }
+
+    document.getElementById("nbTableContainer").innerHTML = nbTableHtmlString;
+	document.getElementById("staTableContainer").innerHTML = staTableHtmlString;
+
+    setInterval(function(){ location.reload(true); }, 10000);
+}
+
+var device_counter = 0;
+
+function get_device_json(object_json) {
+    device_counter++;
+    if (device_counter == count) {
+        return object_json;
+    }
+	// htmlString += '<li>';
+	// htmlString += object_json.device_name + ' | ' + object_json.mac_address + ' | <input type="button" value="Show Details" onClick="showDetailOnClick(' + device_counter.toString() + ')">';
+	if (0 != object_json["child_devices"].length) {
+		for (child_device in object_json["child_devices"]) {
+            var return_object = get_device_json(object_json["child_devices"][child_device]);
+            if (0 == return_object) {
+                continue;
+            } else {
+                return return_object;
+            }
+		}
+    }
+
+    return 0;
+}
+
+</SCRIPT>
+
+</head>
+
+<body onload="loadInfo();">
+<blockquote>
+<h2>
+    EasyMesh Device Details Table
+</h2>
+
+
+<table border=0 width="800" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+ This table shows the details of individual EasyMesh device in the network, child neighbor list and associated station list
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+  <tr>
+		<td width="100%" colspan=2><font size=2><b>Neighbor RSSI (excluding parent AP):</b></td>
+  </tr>
+</table>
+<form action=/boafrm/formWirelessTbl method=POST name="formWirelessTbl">
+<table border='1' id='nbTableContainer' width="300">
+
+
+<!-- <tr class="tbl_body"><td><font size=2>f0:25:b7:ce:57:36</td><td><font size=2>Agent1</td><td><font size=2>120</td></tr>
+<tr class="tbl_body"><td><font size=2>f0:25:b7:ce:57:36</td><td><font size=2>EasyMesh_Agent</td><td><font size=2>120</td></tr> -->
+<!-- <td width="60"><font size=2><b>Rx Packet</b></td>
+<td width="60"><font size=2><b>Tx Rate (Mbps)</b></td>
+<td width="60"><font size=2><b>Power Saving</b></td>
+<td width="60"><font size=2><b>Expired Time (s)</b></td></tr> -->
+</table>
+
+<table border=0 width="800" cellspacing=0 cellpadding=0>
+<tr><hr size=1 noshade align=top></tr>
+<tr>
+    <td width="100%" colspan=2><font size=2><b>Station Info:</b></td>
+</tr>
+</table>
+
+<table border='1' id='staTableContainer' width="450">
+<!--
+<td width="250"><font size=2><b>SSID</b></td>
+-->
+<!-- <td width="60"><font size=2><b>Mode</b></td> -->
+
+<!-- <tr class="tbl_body"><td><font size=2>f0:25:b7:ce:57:36</td><td><font size=2>120</td><td><font size=2>5G</td><td><font size=2>100</td><td><font size=2>50</td></tr>
+<tr class="tbl_body"><td><font size=2>f0:25:b7:ce:57:36</td><td><font size=2>120</td><td><font size=2>5G</td><td><font size=2>100</td><td><font size=2>50</td></tr>
+<tr class="tbl_body"><td><font size=2>f0:25:b7:ce:57:36</td><td><font size=2>120</td><td><font size=2>5G</td><td><font size=2>100</td><td><font size=2>50</td></tr> -->
+<!-- <td width="60"><font size=2><b>Expired Time (s)</b></td></tr> -->
+
+</table>
+
+<input type="hidden" value="/wlstatbl.htm" name="submit-url">
+  <p><input type="button" value="Refresh" onclick="location.reload(true);">&nbsp;&nbsp;
+  <input type="button" value=" Close " name="close" onClick="javascript: window.close();"></p>
+</form>
+</blockquote>
+</body>
+
+</html>

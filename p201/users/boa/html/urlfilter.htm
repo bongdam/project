@@ -1,0 +1,219 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+var urlfilterNum = <% getIndex("urlFilterNum"); %>;
+
+function addClick()
+{
+	if (document.formFilterAdd.enabled.selectedIndex == 1) {
+		document.formFilterAdd.urlFilterMode.value = 0; /* default Block */
+		if (document.formFilterAdd.url.value == "") {
+			document.formFilterAdd.save_apply.disabled = true;
+			disableDelButton();
+			document.formFilterAdd.submit();
+			return true;
+		}
+
+		if (urlfilterNum >= 20) {
+			alert(portfw_table_full);
+			return false;
+		}
+
+		var str = document.formFilterAdd.url.value;
+
+		for (var i = 0; i < str.length; i++) {
+			if ( str.charAt(i) == ';') {
+				alert(urlfilter_apply_error);
+				return false;
+			}
+		}
+	}
+
+	document.formFilterAdd.save_apply.disabled = true;
+	disableDelButton();
+	document.formFilterAdd.submit();
+	return true;
+}
+
+function deleteClick()
+{
+	if ( !confirm(urlfilter_delete_confirm) )
+		return false;
+	else {
+		document.formFilterAdd.save_apply.disabled = true;
+		disableDelButton();
+		document.formFilterDel.deleteSelFilterUrl.value = "delete";
+		document.formFilterDel.deleteAllFilterUrl.value = "";
+		document.formFilterDel.submit();
+		return true;
+	}
+}
+
+function deleteAllClick()
+{
+	if ( !confirm(urlfilter_delete_all_confirm) )
+		return false;
+	else {
+		document.formFilterAdd.save_apply.disabled = true;
+		disableDelButton();
+		document.formFilterDel.deleteSelFilterUrl.value = "";
+		document.formFilterDel.deleteAllFilterUrl.value = "alldelete";
+		document.formFilterDel.submit();
+		return true;
+	}
+}
+
+function disableDelButton()
+{
+	disableButton(document.formFilterDel.deleteSelFilterUrlBt);
+	disableButton(document.formFilterDel.deleteAllFilterUrlBt);
+}
+
+function urlFilterModeBlack()
+{
+	document.formFilterAdd.urlFilterMode.value = 0;
+	document.formFilterAdd.urlFilterWhite.checked = false;
+	document.formFilterAdd.urlFilterBlack.checked = true;
+}
+
+function urlFilterModeWhite()
+{
+	document.formFilterAdd.urlFilterMode.value = 1;
+	document.formFilterAdd.urlFilterWhite.checked = true;
+	document.formFilterAdd.urlFilterBlack.checked = false;
+}
+
+function urlFilterUserModeAll()
+{
+	document.formFilterAdd.urlFilterUserMode.value = 0;
+	document.formFilterAdd.userModeAll.checked = true;
+	document.formFilterAdd.userModeIp.checked = false;
+	document.formFilterAdd.userModeMac.checked = false;
+	disableTextField(document.formFilterAdd.ip);
+	disableTextField(document.formFilterAdd.mac);
+}
+
+function urlFilterUserModeIP()
+{
+	document.formFilterAdd.urlFilterUserMode.value = 1;
+	document.formFilterAdd.userModeAll.checked = false;
+	document.formFilterAdd.userModeIp.checked = true;
+	document.formFilterAdd.userModeMac.checked = false;
+	enableTextField(document.formFilterAdd.ip);
+	disableTextField(document.formFilterAdd.mac);
+}
+
+function urlFilterUserModeMac()
+{
+	document.formFilterAdd.urlFilterUserMode.value = 2;
+	document.formFilterAdd.userModeAll.checked = false;
+	document.formFilterAdd.userModeIp.checked = false;
+	document.formFilterAdd.userModeMac.checked = true;
+	disableTextField(document.formFilterAdd.ip);
+	enableTextField(document.formFilterAdd.mac);
+}
+
+function updateState()
+{
+	if (document.formFilterAdd.enabled.selectedIndex == 1)
+		enableTextField(document.formFilterAdd.url);
+	else
+		disableTextField(document.formFilterAdd.url);
+}
+
+function Load_Setting()
+{
+	if ( <% getIndex("urlFilterEnabled"); %> )
+		document.formFilterAdd.enabled.selectedIndex = 1;
+
+	updateState();
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(urlfilter_header)</script></h2>
+<table border=0 width="600" cellspacing=4 cellpadding=0 >
+	<tr>
+		<td><font size=2><script>dw(urlfilter_header_explain)</script></font></td>
+	</tr>
+	<tr>
+		<td><hr size=1 noshade align=top></td>
+	</tr>
+</table>
+
+<form action=/boafrm/formFilter method=POST name="formFilterAdd">
+<input type="hidden" name="urlFilterMode">
+<input type="hidden" value="/urlfilter.htm" name="submit-url">
+<table border=0 width="600" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(urlfilter_onoff)</script></b></font></td>
+		<td width="60%">
+			<select name="enabled" id="enabled" onclick="updateState();">
+				<option value='OFF'><script>dw(urlfilter_disable)</script></option>
+				<option value='ON'><script>dw(urlfilter_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+</table>
+<br>
+
+<table border=0 width="600" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(urlfilter_filterlist_yrladdr)</script></b></td>
+		<td width="60%"><input type="text" name="url" size="30" maxlength="30"></td>
+	</tr>
+</table>
+<br>
+
+<table border=0 width="600" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td>
+			<input type="button" value="Save & Apply" name="save_apply" onClick="return addClick()">
+			<script>document.formFilterAdd.save_apply.value = urlfilter_apply;</script>
+			<input type="hidden" value="1" name="addFilterUrlFlag">
+		</td>
+	</tr>
+</table>
+</form>
+<br>
+
+<form action=/boafrm/formFilter method=POST name="formFilterDel">
+<input type="hidden" value="/urlfilter.htm" name="submit-url">
+<input type="hidden" name="deleteSelFilterUrl" value="" >
+<input type="hidden" name="deleteAllFilterUrl" value="" >
+<table border="0" width=600>
+	<tr><font size=2><b><script>dw(urlfilter_current_table)</script></b></font></tr>
+	<% urlFilterList(); %>
+</table>
+<br>
+
+<table border="0" width=600>
+	<tr>
+		<td>
+			<input type="button" value="Delete Selected" name="deleteSelFilterUrlBt" onClick="return deleteClick()">
+			<script>document.formFilterDel.deleteSelFilterUrlBt.value = urlfilter_delete;</script>&nbsp;&nbsp;
+			<input type="button" value="Delete All" name="deleteAllFilterUrlBt" onClick="return deleteAllClick()">
+			<script>document.formFilterDel.deleteAllFilterUrlBt.value = urlfilter_delete_all;</script>
+		</td>
+	</tr>
+</table>
+<script>
+	if ( <% getIndex("urlFilterNum"); %> == 0 )
+		disableDelButton();
+if ( <% getIndex("urlfilterErr"); %> )
+	alert(ipfilter_rule_exist);
+ </script>
+</form>
+
+</blockquote>
+</body>
+</html>

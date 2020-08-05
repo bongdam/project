@@ -1,0 +1,41 @@
+#!/bin/sh
+#
+# Transform "name=plain-text" into "name=crypted-text" and edit file in place
+# Usage: crypt.nvram <aes|sha256|sha512> <name> <file>
+#
+
+IV=$(echo -n 'ri3os0xsy9t8hg@!' | xxd -p -u)
+KEY=$(echo -n '7h*s@ejow91H$h2Y' | xxd -p -u)
+
+aes_128_cbc() {
+	local tmp plain=$1
+
+	tmp=$({ echo -n "$plain" | openssl enc -aes-128-cbc -K $KEY -iv $IV; } | xxd -p -u | tr -d '\n')
+	eval $2=$tmp
+}
+
+sha() {
+	local tmp plain=$1
+
+	tmp=$({ echo -n "$plain" | openssl dgst -sha256 -binary; } | xxd -p -u | tr -d '\n')
+	eval $2=$tmp
+}
+
+[ $# -ge 3 ] || exit 1
+[ -e "$3" ] || exit 1
+
+case $1 in
+	aes*)
+		eval $(grep -E "^${2}=.*" "$3")
+		eval aes_128_cbc \$$2 VALUE
+		 ;;
+	sha*)
+		eval $(grep -E "^${2}=.*" "$3")
+		eval sha \$$2 VALUE $1
+		;;
+	*)
+		exit 1
+		;;
+esac
+
+sed -i"" "s/^${2}=.*/${2}=${VALUE}/g" "$3"

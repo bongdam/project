@@ -1,0 +1,335 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+var portfw_extend = <% getIndex("portfw_extend"); %>;
+var portfwNum = <% getIndex("portFwNum"); %>;
+
+function addClick()
+{
+	var ipaddr = "<% getInfo("ip-rom"); %>";
+
+	if (document.formPortFwAdd.enabled.selectedIndex == 1) {
+		if (document.formPortFwAdd.ID_LOCAL_IP_4.value == "" && document.formPortFwAdd.fromPort.value == "" &&
+			document.formPortFwAdd.toPort.value == "" && document.formPortFwAdd.comment.value == "" ) {
+			document.formPortFwAdd.save_apply.disabled = true;
+			disableDelButton();
+			document.formPortFwAdd.submit();
+			return true;
+		}
+
+		document.formPortFwAdd.ip.value = document.formPortFwAdd.ID_LOCAL_IP_1.value + "." + document.formPortFwAdd.ID_LOCAL_IP_2.value + "." + document.formPortFwAdd.ID_LOCAL_IP_3.value + "." + document.formPortFwAdd.ID_LOCAL_IP_4.value;
+
+		if (ipaddr == document.formPortFwAdd.ip.value) {
+			alert(dmz_ip_error2);
+			return false;
+		}
+
+		if (checkHostIPValid(document.formPortFwAdd.ip, document.formPortFwAdd.lan_mask, portfw_ipaddr_invalid) == false)
+			return false;
+
+		if (checkIpAddr(document.formPortFwAdd.ip, portfw_ipaddr_invalid) == false)
+			return false;
+
+		if (portfwNum >= 20) {
+			alert(portfw_table_full);
+			return false;
+		}
+
+		if (document.formPortFwAdd.fromPort.value == "") {
+			alert(portfw_apply_port_empty);
+			document.formPortFwAdd.fromPort.focus();
+			return false;
+		}
+
+		if ( validateKey( document.formPortFwAdd.fromPort.value ) == 0 ) {
+			alert(portfw_port_invalid1);
+			document.formPortFwAdd.fromPort.focus();
+			return false;
+		}
+
+		d1 = getDigit(document.formPortFwAdd.fromPort.value, 1);
+		if (d1 > 65535 || d1 < 1) {
+			alert(portfw_port_invalid2);
+			document.formPortFwAdd.fromPort.focus();
+			return false;
+		}
+
+		if (document.formPortFwAdd.toPort.value != "") {
+			if (validateKey( document.formPortFwAdd.toPort.value ) == 0 ) {
+				alert(portfw_port_invalid1);
+				document.formPortFwAdd.toPort.focus();
+				return false;
+			}
+
+			d2 = getDigit(document.formPortFwAdd.toPort.value, 1);
+			if (d2 > 65535 || d2 < 1) {
+				alert(portfw_port_invalid2);
+				document.formPortFwAdd.toPort.focus();
+				return false;
+			}
+
+			if (d1 > d2 ) {
+				alert(portfw_port_invalid3);
+				document.formPortFwAdd.fromPort.focus();
+				return false;
+			}
+		}
+
+		if (portfw_extend) {
+			if (document.formPortFwAdd.externelFromPort.value == "") {
+				alert(portfw_externel_port_empty);
+				document.formPortFwAdd.externelFromPort.focus();
+				return false;
+			}
+
+			if ((validateKey( document.formPortFwAdd.externelFromPort.value ) == 0) ) {
+				alert(portfw_port_invalid1);
+				document.formPortFwAdd.externelFromPort.focus();
+				return false;
+			}
+
+			d1 = getDigit(document.formPortFwAdd.externelFromPort.value, 1);
+			if (d1 > 65535 || d1 < 1) {
+				alert(portfw_port_invalid2);
+				document.formPortFwAdd.externelFromPort.focus();
+				return false;
+			}
+
+			if (document.formPortFwAdd.externelToPort.value != "") {
+				if ( validateKey( document.formPortFwAdd.externelToPort.value ) == 0 ) {
+					alert(portfw_externel_port_invalid1);
+					document.formPortFwAdd.externelToPort.focus();
+					return false;
+				}
+
+				d2 = getDigit(document.formPortFwAdd.externelToPort.value, 1);
+				if (d2 > 65535 || d2 < 1) {
+					alert(portfw_externel_port_invalid2);
+					document.formPortFwAdd.externelToPort.focus();
+					return false;
+				}
+
+				if (d1 > d2 ) {
+					alert(portfw_externel_port_invalid3);
+					document.formPortFwAdd.externelToPort.focus();
+					return false;
+				}
+			}
+		}
+	}
+	document.formPortFwAdd.save_apply.disabled = true;
+	disableDelButton();
+	document.formPortFwAdd.submit();
+	return true;
+}
+
+function deleteClick()
+{
+	if ( !confirm(portfw_delete_confirm) )
+		return false;
+	else {
+		document.formPortFwAdd.save_apply.disabled = true;
+		disableDelButton();
+		document.formPortFwDel.deleteSelPortFw.value = "delete";
+		document.formPortFwDel.deleteAllPortFw.value = "";
+		document.formPortFwDel.submit();
+		return true;
+	}
+}
+
+function deleteAllClick()
+{
+	if ( !confirm(portfw_delete_all_confirm) )
+		return false;
+	else {
+		document.formPortFwAdd.save_apply.disabled = true;
+		disableDelButton();
+		document.formPortFwDel.deleteSelPortFw.value = "";
+		document.formPortFwDel.deleteAllPortFw.value = "alldelete";
+		document.formPortFwDel.submit();
+		return true;
+	}
+}
+
+function disableDelButton()
+{
+	disableButton(document.formPortFwDel.deleteSelPortFwBt);
+	disableButton(document.formPortFwDel.deleteAllPortFwBt);
+}
+
+function updateState()
+{
+	if (document.formPortFwAdd.enabled.selectedIndex == 1) {
+		enableTextField(document.formPortFwAdd.ID_LOCAL_IP_4);
+		document.formPortFwAdd.protocol.disabled = false;
+		enableTextField(document.formPortFwAdd.fromPort);
+		enableTextField(document.formPortFwAdd.toPort);
+
+		if (portfw_extend) {
+			enableTextField(document.formPortFwAdd.externelFromPort);
+			enableTextField(document.formPortFwAdd.externelToPort);
+		}
+
+		enableTextField(document.formPortFwAdd.comment);
+	} else {
+		disableTextField(document.formPortFwAdd.ID_LOCAL_IP_4);
+		document.formPortFwAdd.protocol.disabled = true;
+		disableTextField(document.formPortFwAdd.fromPort);
+		disableTextField(document.formPortFwAdd.toPort);
+
+		if (portfw_extend) {
+			disableTextField(document.formPortFwAdd.externelFromPort);
+			disableTextField(document.formPortFwAdd.externelToPort);
+		}
+		disableTextField(document.formPortFwAdd.comment);
+	}
+}
+
+function Load_Setting()
+{
+	var ipaddr = "<% getInfo("ip-rom"); %>".split(".");
+
+	document.formPortFwAdd.ID_LOCAL_IP_1.value = ipaddr[0];
+	document.formPortFwAdd.ID_LOCAL_IP_2.value = ipaddr[1];
+	document.formPortFwAdd.ID_LOCAL_IP_3.value = ipaddr[2];
+	document.formPortFwAdd.ID_LOCAL_IP_4.value = "";
+
+	if ( <% getIndex("portFwEnabled"); %> )
+		document.formPortFwAdd.enabled.selectedIndex = 1;
+
+	updateState();
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(portfw_header)</script></h2>
+<table border=0 width="600" cellspacing=4 cellpadding=0>
+	<tr>
+		<td>
+			<font size=2><script>dw(portfw_header_explain)</script></font>
+		</td>
+	</tr>
+	<tr>
+		<td><hr size=1 noshade align=top></td>
+	</tr>
+</table>
+
+<form action=/boafrm/formPortFw method=POST name="formPortFwAdd">
+<input type=hidden name="lan_mask" value="<% getInfo("mask-rom"); %>">
+<input type=hidden name="ip" value="">
+<table border=0 width="600" cellspacing=0 cellpadding=0>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(portfw_onfoff)</script></b></td>
+		<td width="60%">
+			<select name="enabled" id="enabled" onclick="updateState();">
+				<option value='OFF'><script>dw(portfw_disable)</script></option>
+				<option value='ON'><script>dw(portfw_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+</table>
+<br>
+
+<table border=0 width="600" cellspacing=0 cellpadding=0>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_local_ipaddr)</script></b></td>
+		<td width="60%">
+			<input type="text" disabled style="width:30px" maxlength="3" name="ID_LOCAL_IP_1" /> .
+			<input type="text" disabled style="width:30px" maxlength="3" name="ID_LOCAL_IP_2" /> .
+			<input type="text" disabled style="width:30px" maxlength="3" name="ID_LOCAL_IP_3" /> .
+			<input type="text" style="width:30px" maxlength="3" name="ID_LOCAL_IP_4" />
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_local_start)</script></b></td>
+		<td width="60%">
+			<input type="text" name="fromPort" size="25" maxlength="5" >
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_local_end)</script></b></td>
+		<td width="60%">
+			<input type="text" name="toPort" size="25" maxlength="5" >
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_proto)</script></b></td>
+		<td width="60%">
+			<select name="protocol" id="protocol">
+				<option value='0'><script>dw(portfw_both)</script></option>
+				<option value='1'><script>dw(portfw_tcp)</script></option>
+				<option value='2'><script>dw(portfw_udp)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_remote_start)</script></b></td>
+		<td width="60%">
+			<input type="text" name="externelFromPort" size="25" maxlength="5" >
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_remote_end)</script></b></td>
+		<td width="60%">
+			<input type="text" name="externelToPort" size="25" maxlength="5" >
+		</td>
+	</tr>
+	<tr height="20">
+		<td width="40%"><font size=2><b><script>dw(portfw_comm)</script></b></td>
+		<td width="60%">
+			<input type="text" name="comment" size="25" maxlength="10" >
+		</td>
+	</tr>
+</table>
+<br>
+
+<table border=0 width="600" cellspacing=0 cellpadding=0>
+	<tr>
+		<td>
+			<input type="button" value="save" name="save_apply" onClick="return addClick()">
+			<script>document.formPortFwAdd.save_apply.value = portfw_apply;</script>
+    		<input type="hidden" value="1" name="addPortFwFlag">
+		</td>
+	</tr>
+</table>
+</form>
+<br>
+
+<form action=/boafrm/formPortFw method=POST name="formPortFwDel">
+<input type="hidden" name="deleteSelPortFw" value="">
+<input type="hidden" name="deleteAllPortFw" value="">
+<table border=0 width=600>
+	<tr><font size=2><b><script>dw(portfw_tbl)</script></b></font></tr>
+  	<% portFwList(); %>
+</table>
+
+<table border=0 width=600>
+	<tr>
+		<td>
+			<input type="button" value="Delete Selected" name="deleteSelPortFwBt" onClick="return deleteClick()">&nbsp;&nbsp;
+     		<script>document.formPortFwDel.deleteSelPortFwBt.value = portfw_delete;</script>
+     		<input type="button" value="Delete All" name="deleteAllPortFwBt" onClick="return deleteAllClick()">
+     		<script>document.formPortFwDel.deleteAllPortFwBt.value = portfw_delete_all;</script>
+     	</td>
+     </tr>
+</table>
+<script>
+if ( <% getIndex("portFwNum"); %> == 0 )
+	disableDelButton();
+if ( <% getIndex("portfwerr"); %> )
+	alert(portfw_range_overlapped);
+</script>
+</form>
+</blockquote>
+</body>
+</html>
+

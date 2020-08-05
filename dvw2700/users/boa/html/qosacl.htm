@@ -1,0 +1,893 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>ACL 환경 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script type="text/javascript" src="util_qos.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function xnum_check(e) {
+	var keyCodes = e.keyCode ? e.keyCode : e.which;
+
+	if (keyCodes == 8 || keyCodes == 9 || keyCodes == 37 || keyCodes == 38 || keyCodes == 39 || keyCodes == 40) //BackSpace
+		return true;
+
+	if ((keyCodes < 48) || (keyCodes > 57))
+	{
+		if (((keyCodes < 97) || (keyCodes > 102)) && ((keyCodes < 65) || (keyCodes > 70)))
+		{
+			alert("0~9 또는 a~f를 입력해 주시기바랍니다");
+			e.returnValue = false;
+		}
+	}
+
+	e.returnValue = true;
+}
+
+function num_check(e){
+	var keyCodes = e.keyCode ? e.keyCode : e.which;
+
+	if (keyCodes == 8 || keyCodes == 9 || keyCodes == 37 || keyCodes == 38 || keyCodes == 39 || keyCodes == 40) //BackSpace
+		return true;
+
+	if ((keyCodes < 48) || (keyCodes > 57))
+	{
+		alert("숫자를 입력해야 합니다");
+		e.returnValue = false;
+	}
+
+	e.returnValue = true;
+}
+
+function checkIpV4(str)
+{
+	var pattern = /^(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4])\.(?:(?:[01]?\d\d?|2[0-4]\d|25[0-4])\.){2}(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4])$/;
+	return pattern.test(str);
+}
+
+
+function changeProto(sel)
+{
+	if (document.qos_acl.ipmode.checked == true) {
+		if (sel == 4) {
+			formEnable(document.qos_acl.etc_proto_value);
+		} else
+			formDisable(document.qos_acl.etc_proto_value);
+	} else {
+		if (sel == 3) {
+			formEnable(document.qos_acl.etc_proto_value);
+		} else
+			formDisable(document.qos_acl.etc_proto_value);
+	}
+}
+
+var chk_btn=0;
+function select_all()
+{
+	if (chk_btn==0){
+		for (var i = 0; i < document.qos_table.elements.length; i++)
+		{
+			var e = document.qos_table.elements[i];
+
+			if (e.type == 'checkbox')
+			{
+				e.checked = true;
+			}
+		}
+	}
+}
+
+function unselect_all()
+{
+	if (chk_btn==0){
+		for(var i = 0; i < document.qos_table.elements.length; i++)
+		{
+			var e = document.qos_table.elements[i];
+
+			if (e.type == 'checkbox')
+			{
+				e.checked = false;
+			}
+		}
+	}
+}
+
+function selectListClear()
+{
+	var s = document.qos_acl.protocol_val;
+
+	while (s.options.length > 0)
+		s.options.remove(0);
+}
+
+function changeRule()
+{
+	selectListClear();
+	if (document.qos_acl.ipmode.checked == true) {
+		formEnable(document.qos_acl.ruleType[0]);
+		formEnable(document.qos_acl.ruleType[1]);
+		formEnable(document.qos_acl.ruleType[2]);
+		formEnable(document.qos_acl.ruleType[3]);
+		formEnable(document.qos_acl.ruleType[4]);
+		formDisable(document.qos_acl.ruleType[5]);
+		document.qos_acl.protocol_val.options[0] = new Option('ICMP', '1');
+		document.qos_acl.protocol_val.options[1] = new Option('IGMP', '2');
+		document.qos_acl.protocol_val.options[2] = new Option('TCP', '6');
+		document.qos_acl.protocol_val.options[3] = new Option('UDP', '17');
+		document.qos_acl.protocol_val.options[4] = new Option('기타', '99');
+	} else {
+		formDisable(document.qos_acl.ruleType[0]);
+		formDisable(document.qos_acl.ruleType[1]);
+		formDisable(document.qos_acl.ruleType[2]);
+		formDisable(document.qos_acl.ruleType[3]);
+		formDisable(document.qos_acl.ruleType[4]);
+		formEnable(document.qos_acl.ruleType[5]);
+		document.qos_acl.protocol_val.options[0] = new Option('ICMPv6', '58');
+		document.qos_acl.protocol_val.options[1] = new Option('TCP', '6');
+		document.qos_acl.protocol_val.options[2] = new Option('UDP', '17');
+		document.qos_acl.protocol_val.options[3] = new Option('기타', '99');
+	}
+
+	if (document.qos_acl.ruleType[0].checked == true) { // Rule Type 1
+		formEnable(document.qos_acl.physical_use);
+		formEnable(document.qos_acl.vlan_use);
+		formDisable(document.qos_acl.l2priority);
+		formDisable(document.qos_acl.protocol_use);
+		formDisable(document.qos_acl.tos_use);
+		formDisable(document.qos_acl.dscp_use);
+		if (document.qos_acl.ipmode.checked == true) { //ipmode Ipv4
+			document.qos_acl.srcipv6_use.checked = false;
+			document.qos_acl.dstip_use.checked = false;
+			document.qos_acl.dstipv6_use.checked = false;
+			formEnable(document.qos_acl.srcip_use);
+			formDisable(document.qos_acl.srcipv6_use);
+			formDisable(document.qos_acl.dstip_use);
+			formDisable(document.qos_acl.dstipv6_use);
+		} else {
+			document.qos_acl.srcip_use.checked = false;
+			document.qos_acl.dstip_use.checked = false;
+			document.qos_acl.dstipv6_use.checked = false;
+			formDisable(document.qos_acl.srcip_use);
+			formDisable(document.qos_acl.dstip_use);
+			formEnable(document.qos_acl.srcipv6_use);
+			formDisable(document.qos_acl.dstipv6_use);
+		}
+		formEnable(document.qos_acl.srcport_use);
+		formDisable(document.qos_acl.dstip0);
+		formDisable(document.qos_acl.dstip1);
+		formDisable(document.qos_acl.dstip2);
+		formDisable(document.qos_acl.dstip3);
+		formDisable(document.qos_acl.dstip_mask);
+		formDisable(document.qos_acl.dstport_use);
+		formEnable(document.qos_acl.qos_action[0]);
+		formEnable(document.qos_acl.qos_action[1]);
+	} else if (document.qos_acl.ruleType[1].checked == true) { // Rule Type 2
+		formDisable(document.qos_acl.physical_use);
+		formEnable(document.qos_acl.vlan_use);
+		formDisable(document.qos_acl.l2priority);
+		formDisable(document.qos_acl.protocol_use);
+		formDisable(document.qos_acl.tos_use);
+		formDisable(document.qos_acl.dscp_use);
+		if(document.qos_acl.ipmode.checked == true) { //ipmode Ipv4
+			document.qos_acl.srcipv6_use.checked = false;
+			document.qos_acl.srcip_use.checked = false;
+			document.qos_acl.dstipv6_use.checked = false;
+			formDisable(document.qos_acl.srcip_use);
+			formDisable(document.qos_acl.srcipv6_use);
+			formEnable(document.qos_acl.dstip_use);
+			formDisable(document.qos_acl.dstipv6_use);
+		} else {
+			document.qos_acl.srcip_use.checked = false;
+			document.qos_acl.srcipv6_use.checked = false;
+			document.qos_acl.dstip_use.checked = false;
+			formDisable(document.qos_acl.srcip_use);
+			formDisable(document.qos_acl.srcipv6_use);
+			formDisable(document.qos_acl.dstip_use);
+			formEnable(document.qos_acl.dstipv6_use);
+		}
+		formDisable(document.qos_acl.srcip0);
+		formDisable(document.qos_acl.srcip1);
+		formDisable(document.qos_acl.srcip2);
+		formDisable(document.qos_acl.srcip3);
+		formDisable(document.qos_acl.srcip_mask);
+		formDisable(document.qos_acl.srcport_use);
+		formEnable(document.qos_acl.dstport_use);
+		formEnable(document.qos_acl.qos_action[0]);
+		formEnable(document.qos_acl.qos_action[1]);
+	} else if (document.qos_acl.ruleType[2].checked == true) { // Rule Type 3
+		formDisable(document.qos_acl.physical_use);
+		formDisable(document.qos_acl.vlan_use);
+		formDisable(document.qos_acl.l2priority);
+		formEnable(document.qos_acl.protocol_use);
+		formEnable(document.qos_acl.tos_use);
+		formEnable(document.qos_acl.dscp_use);
+		if (document.qos_acl.ipmode.checked == true) { //ipmode Ipv4
+			document.qos_acl.srcipv6_use.checked = false;
+			document.qos_acl.dstipv6_use.checked = false;
+			formEnable(document.qos_acl.srcip_use);
+			formEnable(document.qos_acl.dstip_use);
+			formDisable(document.qos_acl.srcipv6_use);
+			formDisable(document.qos_acl.dstipv6_use);
+		} else {
+			document.qos_acl.srcip_use.checked = false;
+			document.qos_acl.dstip_use.checked = false;
+			formDisable(document.qos_acl.srcip_use);
+			formDisable(document.qos_acl.dstip_use);
+			formEnable(document.qos_acl.srcipv6_use);
+			formEnable(document.qos_acl.dstipv6_use);
+		}
+		formDisable(document.qos_acl.srcport_use);
+		formDisable(document.qos_acl.dstport_use);
+		formEnable(document.qos_acl.qos_action[0]);
+		formEnable(document.qos_acl.qos_action[1]);
+	} else if (document.qos_acl.ruleType[3].checked == true) { // Rule Type 4
+		formDisable(document.qos_acl.physical_use);
+		formDisable(document.qos_acl.vlan_use);
+		formDisable(document.qos_acl.l2priority);
+		formEnable(document.qos_acl.protocol_use);
+		formEnable(document.qos_acl.tos_use);
+		formEnable(document.qos_acl.dscp_use);
+		if (document.qos_acl.ipmode.checked == true) { //ipmode Ipv4
+			document.qos_acl.srcipv6_use.checked = false;
+			document.qos_acl.dstipv6_use.checked = false;
+			formEnable(document.qos_acl.srcip_use);
+			formEnable(document.qos_acl.dstip_use);
+			formDisable(document.qos_acl.srcipv6_use);
+			formDisable(document.qos_acl.dstipv6_use);
+		} else {
+			document.qos_acl.srcip_use.checked = false;
+			document.qos_acl.dstip_use.checked = false;
+			formDisable(document.qos_acl.srcip_use);
+			formDisable(document.qos_acl.dstip_use);
+			formEnable(document.qos_acl.srcipv6_use);
+			formEnable(document.qos_acl.dstipv6_use);
+		}
+		formEnable(document.qos_acl.srcport_use);
+		formEnable(document.qos_acl.dstport_use);
+		formEnable(document.qos_acl.qos_action[0]);
+		formEnable(document.qos_acl.qos_action[1]);
+	} else if (document.qos_acl.ruleType[4].checked == true) {
+		document.qos_acl.srcip_use.checked = false;
+		document.qos_acl.dstip_use.checked = false;
+		document.qos_acl.srcipv6_use.checked = false;
+		document.qos_acl.dstipv6_use.checked = false;
+		formDisable(document.qos_acl.physical_use);
+		formDisable(document.qos_acl.vlan_use);
+		formEnable(document.qos_acl.l2priority);
+		formDisable(document.qos_acl.protocol_use);
+		formDisable(document.qos_acl.tos_use);
+		formDisable(document.qos_acl.dscp_use);
+		formDisable(document.qos_acl.srcip_use);
+		formDisable(document.qos_acl.dstip_use);
+		formDisable(document.qos_acl.srcipv6_use);
+		formDisable(document.qos_acl.dstipv6_use);
+		formDisable(document.qos_acl.srcport_use);
+		formDisable(document.qos_acl.dstport_use);
+		formEnable(document.qos_acl.qos_action[0]);
+		formEnable(document.qos_acl.qos_action[1]);
+	} else if (document.qos_acl.ruleType[5].checked == true) { // Rule Type 5
+		formDisable(document.qos_acl.physical_use);
+		formDisable(document.qos_acl.vlan_use);
+		formDisable(document.qos_acl.l2priority);
+		formEnable(document.qos_acl.tos_use);
+		formDisable(document.qos_acl.srcport_use);
+		formDisable(document.qos_acl.dstport_use);
+		formDisable(document.qos_acl.dscp_use);
+		document.qos_acl.srcip_use.checked = false;
+		document.qos_acl.dstip_use.checked = false;
+		formDisable(document.qos_acl.srcip_use);
+		formDisable(document.qos_acl.dstip_use);
+		formEnable(document.qos_acl.srcipv6_use);
+		formEnable(document.qos_acl.dstipv6_use);
+		formEnable(document.qos_acl.qos_action[0]);
+		formEnable(document.qos_acl.qos_action[1]);
+		formEnable(document.qos_acl.protocol_use);
+	} else {
+		document.qos_acl.srcip_use.checked = false;
+		document.qos_acl.dstip_use.checked = false;
+		document.qos_acl.srcipv6_use.checked = false;
+		document.qos_acl.dstipv6_use.checked = false;
+		formDisable(document.qos_acl.physical_use);
+		formDisable(document.qos_acl.vlan_use);
+		formDisable(document.qos_acl.l2priority);
+		formDisable(document.qos_acl.protocol_use);
+		formDisable(document.qos_acl.tos_use);
+		formDisable(document.qos_acl.dscp_use);
+		formDisable(document.qos_acl.srcip_use);
+		formDisable(document.qos_acl.dstip_use);
+		formDisable(document.qos_acl.srcipv6_use);
+		formDisable(document.qos_acl.dstipv6_use);
+		formDisable(document.qos_acl.srcport_use);
+		formDisable(document.qos_acl.dstport_use);
+		formDisable(document.qos_acl.qos_action[0]);
+		formDisable(document.qos_acl.qos_action[1]);
+	}
+
+	toggle_onload();
+}
+
+function change_action()
+{
+	if (document.qos_acl.qos_action[1].checked == true)
+		formEnable(document.qos_acl.int_pri);
+	else
+		formDisable(document.qos_acl.int_pri);
+}
+
+function check_value()
+{
+	var flag = 0;
+	if (chk_btn==1)
+		return false;
+	chk_btn++;
+
+	if (document.qos_acl.vlan_use.checked && document.qos_acl.vlan_use.disabled == false) {
+		var vlan_val = parseInt(document.qos_acl.vlan_value.value);
+		if (document.qos_acl.vlan_value.value == "") {
+			flag += 1;
+			alert("VLAN ID가 비어있습니다...");
+		} else if ( (vlan_val < 0 ) || (vlan_val > 4095)) {
+			flag += 1;
+			alert("VLAN ID가 올바르지 않습니다...");
+		}
+	}
+
+	if (document.qos_acl.dscp_use.checked && !document.qos_acl.dscp_use.disabled) {
+		if (document.qos_acl.dscp_value.value == "") {
+			flag += 1;
+			alert("DSCP가 비어있습니다...");
+		} else {
+			var dscp_value = parseInt(document.qos_acl.dscp_value.value);
+			if ( (dscp_value < 0) || (dscp_value > 63)){
+				flag += 1;
+				alert("DSCP가 올바르지 않습니다...");
+			}
+		}
+	}
+
+	if (!document.qos_acl.tos_use.disabled && document.qos_acl.tos_use.checked) {
+		var tos_value = parseInt(document.qos_acl.tos_value.value);
+		if (document.qos_acl.tos_value.value == "") {
+			flag += 1;
+			alert("ToS가 비어있습니다...");
+		}
+	}
+
+	if (!document.qos_acl.srcipv6_use.disabled && document.qos_acl.srcipv6_use.checked) {
+		if ( (document.qos_acl.srcipv6.value == "") || (document.qos_acl.srcipv6_mask.value == "")) {
+			flag += 1;
+			alert("출발지 IPv6 또는 Mask가 비어있습니다...");
+		}
+
+		if (!IsDigit(document.qos_acl.srcipv6_mask.value)) {
+           	alert('출발지 마스크 값은 숫자만 입력하세요.');
+           	document.qos_acl.srcipv6_mask.focus();
+           	flag += 1;
+        }
+
+		if (parseInt(document.qos_acl.srcipv6_mask.value) < 1 ||
+			parseInt(document.qos_acl.srcipv6_mask.value) > 128 ) {
+			alert("출발지 Ipv6 마스크 값은 1 ~ 128 까지여야 합니다.");
+			document.qos_acl.srcipv6_mask.focus();
+			flag += 1;
+		}
+	}
+
+	if (!document.qos_acl.srcip_use.disabled && document.qos_acl.srcip_use.checked) {
+		if ( (document.qos_acl.srcip0.value == "")
+			|| (document.qos_acl.srcip1.value == "")
+			|| (document.qos_acl.srcip2.value == "")
+			|| (document.qos_acl.srcip3.value == "")
+			|| (document.qos_acl.srcip_mask.value == "")){
+			flag += 1;
+			alert("출발지 IP 또는 Mask가 비어있습니다...");
+		} else {
+			var srcip = document.qos_acl.srcip0.value + "."
+					+ document.qos_acl.srcip1.value + "."
+					+ document.qos_acl.srcip2.value + "."
+					+ document.qos_acl.srcip3.value;
+
+			if (!checkIpV4(srcip)) {
+				flag += 1;
+				alert("출발지 IP 주소가 올바르지 않습니다");
+			}
+
+			if (!IsDigit(document.qos_acl.srcip_mask.value)) {
+           		alert('출발지 IP 마스크 값은 숫자만 입력하세요.');
+           		document.qos_acl.srcip_mask.focus();
+           		flag += 1;
+        	}
+
+			var srcip_mask_val = parseInt(document.qos_acl.srcip_mask.value);
+			if (srcip_mask_val < 1 || srcip_mask_val > 32) {
+				flag += 1;
+				alert("소스 IP 마스크가 올바르지 않습니다");
+				document.qos_acl.srcip_mask.focus();
+			}
+		}
+	}
+
+	if (!document.qos_acl.dstipv6_use.disabled && document.qos_acl.dstipv6_use.checked) {
+		if ( (document.qos_acl.dstipv6.value == "") || (document.qos_acl.dstipv6_mask.value == "")) {
+			flag += 1;
+			alert("목적지 IPv6 또는 Mask가 비어있습니다...");
+		}
+
+		if (!IsDigit(document.qos_acl.dstipv6_mask.value)) {
+           	alert('목적지 마스크 값은 숫자만 입력하세요.');
+           	document.qos_acl.dstipv6_mask.focus();
+           	flag += 1;
+        }
+
+		if (parseInt(document.qos_acl.dstipv6_mask.value) < 1 ||
+			parseInt(document.qos_acl.dstipv6_mask.value) > 128 ) {
+			alert("목적지 IPv6 마스크 값은 1 ~ 128 까지여야 합니다.");
+			document.qos_acl.dstipv6_mask.focus();
+			flag += 1;
+		}
+	}
+
+	if (!document.qos_acl.dstip_use.disabled && document.qos_acl.dstip_use.checked) {
+		if ( (document.qos_acl.dstip0.value == "")
+			|| (document.qos_acl.dstip1.value == "")
+			|| (document.qos_acl.dstip2.value == "")
+			|| (document.qos_acl.dstip3.value == "")
+			|| (document.qos_acl.dstip_mask.value == "")){
+			flag += 1;
+			alert("목적지 IP 또는 Mask가 비어있습니다...");
+		} else {
+			var dstip = document.qos_acl.dstip0.value + "."
+					+ document.qos_acl.dstip1.value + "."
+					+ document.qos_acl.dstip2.value + "."
+					+ document.qos_acl.dstip3.value;
+
+			if (!checkIpV4(dstip)) {
+				flag += 1;
+				alert("목적지 IP 주소가 올바르지 않습니다");
+			}
+
+			if (!IsDigit(document.qos_acl.dstip_mask.value)) {
+           		alert('목적지 IP 마스크 값은 숫자만 입력하세요.');
+           		flag += 1;
+        	}
+
+			var dstip_mask_val = parseInt(document.qos_acl.dstip_mask.value);
+			if (dstip_mask_val < 1 || dstip_mask_val > 32) {
+				flag += 1;
+				alert("목적지 IP 마스크가 올바르지 않습니다");
+			}
+		}
+	}
+
+	if (document.qos_acl.srcport_use.checked && document.qos_acl.srcport_use.disabled == false) {
+		var srcport0 = parseInt(document.qos_acl.srcport0.value);
+		if (document.qos_acl.srcport0.value == "") {
+			flag += 1;
+			alert("출발지 포트 1번째 영역의 값이 비어있습니다...");
+		} else if ( srcport0 > 65535) {
+			flag += 1;
+			alert("출발지 포트 1번째 영역의 값이 올바르지 않습니다...");
+		}
+
+		var srcport1 = parseInt(document.qos_acl.srcport1.value);
+		if (document.qos_acl.srcport1.value == "") {
+			flag += 1;
+			alert("출발지 포트 2번째 영역의 값이 비어있습니다...");
+		} else if ( srcport1 > 65535) {
+			flag += 1;
+			alert("출발지 포트 2번째 영역의 값이 올바르지 않습니다...");
+		}
+		if ( srcport0 > srcport1)
+		{
+			flag += 1;
+			alert("출발지 포트 2번째 영역의 값이 1번째 영역의 값보다 커야 합니다...");
+		}
+	}
+
+	if (document.qos_acl.dstport_use.checked && document.qos_acl.dstport_use.disabled == false) {
+		var dstport0 = parseInt(document.qos_acl.dstport0.value);
+		if (document.qos_acl.dstport0.value == "") {
+			flag += 1;
+			alert("목적지 포트 1번째 영역의 값이 비어있습니다...");
+		} else if ( dstport0 > 65535) {
+			flag += 1;
+			alert("목적지 포트 1번째 영역의 값이 올바르지 않습니다...");
+		}
+
+		var dstport1 = parseInt(document.qos_acl.dstport1.value);
+		if (document.qos_acl.dstport1.value == "") {
+			flag += 1;
+			alert("목적지 포트 2번째 영역의 값이 비어있습니다...");
+		} else if ( dstport1 > 65535) {
+			flag += 1;
+			alert("목적지 포트 2번째 영역의 값이 올바르지 않습니다...");
+		}
+		if ( dstport0 > dstport1)
+		{
+			flag += 1;
+			alert("목적지 포트 2번째 영역의 값이 1번째 영역의 값보다 커야 합니다...");
+		}
+	}
+
+	if(document.qos_acl.qos_action[0].checked && document.qos_acl.l2priority.checked )
+	{
+		flag += 1;
+		alert("Rule 검사 오류");
+	}
+
+	if(!flag)
+		document.qos_acl.submit();
+	else
+		chk_btn = 0;
+}
+
+
+function toggle_l2Protocol()
+{
+	if (document.qos_acl.protocol_use.checked == false) {
+		formDisable(document.qos_acl.protocol_val);
+		formDisable(document.qos_acl.etc_proto_value);
+	} else {
+		formEnable(document.qos_acl.protocol_val);
+		changeProto(document.qos_acl.protocol_val.selectedIndex);
+	}
+}
+
+function toggle_l2Tos()
+{
+	document.qos_acl.dscp_use.checked = false;
+	formDisable(document.qos_acl.dscp_value);
+
+	if (document.qos_acl.tos_use.checked == false) {
+		formDisable(document.qos_acl.tos_value);
+	} else {
+		formEnable(document.qos_acl.tos_value);
+	}
+}
+
+function toggle_l2Dscp()
+{
+	document.qos_acl.tos_use.checked = false;
+	formDisable(document.qos_acl.tos_value);
+	if (document.qos_acl.dscp_use.checked == false) {
+		formDisable(document.qos_acl.dscp_value);
+	} else {
+		formEnable(document.qos_acl.dscp_value);
+	}
+}
+
+function toggle_l2SrcIp()
+{
+	if (document.qos_acl.srcip_use.checked == false) {
+		formDisable(document.qos_acl.srcip0);
+		formDisable(document.qos_acl.srcip1);
+		formDisable(document.qos_acl.srcip2);
+		formDisable(document.qos_acl.srcip3);
+		formDisable(document.qos_acl.srcip_mask);
+	} else {
+		formEnable(document.qos_acl.srcip0);
+		formEnable(document.qos_acl.srcip1);
+		formEnable(document.qos_acl.srcip2);
+		formEnable(document.qos_acl.srcip3);
+		formEnable(document.qos_acl.srcip_mask);
+	}
+
+	document.qos_acl.srcipv6_use.checked = false;
+}
+
+function toggle_l2SrcIpv6()
+{
+	if (document.qos_acl.srcipv6_use.checked == false) {
+		formDisable(document.qos_acl.srcipv6);
+		formDisable(document.qos_acl.srcipv6_mask);
+	} else {
+		formEnable(document.qos_acl.srcipv6);
+		formEnable(document.qos_acl.srcipv6_mask);
+	}
+
+	document.qos_acl.srcip_use.checked = false;
+}
+
+function toggle_l2SrcPort()
+{
+	if (document.qos_acl.srcport_use.checked == false) {
+		formDisable(document.qos_acl.srcport0);
+		formDisable(document.qos_acl.srcport1);
+	} else {
+		formEnable(document.qos_acl.srcport0);
+		formEnable(document.qos_acl.srcport1);
+	}
+}
+
+function toggle_l2DstIp()
+{
+	if (document.qos_acl.dstip_use.checked == false) {
+		formDisable(document.qos_acl.dstip0);
+		formDisable(document.qos_acl.dstip1);
+		formDisable(document.qos_acl.dstip2);
+		formDisable(document.qos_acl.dstip3);
+		formDisable(document.qos_acl.dstip_mask);
+	} else {
+		formEnable(document.qos_acl.dstip0);
+		formEnable(document.qos_acl.dstip1);
+		formEnable(document.qos_acl.dstip2);
+		formEnable(document.qos_acl.dstip3);
+		formEnable(document.qos_acl.dstip_mask);
+	}
+
+	document.qos_acl.dstipv6_use.checked = false;
+}
+
+function toggle_l2DstIpv6()
+{
+	if (document.qos_acl.dstipv6_use.checked == false) {
+		formDisable(document.qos_acl.dstipv6);
+		formDisable(document.qos_acl.dstipv6_mask);
+	} else {
+		formEnable(document.qos_acl.dstipv6);
+		formEnable(document.qos_acl.dstipv6_mask);
+	}
+
+	document.qos_acl.dstip_use.checked = false;
+}
+
+function toggle_onload()
+{
+	toggle_l2DstIp();
+	toggle_l2DstIpv6();
+	toggle_l2SrcIp();
+	toggle_l2SrcIpv6();
+}
+
+function toggle_l2DstPort()
+{
+	if (document.qos_acl.dstport_use.checked == false) {
+		formDisable(document.qos_acl.dstport0);
+		formDisable(document.qos_acl.dstport1);
+	} else {
+		formEnable(document.qos_acl.dstport0);
+		formEnable(document.qos_acl.dstport1);
+	}
+}
+
+function toggle_l1Priority()
+{
+	if (document.qos_acl.l2priority.checked == false) {
+		formDisable(document.qos_acl.l2priority_val);
+	} else {
+		formEnable(document.qos_acl.l2priority_val);
+	}
+}
+
+function toggle_l1Vlan()
+{
+	if (document.qos_acl.vlan_use.checked == false) {
+		formDisable(document.qos_acl.vlan_value);
+	} else {
+		formEnable(document.qos_acl.vlan_value);
+	}
+}
+
+function toggle_l1Port()
+{
+	if (document.qos_acl.physical_use.checked == false) {
+		formDisable(document.qos_acl.physical_port);
+	} else {
+		formEnable(document.qos_acl.physical_port);
+	}
+}
+
+function onload_func()
+{
+	toggle_l1Port();
+	toggle_l1Vlan();
+	toggle_l1Priority();
+	toggle_l2Protocol();
+	toggle_l2Tos();
+	toggle_l2SrcIp();
+	toggle_l2SrcIpv6();
+	toggle_l2SrcPort();
+	toggle_l2DstIp();
+	toggle_l2DstIpv6();
+	toggle_l2DstPort();
+	changeRule();
+}
+
+</script>
+</head>
+
+<body onLoad="onload_func(); mouse_r_click();">
+<blockquote>
+<h2>Rules 설정</h2>
+<table border=0 width="600" cellspacing=4 cellpadding=0>
+<tr>
+	<td><font size=2>Qos Rules 설정을 위한 페이지입니다.</font></td>
+</tr>
+
+<tr>
+	<td><hr size=1 noshade align=top></td>
+</tr>
+</table>
+
+<form action=/boafrm/formAclSetup method=POST name="qos_acl">
+<table cellSpacing="1" cellPadding="2" border="0" width=600>
+	<tr>
+		<td bgcolor="#94B2B2" align="center" width=105><b>IP Mode</b></td>
+		<td bgcolor="#DDDDDD">
+			<input type="radio" name="ipmode" value="0" checked="checked" onClick="changeRule();"> Ipv4&nbsp;&nbsp;
+		</td>
+	</tr>
+
+  	<tr>
+		<td bgcolor="#94B2B2" align="center" width=105><b>포트</b></td>
+		<td bgcolor="#DDDDDD" width="495">
+	  		<select name=side style="WIDTH: 90px">
+			<option value="0" selected>LAN
+			<option value="1">WAN</option>
+	  		</select>
+		</td>
+	</tr>
+
+  	<tr>
+  		<td bgcolor="#94B2B2" align="center"><b>Rule 종류</b></td>
+	  	<td bgcolor="#DDDDDD">
+  			<input type="radio" name="ruleType" value="1" onClick="changeRule();"> Physical포트 / VID / 출발지IP / 출발지 포트<br>
+  			<input type='radio' name="ruleType" value="2" onClick="changeRule();"> VID / 목적지 IP / 목적지 포트<br>
+  			<input type='radio' name="ruleType" value="3" onClick="changeRule();"> 출발지IP / 목적지IP / ToS_DSCP / 프로토콜<br>
+  			<input type='radio' name="ruleType" value="4" onClick="changeRule();"> 출발지IP / 목적지IP / ToS_DSCP / TCP_UDP / 출발지포트 / 목적지 포트<br>
+			<input type='radio' name="ruleType" value="5" onClick="changeRule();"> VPri<br>
+			<input type='radio' name="ruleType" value="6" onClick="changeRule();"> (IPv6)출발지IP / 목적지IP / Traffic Class(using tos field) / 프로토콜<br>
+  		</td>
+	</tr>
+</table>
+
+<br><br>
+
+<table cellSpacing="1" cellPadding="2" border="0" width=600>
+	<tr>
+		<th bgcolor="#94B2B2" align="center">Physical 포트</th>
+		<td bgcolor="#DDDDDD">
+		<INPUT style="LEFT: 10px; TOP: 40px" type="checkbox" value="1" name="physical_use" onclick="toggle_l1Port();">Physical 포트&nbsp;
+			<select name="physical_port" style="WIDTH: 108px">
+				<option value="%PRTNR_WAN0%">WAN
+				<option value="%PRTNR_LAN1%">LAN1
+				<option value="%PRTNR_LAN2%">LAN2
+				<option value="%PRTNR_LAN3%">LAN3
+				<option value="%PRTNR_LAN4%">LAN4
+				</option>
+			</select>
+		</td>
+  	</tr>
+
+	<tr>
+		<th bgcolor="#94B2B2" align="center">VLAN</th>
+		<td vAlign="center" bgcolor="#DDDDDD">
+			<INPUT style="LEFT: 10px; TOP: 40px" onclick="toggle_l1Vlan();" type="checkbox" value="1" name="vlan_use">VID&nbsp;&nbsp;&nbsp;&nbsp;
+			<INPUT style="WIDTH: 72px; HEIGHT: 22px" size="9" name="vlan_value" OnKeyPress="num_check(event);" maxLength="4"><br>
+			<INPUT style="LEFT: 10px; TOP: 40px" onclick="toggle_l1Priority();" type="checkbox" value="1" name="l2priority">Priority&nbsp;&nbsp;
+			<SELECT name="l2priority_val" enable>
+				<OPTION value="0" selected>0
+				<OPTION value="1">1
+				<OPTION value="2">2
+				<OPTION value="3">3
+				<OPTION value="4">4
+				<OPTION value="5">5
+				<OPTION value="6">6
+				<OPTION value="7">7
+				</OPTION>
+			</SELECT>
+		</td>
+	</tr>
+
+	<tr>
+		<th bgcolor="#94B2B2" align="center" >프로토콜</th>
+		<td bgcolor="#DDDDDD">
+			<INPUT onclick="toggle_l2Protocol();" type="checkbox" value="1" name="protocol_use">프로토콜<br>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<select name="protocol_val" onChange="changeProto(this.selectedIndex)">
+			</select>&nbsp;&nbsp;
+			<input type="text" name="etc_proto_value" value="" size="6" maxlength="3">
+		</td>
+	</tr>
+
+	<tr>
+		<th bgcolor="#94B2B2" align="center">ToS/DSCP</th>
+		<td bgcolor="#DDDDDD">
+			<input onclick="toggle_l2Tos();" type="checkbox" name="tos_use" value="1"> ToS&nbsp; 0x&nbsp;
+			<INPUT style="LEFT: 105px; WIDTH: 32px; TOP: 16px; HEIGHT: 22px" maxLength="2" size="8" name="tos_value" OnKeyPress="xnum_check(event);"><br>
+  			<input onclick="toggle_l2Dscp();" type="checkbox" name="dscp_use" value="1"> DSCP&nbsp;
+			<INPUT style="LEFT: 105px; WIDTH: 32px; TOP: 16px; HEIGHT: 22px" maxLength="2" size="8" name="dscp_value" OnKeyPress="num_check(evnet);">
+		</td>
+	</tr>
+
+	<tr>
+		<th bgcolor="#94B2B2" align="center" vAlign="center"><P align="center">출발지</P></th>
+		<td bgcolor="#DDDDDD">
+			<input type="checkbox" name="srcip_use" value="1" onclick="toggle_l2SrcIp();" onchange="toggle_l2SrcIp();">출발지 IP 주소/길이 &nbsp;&nbsp;&nbsp;&nbsp;
+			<INPUT type="text" maxLength="3" size="3" name="srcip0" OnKeyPress="num_check(event);">.
+			<INPUT type="text" maxLength="3" size="3" name="srcip1" OnKeyPress="num_check(event);">.
+			<INPUT type="text" maxLength="3" size="3" name="srcip2" OnKeyPress="num_check(event);">.
+			<INPUT type="text" maxLength="3" size="3" name="srcip3" OnKeyPress="num_check(event);">&nbsp;/&nbsp;
+			<input type=text name="srcip_mask" maxlength=2 size=3 OnKeyPress="num_check(event);"><br>
+
+			<INPUT type="checkbox" value="1" name="srcport_use" onclick="toggle_l2SrcPort();">출발지 포트&nbsp;&nbsp;&nbsp;&nbsp;
+			<INPUT type="text" maxLength="5" size="8" name="srcport0" OnKeyPress="num_check(event);">&nbsp;:&nbsp;
+			<INPUT type="text" maxLength="5" size="8" name="srcport1" OnKeyPress="num_check(event);"><br>
+
+			<input type="checkbox" name="srcipv6_use" value="1" onclick="toggle_l2SrcIpv6();" onchange="toggle_l2SrcIpv6();">출발지 IPv6 주소/길이 &nbsp;&nbsp;
+			<INPUT type="text" maxlength="39" size="32" name="srcipv6">&nbsp;/&nbsp;
+			<input type=text name="srcipv6_mask" maxlength=3 size=3 OnKeyPress="num_check(event);"><br>
+		</td>
+	</tr>
+
+	<tr>
+		<th bgcolor="#94B2B2" align="center" vAlign="center"><P>목적지</P></th>
+		<td bgcolor="#DDDDDD"><P>
+			<input type="checkbox" name="dstip_use" value="1" onclick="toggle_l2DstIp();" onchange="toggle_l2DstIp();">목적지 IP 주소/길이&nbsp;&nbsp;&nbsp;&nbsp;
+			<INPUT type="text" maxLength="3" size="3" name="dstip0" OnKeyPress="num_check(event);">.
+			<INPUT type="text" maxLength="3" size="3" name="dstip1" OnKeyPress="num_check(event);">.
+			<INPUT type="text" maxLength="3" size="3" name="dstip2" OnKeyPress="num_check(event);">.
+			<INPUT type="text" maxLength="3" size="3" name="dstip3" OnKeyPress="num_check(event);">&nbsp;/&nbsp;
+			<input type=text name="dstip_mask" maxlength=3 size=3 OnKeyPress="num_check(event);"><br>
+
+			<INPUT onclick="toggle_l2DstPort();" type="checkbox" value="1" name="dstport_use">목적지 포트&nbsp;&nbsp;&nbsp;&nbsp;
+			<INPUT maxLength="5" size="8" name="dstport0" OnKeyPress="num_check(event);">&nbsp;:&nbsp;
+			<INPUT maxLength="5" size="8" name="dstport1" OnKeyPress="num_check(event);"><br>
+
+			<input type="checkbox" name="dstipv6_use" value="1" onclick="toggle_l2DstIpv6();" onchange="toggle_l2DstIpv6();">목적지 IPv6 주소/길이 &nbsp;&nbsp;
+			<INPUT type="text" maxLength="39" size="32" name="dstipv6">&nbsp;/&nbsp;
+			<input type=text name="dstipv6_mask" maxlength=3 size=3 OnKeyPress="num_check(event);"><br>
+		</P></td>
+	</tr>
+
+	<tr>
+		<td>&nbsp;</td>
+	</tr>
+
+	<tr>
+		<th bgcolor="#94B2B2" align="center">ACTION</th>
+		<td colspan='3' bgcolor="#DDDDDD">
+			<input type="radio" name="qos_action" value="0" onclick="change_action();"> 차단<br>
+			<input type="radio" name="qos_action" value="1" onclick="change_action();"> Internal Priority
+			<select name="int_pri" disabled>
+				<option value="7">7</option>
+				<option value="6">6</option>
+				<option value="5">5</option>
+				<option value="4">4</option>
+				<option value="3">3</option>
+				<option value="2">2</option>
+				<option value="1">1</option>
+				<option value="0">0</option>
+			</select>
+		</td>
+	</tr>
+</table>
+<BR>
+<input type="button" value="추가" onClick="check_value();">
+
+<BR><BR>
+</form>
+
+<form action=/boafrm/formAclSetup method=POST name="qos_table">
+<table cellSpacing="1" cellPadding="1" border="0">
+<tr class="tbl_head">
+    <td align=center width='40'>번호</td>
+    <td align=center width='80'>Rule 종류</td>
+    <td align=center width='80'>인터페이스</td>
+    <td align=center width='400'>설명</td>
+    <td align=center width="50">선택</td>
+</tr>
+<% show_acltbl(); %>
+</table><br>
+<input type=submit value="삭제" name="delete" >
+<input type=button value="전체 선택" onClick="select_all();">
+<input type=button value="전체 선택해제" onClick="unselect_all();">
+</form>
+</blockquote>
+</body>
+</html>

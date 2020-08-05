@@ -1,0 +1,84 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>IGMP JOIN 상태</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+var groupInfo;
+var portInfo;
+
+function getParameter(strParamName) {
+
+	var strURL = location.search;
+	var tmpParam = strURL.substring(1).split("&");
+
+	if(strURL.substring(1).length > 0) {
+		var Params = new Array;
+		for(i=0;i<tmpParam.length;i++) {
+			Params = tmpParam[i].split("=");
+			if(strParamName == Params[0]) {
+				return Params[1];
+			}
+		}
+	}
+	return "";
+}
+
+function closeForm()
+{
+	window.close();
+}
+
+groupInfo = getParameter("info");
+portInfo = groupInfo.split("|");
+
+</script>
+</head>
+
+<body>
+<blockquote>
+<h2>IGMP Group Join</h2>
+
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+LAN-<script>document.write(portInfo[0]);</script>&nbsp;JOIN 상태 페이지입니다.</font>
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form name="joinview">
+	<tr>
+		<font size="2"><b>PORT: LAN-<script>document.write(portInfo[0]);</script></b></font><br>
+		<font size="2"><b>Group Address: <script>document.write(portInfo[1]);</script></b></font><br>
+	</tr>
+		<table border='0' width='500' cellspacing='1'>
+			<tr align='center' class='tbl_head'>
+				<td><b>Group Address</b></td>
+				<td><b>Joiner Address</b></td>
+				<td><b>Joiner MAC Address</b></td>
+			</tr>
+				<tr align='center' bgcolor='#DDDDDD'>
+					<td>
+					<script>document.write(portInfo[1]);</script>
+					</td>
+					<td>
+					<script>document.write(portInfo[2]);</script>
+					</td>
+					<td>
+					<script>document.write(portInfo[3]);</script>
+					</td>
+			</tr>
+		</table>
+	<tr>
+		<br>
+		&nbsp;<input type='button' name='closeView' value='닫기' onClick="closeForm()">
+	</tr>
+</form>
+</blockquote>
+</body>
+</html>

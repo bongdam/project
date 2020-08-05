@@ -1,0 +1,120 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>MAC Address 테이블</title>
+<script type="text/javascript" src="util_gw.js"></script>
+<% getInfo("include_css"); %>
+<SCRIPT>
+
+function macReload()
+{
+	var code = "";
+	code = 'location.assign("mactbl.htm")';
+	eval(code);
+}
+
+function macInput(macSelectValue)
+{
+	document.forms[0].macValue.value = macSelectValue;
+}
+
+function macSelect()
+{
+	with ( document.forms[0] ) {
+		if (macValue.value=="") {
+			alert('MAC 주소가 없습니다!');
+			return false;
+		}
+
+		str = document.forms[0].macValue.value;
+		var tmp = "";
+
+		if ( str.length != 12 && str.length != 17) {
+			alert("MAC 주소가 올바르지 않습니다. 16진수 12개 또는 콜론(:)을 포함한 17개의 16진수를 입력하십시오. ");
+			macValue.focus();
+			return false;
+		}
+
+		for (var i=0; i<str.length; i++) {
+			if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+				(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+				(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+				(str.charAt(i) == ':')) {
+				if(str.charAt(i) != ':')
+					tmp += str.charAt(i);
+				continue;
+			}
+			alert("MAC 주소가 올바르지 않습니다. 16진수를 입력하십시오. ( 0-9 또는 a-f 또는 : ) ");
+			macValue.focus();
+			return false;
+		}
+
+		if (window.opener.document.forms[0].page.value == "tcpip_staticdhcp.htm" ) {
+			obj = window.opener.document.getElementsByName('mac_addr');
+			obj[0].value = macValue.value;
+		} else if (window.opener.document.forms[0].page.value == "macfilter.htm" ) {
+			obj = window.opener.document.getElementsByName('mac');
+			obj[0].value = macValue.value;
+		} else if (window.opener.document.forms[0].page.value == "dmz.htm" ) {
+			obj = window.opener.document.getElementsByName('mac');
+			obj[0].value = macValue.value;
+		} else if (window.opener.document.forms[0].page.value == "tcpipwan.htm" ) {
+			obj = window.opener.document.getElementsByName('wan_macAddr');
+			obj[0].value = macValue.value;
+		}
+
+	}
+	window.close();
+}
+
+</SCRIPT>
+</head>
+
+<body onload="mouse_r_click();">
+<blockquote>
+<h2>MAC Address 테이블</h2>
+
+<table border=0 width="480" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+  	접속된 단말의 IP와 MAC 주소 그리고 남은 시간을 보여주는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+
+<form>
+<table border='1' width="100%">
+	<tr class="tbl_head" align="center">
+		<td width="29%"><font size=2><b>IP 주소</b></td>
+		<td width="34%"><font size=2><b>MAC 주소</b></td>
+		<td width="27%"><font size=2><b>사용가능한 시간(s)</b></td>
+		<td width="10%"><font size=2><b>선택</b></td>
+	</tr>
+	<% dhcpClientList("macSelect"); %>
+</table>
+
+<table border='0' width="100%">
+	<tr class="tbl_head" align="center">
+		<td width="50%"><font size=2><b>사용할 MAC 주소</b></td>
+	</tr>
+	<tr class="tbl_body" align="center"><td>
+		<font size=2><input type='text' size=30 maxlength=17 name='macValue' value=''></td>
+	</tr>
+	<tr bgcolor="#f0f0f0">
+		<td align="center">
+			<input type="hidden" value="/mactbl.htm" name="submit-url">
+			<input type="button" value=" 선택 " name="select" onClick="macSelect()">&nbsp;&nbsp;
+			<input type="button" value="다시 보기" name="refresh" onClick="macReload()">&nbsp;&nbsp;
+			<input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();">
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

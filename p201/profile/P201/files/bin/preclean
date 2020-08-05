@@ -1,0 +1,64 @@
+#!/bin/sh
+
+# $1 - prefix string which gets appended with index
+#      "PORTFW_TBL" + "0" e.g.
+# $2 - table count
+# $3 - starting index. unless specified, 1 is starting index
+
+unset_tbl() {
+	local stem="$1"
+	local num=${2:-0}
+	local i=${3:-1}
+
+	while [ $num -gt 0 ]; do
+		eval "nvram unset ${stem}${i}"
+		i=$((i + 1))
+		num=$((num - 1))
+	done
+}
+
+# -------------------------------------------------------------------------
+# unset table entry
+# -------------------------------------------------------------------------
+unset_tbl "PORTFW_TBL" "$(nvram get PORTFW_TBL_NUM)"
+unset_tbl "MACFILTER_TBL" "$(nvram get MACFILTER_TBL_NUM)"
+unset_tbl "IPFILTER_TBL" "$(nvram get IPFILTER_TBL_NUM)"
+
+# -------------------------------------------------------------------------
+# unset table vpn entry
+# -------------------------------------------------------------------------
+for b in 0 1 2 3 4; do
+	eval "nvram unset vpn_ipsec${b}_conn_name"
+	eval "nvram unset vpn_ipsec${b}_local_id"
+	eval "nvram unset vpn_ipsec${b}_remote_fqdn"
+	eval "nvram unset vpn_ipsec${b}_ike"
+	eval "nvram unset vpn_ipsec${b}_esp"
+	eval "nvram unset vpn_ipsec${b}_remote_host"
+	eval "nvram unset vpn_ipsec${b}_server_mode"
+	eval "nvram unset vpn_ipsec${b}_active"
+	eval "nvram unset vpn_ipsec${b}_remote_subnet"
+	eval "nvram unset vpn_ipsec${b}_psk"
+	eval "nvram unset vpn_ipsec${b}_local_fqdn"
+	eval "nvram unset vpn_ipsec${b}_remote_id"
+	eval "nvram unset vpn_ipsec${b}_local_subnet"
+	eval "nvram unset vpn_ipsec${b}_protocol"
+done
+
+
+for b in 0 1; do
+	eval "unset_tbl WLAN${b}_MACAC_ADDR \$(nvram get WLAN${b}_MACAC_NUM)"
+	for vap in 0 1 2 3; do
+		eval "unset_tbl WLAN${b}_VAP${vap}_MACAC_ADDR \$(nvram get WLAN${b}_VAP${vap}_MACAC_NUM)"
+	done
+	eval "unset_tbl WLAN${b}_WDS \$(nvram get WLAN${b}_WDS_NUM)"
+done
+
+# -------------------------------------------------------------------------
+# unset individual name
+# -------------------------------------------------------------------------
+names="ipsec_tbl_num"
+
+for name in $names; do
+	nvram unset ${name}
+done
+

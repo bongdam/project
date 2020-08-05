@@ -1,0 +1,101 @@
+﻿<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>WMM 매핑</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+ function clickReset()
+ {
+ 	document.location.assign( "skb_wlwmm.htm");
+ }
+
+function init()
+{
+	var get_wmm_mode = "<% getInfo("wmm_mode"); %>";
+
+	if (parseInt(get_wmm_mode, 10) == 2) {
+		// dscp
+		document.getElementById('dscp_tbl').style.display = '';
+		document.getElementById('1p_tbl').style.display = 'none';
+		document.formWlwmm.wmm_mode.value = 2;
+	}
+	else {
+		//802.1p
+		document.getElementById('dscp_tbl').style.display = 'none';
+		document.getElementById('1p_tbl').style.display = '';
+		document.formWlwmm.wmm_mode.value = 1;
+	}
+}
+
+ function wmm_mode_change()
+{
+	var mode = document.formWlwmm.wmm_mode.value;
+
+	if ( mode == 2 ) {
+		// dscp
+		document.getElementById('dscp_tbl').style.display = '';
+		document.getElementById('1p_tbl').style.display = 'none';
+
+	}
+	else {
+		//802.1p
+		document.getElementById('dscp_tbl').style.display = 'none';
+		document.getElementById('1p_tbl').style.display = '';
+	}
+}
+
+</script>
+</head>
+<body onload="init();">
+<blockquote>
+<b><font size=3 face="arial" color="#3c7A95">WMM(QoS) 매핑 <% if (getIndex("wlan_num")>1) write("-wlan"+(getIndex("wlan_idx")+1)); %></font></b>
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+<tr><td><font size=2><br>
+ DSCP 의 Priority 매핑 값을 보여주는  페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formWlwmm method=POST name="formWlwmm">
+	WMM(QoS) 모드:
+	<select name="wmm_mode" onChange="wmm_mode_change();" >
+		<option value="2" > DSCP
+		<option value="1" > 802.1p
+	</select>
+
+	<div id="dscp_tbl" style="display:none">
+		<table border=0 width="490" cellspacing=2>
+		<tr class='tbl_head' align="center">
+		<td width=250>DSCP Number</td>
+		<td colspan=8> Priority</td>
+		</tr>
+		<% print_wme_dscp(); %>
+		</table>
+	</div>
+
+	<div id="1p_tbl" style="display:none">
+		<table border=0 width="490" cellspacing=2>
+		<tr class='tbl_head' align="center">
+		<td width=250>802.1p</td>
+		<td colspan=8> Priority</td>
+		</tr>
+			<% print_wme_1p(); %>
+		</table>
+  	</div>
+<p>
+  <input type="submit" value="저장/적용" name="saveApply">&nbsp;&nbsp;
+  <input type="button" value="다시 보기" name="refresh" onClick="clickReset()">&nbsp;&nbsp;
+  <input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();"></p>
+   <input type="hidden" value="/skb_wlwmm.htm" name="submit-url">
+</p></tr>
+</form>
+ <br>
+
+
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<script type="text/javascript" src="skb_util_gw.js"></script>
+<% getInfo("include_css"); %>
+</head>
+
+<body>
+<blockquote>
+<b><font size=3 face="arial" color="#3c7A95"><br>재시작이 필요합니다.</font></b>
+<form action=/boafrm/formRebootCheck method=POST name="rebootForm">
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+	<tr>
+		<td>
+			<font size=2><br>
+			변경된 설정이 저장되었습니다. 설정을 적용하려면 재시작해야 합니다.<br>
+			지금 장비를 재시작하거나 설정을 계속 한 후 나중에 재시작하셔도 됩니다.</font>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<hr size=1 noshade align=top>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<input id='restartNow' type='submit' value='지금 재시작' onclick="return true" />&nbsp;&nbsp;
+			<script>
+				var url = "<% getInfo("lastUrl"); %>";
+				document.write("<input id='restartLater' type='button' value='나중에 재시작' OnClick=window.location.replace(\""+url+"\");>");
+			</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

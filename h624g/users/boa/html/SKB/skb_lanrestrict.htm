@@ -1,0 +1,64 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>랜 제한 </title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function updateState()
+{
+	if (document.formLanRestrict.lan_restrict_enable.checked) {
+		enableTextField(document.formLanRestrict.lan_restrict_port_enable1);
+		enableTextField(document.formLanRestrict.lan_restrict_port_enable2);
+		enableTextField(document.formLanRestrict.lan_restrict_port_enable3);
+		enableTextField(document.formLanRestrict.lan_restrict_port_enable4);
+		enableTextField(document.formLanRestrict.lan_restrict_num1);
+		enableTextField(document.formLanRestrict.lan_restrict_num2);
+		enableTextField(document.formLanRestrict.lan_restrict_num3);
+		enableTextField(document.formLanRestrict.lan_restrict_num4);
+	}
+	else {
+		disableTextField(document.formLanRestrict.lan_restrict_port_enable1);
+		disableTextField(document.formLanRestrict.lan_restrict_port_enable2);
+		disableTextField(document.formLanRestrict.lan_restrict_port_enable3);
+		disableTextField(document.formLanRestrict.lan_restrict_port_enable4);
+		disableTextField(document.formLanRestrict.lan_restrict_num1);
+		disableTextField(document.formLanRestrict.lan_restrict_num2);
+		disableTextField(document.formLanRestrict.lan_restrict_num3);
+		disableTextField(document.formLanRestrict.lan_restrict_num4);
+	}
+}
+function resetForm()
+{
+	document.location.assign("skb_lanrestrict.htm");
+}
+</script>
+</head>
+
+<body>
+<blockquote>
+<h2>랜 제한</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+<tr><font size=2>
+각 랜에 접속 가능한 호스트 수를 제한할 수 있는 페이지입니다.
+</font></tr>
+<tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formLanRestrict method=POST name="formLanRestrict">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<% LanRestrictList(); %>
+</table>
+<br>
+<input type="submit" value="적용" name="apply">&nbsp;&nbsp;
+<input type="button" value="취소" name="reset" onClick="resetForm();">
+<input type="hidden" value="/skb_lanrestrict.htm" name="submit-url">
+<script> updateState(); </script>
+</form>
+
+</blockquote>
+</body>
+</html>

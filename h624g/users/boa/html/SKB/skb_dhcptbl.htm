@@ -1,0 +1,53 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Active DHCP Client Table</title>
+<% getInfo("include_css"); %>
+<script type="text/javascript">
+
+function page_reload()
+{
+	document.formClientTbl.review.disabled = true;
+	document.formClientTbl.submit();
+}
+
+</script>
+</head>
+<body>
+<blockquote>
+<h2>접속 리스트</h2>
+
+<table border=0 width="100%" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+접속된 단말의 IP와 MAC 주소 그리고 남은 시간을 보여주는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+
+<form action=/boafrm/formReflashClientTbl method=POST name="formClientTbl">
+<table border='1' width="100%">
+<tr class="tbl_head">
+	<td width="15%" align=center><font size=2><b>연결상태</b></td>
+	<td width="20%" align=center><font size=2><b>IP Address</b></td>
+	<td width="30%" align=center><font size=2><b>MAC Address</b></td>
+	<td width="20%" align=center><font size=2><b>HostName</b></td>
+	<td width="15%" align=center><font size=2><b>Time Expired(s)</b></td>
+</tr>
+<% dhcpClientList(); %>
+</table>
+
+<input type="hidden" value="/skb_dhcptbl.htm" name="submit-url">
+  <p>
+  	<input type="button" value="다시보기" name="review" onClick="page_reload();">&nbsp;&nbsp;
+  	<input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();">
+  </p>
+</form>
+</blockquote>
+</body>
+
+</html>

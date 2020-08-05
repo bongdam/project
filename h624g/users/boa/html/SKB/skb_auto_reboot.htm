@@ -1,0 +1,328 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>AUTO REBOOT</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function Load_Setting()
+{
+	var temp;
+	var autoreboot_on_idle = '<% getInfo("x_auto_reboot_on_idle"); %>';
+	var autoreboot_wan_idle = '<% getInfo("x_auto_wan_port_idle"); %>';
+	var autoreboot_uptime = '<% getInfo("x_auto_uptime"); %>';
+	var autoreboot_kbps = '<% getInfo("x_auto_bw_kbps"); %>';
+	var autoreboot_time = '<% getInfo("x_auto_hour_range"); %>';
+	var userForce = '<% getInfo("x_autoreboot_userforce"); %>';
+	var autoreboot_week = '<% getInfo("x_autoreboot_week"); %>';
+	var autoreboot_enable = '<% getInfo("x_auto_reboot_enable"); %>';
+
+	if (autoreboot_on_idle == "1") {
+		document.formAutoReboot.autoreboot_on_idle[0].checked = true;
+		document.formAutoReboot.autoreboot_on_idle[1].checked = false;
+	} else if (autoreboot_on_idle == "0") {
+		document.formAutoReboot.autoreboot_on_idle[1].checked = true;
+		document.formAutoReboot.autoreboot_on_idle[0].checked = false;
+	}
+
+	if (autoreboot_wan_idle == "1") {
+		document.formAutoReboot.autoreboot_wan_idle[0].checked = true;
+		document.formAutoReboot.autoreboot_wan_idle[1].checked = false;
+	} else if (autoreboot_wan_idle == "0") {
+		document.formAutoReboot.autoreboot_wan_idle[1].checked = true;
+		document.formAutoReboot.autoreboot_wan_idle[0].checked = false;
+	}
+
+	document.formAutoReboot.autoreboot_uptime.value=autoreboot_uptime;
+	document.formAutoReboot.autoreboot_kbps.value=autoreboot_kbps;
+
+	temp=autoreboot_time;
+	uptime_ = temp.split('-');
+	uptime_s = uptime_[0];
+	uptime_e = uptime_[1];
+	uptime_sh = uptime_s.split(':');
+	uptime_eh = uptime_e.split(':');
+	document.formAutoReboot.autoreboot_time_shour.value = uptime_sh[0];
+	document.formAutoReboot.autoreboot_time_smin.value = uptime_sh[1];
+	document.formAutoReboot.autoreboot_time_ehour.value = uptime_eh[0];
+	document.formAutoReboot.autoreboot_time_emin.value = uptime_eh[1];
+
+	temp=autoreboot_week;
+	week_ = temp.split('-');
+	document.formAutoReboot.autoreboot_week_s.value = week_[0];
+	document.formAutoReboot.autoreboot_week_e.value = week_[1];
+
+	if (userForce == "1") {
+		document.formAutoReboot.autoreboot_userforce.checked = true;
+	} else {
+		disableRadioGroup(document.formAutoReboot.autoreboot_on_idle);
+		disableRadioGroup(document.formAutoReboot.autoreboot_wan_idle);
+		document.formAutoReboot.autoreboot_uptime.disabled =true;
+		document.formAutoReboot.autoreboot_kbps.disabled =true;
+		document.formAutoReboot.autoreboot_wan_idle.disabled =true;
+		document.formAutoReboot.autoreboot_time_shour.disabled =true;
+		document.formAutoReboot.autoreboot_time_smin.disabled =true;
+		document.formAutoReboot.autoreboot_time_ehour.disabled =true;
+		document.formAutoReboot.autoreboot_time_emin.disabled =true;
+		document.formAutoReboot.autoreboot_week_s.disabled =true;
+		//document.formAutoReboot.autoreboot_week_e.disabled =true;
+	}
+
+	if(autoreboot_enable == "1")
+		document.formAutoReboot.autoreboot_enabled.checked = true;
+	else
+		document.formAutoReboot.autoreboot_enabled.checked = false;
+
+	update_cfgs();
+}
+
+function valid_check(formAutoReboot)
+{
+	var tmp;
+	var start_t = formAutoReboot.autoreboot_time_shour.value;
+	var start_tm = formAutoReboot.autoreboot_time_smin.value;
+	var end_t = formAutoReboot.autoreboot_time_ehour.value;
+	var end_tm = formAutoReboot.autoreboot_time_emin.value;
+	var uptime = formAutoReboot.autoreboot_uptime.value;
+	var kbps = formAutoReboot.autoreboot_kbps.value;
+
+	var day_uptime = uptime.toLowerCase().indexOf("d");
+	var hour_uptime = uptime.toLowerCase().indexOf("h");
+	var min_uptime = uptime.toLowerCase().indexOf("m");
+
+	if(day_uptime < 0 && hour_uptime < 0 && min_uptime < 0)
+	{
+		alert("Auto Uptime의 단위를 정확히 입력해주세요.");
+		return false;
+	}
+
+	if(!IsDigit(start_t) || !IsDigit(end_t) || !IsDigit(start_tm) || !IsDigit(end_tm)) {
+		alert('"Auto Hour/Min Range"에는 숫자만 입력가능합니다');
+		return false;
+	}
+
+	if(!IsDigit(kbps)) {
+		alert('"autoreboot_kbps"에는 숫자만 입력가능합니다');
+		return false;
+	}
+
+	if(parseInt(kbps) > 270000) {
+		alert('"autoreboot_kbps"에는 최대 270000 까지 입력가능합니다');
+		return false;
+	}
+
+	if(parseInt(start_t) >= 24 || parseInt(end_t) >= 24) {
+		alert('"Auto Hour Range"에는 0~23 까지 입력가능합니다');
+		return false;
+	}
+
+	if(parseInt(start_tm) >= 60 || parseInt(end_tm) >= 60) {
+		alert('"Auto Min Range"에는 0~59 까지 입력가능합니다');
+		return false;
+	}
+
+	tmp = start_t+':'+start_tm+'-'+end_t+':'+end_tm;
+	formAutoReboot.autoreboot_time.value=tmp;
+
+	start_t=formAutoReboot.autoreboot_week_s.value;
+	end_t=formAutoReboot.autoreboot_week_s.value;
+	//end_t=formAutoReboot.autoreboot_week_e.value;
+	formAutoReboot.autoreboot_week.value=start_t+'-'+end_t;
+
+	alert("설정 되었습니다.");
+	formAutoReboot.submit();
+}
+
+function update_cfg()
+{
+	if (document.formAutoReboot.autoreboot_userforce.checked == true) {
+		enableRadioGroup(document.formAutoReboot.autoreboot_on_idle);
+		enableRadioGroup(document.formAutoReboot.autoreboot_wan_idle);
+		document.formAutoReboot.autoreboot_uptime.disabled =false;
+		document.formAutoReboot.autoreboot_kbps.disabled =false;
+		document.formAutoReboot.autoreboot_wan_idle.disabled =false;
+		document.formAutoReboot.autoreboot_time_shour.disabled =false;
+		document.formAutoReboot.autoreboot_time_smin.disabled =false;
+		document.formAutoReboot.autoreboot_time_ehour.disabled =false;
+		document.formAutoReboot.autoreboot_time_emin.disabled =false;
+		document.formAutoReboot.autoreboot_week_s.disabled =false;
+		//document.formAutoReboot.autoreboot_week_e.disabled =false;
+	} else {
+		disableRadioGroup(document.formAutoReboot.autoreboot_on_idle);
+		disableRadioGroup(document.formAutoReboot.autoreboot_wan_idle);
+		document.formAutoReboot.autoreboot_uptime.disabled =true;
+		document.formAutoReboot.autoreboot_kbps.disabled =true;
+		document.formAutoReboot.autoreboot_wan_idle.disabled =true;
+		document.formAutoReboot.autoreboot_time_shour.disabled =true;
+		document.formAutoReboot.autoreboot_time_smin.disabled =true;
+		document.formAutoReboot.autoreboot_time_ehour.disabled =true;
+		document.formAutoReboot.autoreboot_time_emin.disabled =true;
+		document.formAutoReboot.autoreboot_week_s.disabled =true;
+		//document.formAutoReboot.autoreboot_week_e.disabled =true;
+	}
+}
+
+function update_cfgs()
+{
+	if(document.formAutoReboot.autoreboot_enabled.checked == true)
+		document.formAutoReboot.autoreboot_userforce.disabled = false;
+	else
+		document.formAutoReboot.autoreboot_userforce.disabled = true;
+
+	if(document.formAutoReboot.autoreboot_userforce.disabled==true)
+		document.formAutoReboot.autoreboot_userforce.checked = false;
+
+	update_cfg();
+}
+
+function resetClick()
+{
+	document.location.reload();
+}
+
+</script>
+</head>
+<body onload="Load_Setting();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>AUTO REBOOTING</h2>
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+자동 재시작을 설정하는 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+<form action=/boafrm/formAutoReboot method=POST name="formAutoReboot">
+<table>
+	<input type="checkbox" name="autoreboot_enabled" value="1" onClick="update_cfgs();"><b>AUTO_REBOOT 사용
+</table>
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+		<tr>
+			<td align="left" width="30%" colspan=2>
+				<b>*서버로부터 내려받은 설정 상태
+			</td>
+		</tr>
+		<tr>
+			<td colspan=2 width=100% style="height:1px;line-height:1px;font-size:1px;background-color:#666;padding:0px;" ></td>
+		</tr>
+		<% autoreboot_status(); %>
+	</table>
+	<br>
+	<br>
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+		<tr>
+			<td align="left" width="30%" colspan=2>
+				<b>*운영자 수동 설정 상태
+			</td>
+		</tr>
+		<tr>
+			<td colspan=2 width=100% style="height:1px;line-height:1px;font-size:1px;background-color:#666;padding:0px;" ></td>
+		</tr>
+		<br>
+		<tr>
+			<td width="30%">
+				수동 설정 사용:
+			</td>
+			<td>
+				<input type="checkbox" name="autoreboot_userforce" value="1" onClick="update_cfg();">
+			</td>
+		</tr>
+		<tr>
+			<td width="30%">
+				Auto Reboot on idle:
+			</td>
+			<td>
+				<input type="radio" name="autoreboot_on_idle" value="1">YES
+				<input type="radio" name="autoreboot_on_idle" value="0">NO
+			</td>
+		</tr>
+		<tr>
+			<td width="30%">
+				Auto Uptime:
+			</td>
+			<td width="30%">
+				<input type="text" name="autoreboot_uptime" size="3" maxlength="3" >(d/h/m (예:15일 설정)-"15d")
+			</td>
+		</tr>
+		<tr>
+			<td width="30%">
+				Auto Wan Port Idle:
+			</td>
+			<td>
+				<input type="radio" name="autoreboot_wan_idle" value="1">YES
+				<input type="radio" name="autoreboot_wan_idle" value="0">NO
+			</td>
+		</tr>
+		<tr>
+			<td width="30%">Auto 시간:(00~23):</td>
+			<td width="30%">
+				<input type="hidden"  name="autoreboot_time" value="autoup_reboot_time" >
+				<input type="text"  name="autoreboot_time_shour" size="1" maxlength="2" >시
+				<input type="text"  name="autoreboot_time_smin" size="1" maxlength="2" >분--
+				<input type="text"  name="autoreboot_time_ehour" size="1" maxlength="2" >시
+				<input type="text"  name="autoreboot_time_emin" size="1" maxlength="2" >분
+			</td>
+		</tr>
+		<tr>
+			<td width="30%">Auto 요일:</td>
+			<td width="30%">
+				<input type="hidden"  name="autoreboot_week" value="autoup_reboot_time" >
+				<select name="autoreboot_week_s">
+					<option value="1">월
+					<option value="2">화
+					<option value="3">수
+					<option value="4">목
+					<option value="5">금
+					<option value="6">토
+					<option value="0">일
+				</select>
+				<input type="hidden" name="autoreboot_week_e" value="">
+<!--				</select>-
+				<select name="autoreboot_week_e">
+					<option value="1">월
+					<option value="2">화
+					<option value="3">수
+					<option value="4">목
+					<option value="5">금
+					<option value="6">토
+					<option value="0">일
+				</select>-->
+			</td>
+		</tr>
+		<tr>
+			<td width="30%">Auto 평균 데이타량(1분):</td>
+			<td width="30%">
+				<select name="autoreboot_kbps">
+					<option value="100">100(kbps)이하
+					<option value="200">200(kbps)이하
+					<option value="300">300(kbps)이하
+					<option value="400">400(kbps)이하
+					<option value="500">500(kbps)이하
+					<option value="600">600(kbps)이하
+					<option value="700">700(kbps)이하
+					<option value="800">800(kbps)이하
+					<option value="900">900(kbps)이하
+					<option value="1000">1000(kbps)이하
+				</select>
+			</td>
+		</tr>
+	</table>
+<br>
+<br>
+<input type="button" value="적용" name="save" onClick="valid_check(this.form);">&nbsp;&nbsp;
+<input type="reset" value="취소" name="reset" onclick="resetClick();">
+<input type="hidden" value="/skb_auto_reboot.htm" name="submit-url">
+</form>
+</table>
+</blockquote>
+</body>
+</html>

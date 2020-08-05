@@ -1,0 +1,203 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>Firmware Update</title>
+<style>
+.on {display:on}
+.off {display:none}
+</style>
+<script type="text/javascript" src="util_gw.js"></script>
+<% getInfo("include_css"); %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script>
+var time = 0;
+var delay_time = 1000;
+var loop_num = 0;
+var firmware_upgrade_acs_managed = <% getIndex("firmware_acs_managed"); %>;
+var fota_upgrade_flag = <% getIndex("upload_fota_upgrade"); %>;
+var fota_button_flag = <% getIndex("upload_fota_button"); %>;
+
+function Load_Setting()
+{
+	if (fota_upgrade_flag == 0) {
+		document.getElementById("ID_UPLOAD_CHECK").value = upload_check;
+		document.getElementById("ID_UPLOAD_CHECK_RESULT").style.display = "none";
+		if (fota_button_flag == 1)
+			document.getElementById("ID_UPLOAD_CHECK_RESULT").style.display = "";
+	} else {
+		document.getElementById("ID_UPLOAD_CHECK").value = upload_send;
+		document.getElementById("ID_UPLOAD_CHECK_RESULT").style.display = "";
+	}
+
+	document.getElementById("ID_UPLOAD").value = upload_send;
+}
+
+function progress()
+{
+	if (loop_num == 3) {
+		alert(upload_up_failed);
+		return false;
+	}
+
+	if (time < 1)
+		time = time + 0.033;
+	else {
+		time = 0;
+		loop_num++;
+	}
+	setTimeout('progress()',delay_time);
+}
+
+function getFileType(str)
+{
+	if(str.value == "")
+		return;
+	var name = str.split(".");
+	var type = name[name.length-1];
+	return type;
+}
+
+function sendClicked(F)
+{
+	if(firmware_upgrade_acs_managed == 1) {
+		document.upload.binary.focus();
+		alert(upload_cannot_upgrade);
+		return false;
+	}
+
+	if (document.upload.binary.value == "") {
+		document.upload.binary.focus();
+		alert(upload_send_file_empty);
+		return false;
+	}
+
+	var fileType = getFileType(document.upload.binary.value);
+
+	if (fileType != "bin") {
+		document.upload.binary.focus();
+		alert(upload_invalid_format);
+		return false;
+	}
+
+	F.submit();
+	show_div(true, "progress_div");
+	progress();
+}
+
+function sendCheck(F)
+{
+	if (fota_upgrade_flag == 0) {
+		document.getElementById("ID_UPLOAD_CHECK_RESULT").style.display = "none";
+		document.getElementById("ID_UPLOAD_DOWNLOAD").style.display = "none";
+		document.getElementById("ID_UPLOAD_CHECKING").style.display = "";
+		document.formFotaUpload.FOTA_CHECK.value = "firmware_check";
+		document.formFotaUpload.FOTA_UPGRADE.value = "";
+	} else {
+		document.getElementById("ID_UPLOAD_CHECK_RESULT").style.display = "none";
+		document.getElementById("ID_UPLOAD_CHECKING").style.display = "none";
+		document.getElementById("ID_UPLOAD_DOWNLOAD").style.display = "";
+		document.formFotaUpload.FOTA_CHECK.value = "";
+		document.formFotaUpload.FOTA_UPGRADE.value = "fota_upgrade";
+	}
+
+	document.getElementById("ID_UPLOAD_CHECK").disabled = true;
+	document.getElementById("ID_UPLOAD").disabled = true;
+	document.getElementById("ID_UPLOAD_FILE").disabled = true;
+
+	F.submit();
+}
+
+function applyFota(F)
+{
+	if (F.ID_FOTA_URL.value == "") {
+		alert(upload_fota_url_error);
+		return false;
+	}
+
+	if (F.ID_FOTA_CFG.value == "") {
+		alert(upload_fota_cfg_error);
+		return false;
+	}
+
+	F.submit();
+}
+
+</script>
+
+</head>
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(upload_header)</script></h2>
+<form action="/boafrm/formFotaUpload" method=POST name="formFotaUpload">
+<input type="hidden" name="FOTA_CHECK" value="">
+<input type="hidden" name="FOTA_UPGRADE" value="">
+<table border="0" cellspacing="4" width="100%">
+	<tr>
+		<font size=2><script>dw(upload_header_explain)</script></font>
+	</tr>
+	<tr>
+		<hr size=1 noshade align=top>
+	</tr>
+</table>
+<table border="0" cellspacing="4" width="550">
+	<tr>
+		<td width="30%"><font size=2><b><script>dw(upload_version)</script></b></font></td>
+		<td width="70%">
+			<font size=2><% getInfo("fwVersion"); %></font>&nbsp;&nbsp;&nbsp;
+			<input type="button" value="check" id="ID_UPLOAD_CHECK" name="ID_UPLOAD_CHECK" Onclick="sendCheck(this.form);" >
+		</td>
+	</tr>
+	<tr id="ID_UPLOAD_CHECK_RESULT" style="display:none">
+		<td width="30%"><font size=2><b><script>dw(upload_check_result)</script></b></font></td>
+		<td width="70%"><font size=2><% getInfo("upload_fota_check_result"); %></font></td>
+	</tr>
+	<tr id="ID_UPLOAD_CHECKING" style="display:none">
+		<td width="30%"><font size=2><b><script>dw(upload_check_result)</script></b></font></td>
+		<td width="70%"><font size=2><script>dw(upload_checking)</script></font></td>
+	</tr>
+	<tr id="ID_UPLOAD_DOWNLOAD" style="display:none">
+		<td width="30%"><font size=2><b><script>dw(upload_check_result)</script></b></font></td>
+		<td width="70%"><font size=2 color="red"><script>dw(upload_download)</script></font></td>
+	</tr>
+<table>
+</form>
+
+<form action="/boafrm/formFotaConfig" method=POST name="formFotaConfig">
+<table border="0" cellspacing="4" width="550">
+	<tr>
+		<td width="30%"><font size=2><b><script>dw(upload_fota_url)</script></b></font></td>
+		<td width="70%"><input type="text" name="ID_FOTA_URL" size="20" maxlength="64" value="<% getInfo("x_fota_url"); %>" ></td>
+	</tr>
+	<tr>
+		<td width="30%"><font size=2><b><script>dw(upload_fota_cfg)</script></b></font></td>
+		<td width="70%">
+			<input type="text" name="ID_FOTA_CFG" size="20" maxlength="64" value="<% getInfo("x_fota_cfg"); %>" >&nbsp;&nbsp;&nbsp;
+			<input type="button" value="save" id="ID_FOTA_APPLY" name="ID_FOTA_APPLY" Onclick="applyFota(this.form);" >
+			<script>document.formFotaConfig.ID_FOTA_APPLY.value = upload_fota_setting;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form method="post" action="boafrm/formUpload" enctype="multipart/form-data" name="upload">
+<table border="0" cellspacing="4" width="550">
+	<tr>
+		<td width="30%"><font size=2><b><script>dw(upload_file_select)</script></b></font></td>
+		<td width="70%">
+			<input type="file" id="ID_UPLOAD_FILE" name="binary" size=20>&nbsp;&nbsp;&nbsp;
+			<input type="button" value="Upload" id="ID_UPLOAD" name="ID_UPLOAD" Onclick="sendClicked(this.form);" >
+		</td>
+	</tr>
+</table>
+
+<table border="0" cellspacing="4" width="100%">
+	<tr>
+		<td colspan="2"><hr size=1 noshade align=top></td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

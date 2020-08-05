@@ -1,0 +1,26 @@
+OUTPUT_ARCH(mips)
+ENTRY(ss_init_rxi310)
+INCLUDE "ram_func"
+SECTIONS
+{
+  /* file header is 0x10 bytes */
+  . = 0xBFE01550;
+  .init : 
+  { 
+    *(.init_ram_entry)
+    *(.init)
+  } =0
+  .text :
+  {
+    *(.text)
+  } =0
+  .data :
+  {
+	*(.data)
+  }
+/*  _gp = ALIGN (16) + 0x7ff0; */
+  .bss :
+  {
+   *(.bss)
+  }
+}

@@ -1,0 +1,130 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script>
+var file_validation = <% getIndex("saveconf_validation"); %>;
+
+function getFileType(str)
+{
+	if(str.value == "")
+		return;
+	var name = str.split(".");
+	var type = name[name.length-1];
+	return type;
+}
+
+function fileCheck(F)
+{
+	var oFile = F.binary;
+	if (oFile.value == "") {
+		alert(saveconf_load_from_file_empty);
+		return false;
+	}
+
+	var fileType = getFileType(oFile.value);
+
+	if (fileType != "cgi") {
+		F.binary.focus();
+		alert(upload_invalid_format);
+		return false;
+	}
+	F.submit();
+	return true;
+}
+
+function restoreClick(F)
+{
+	if ( !confirm(saveconf_reset_to_default_confm) )
+		return false;
+
+	document.formSaveConfigReset.device_status.value = "factory";
+	F.submit();
+	return true;
+}
+
+function rebootClick(F)
+{
+	if ( !confirm(saveconf_reset_to_reboot_confm) )
+		return false;
+
+	document.formSaveConfigReset.device_status.value = "reboot";
+	F.submit();
+	return true;
+}
+
+function saveClick()
+{
+	document.formNvramSave.act.value = "act_download_nvram";
+	return true;
+}
+
+function checkNvram()
+{
+	if (file_validation == 1)
+		alert(saveconf_invalid);
+}
+</script>
+</head>
+
+<body onload="checkNvram();">
+<blockquote>
+<h2><script>dw(saveconf_header)</script></h2>
+<table border="0" cellspacing="4" width="500">
+	<tr><font size=2><script>dw(saveconf_header_explain)</script></tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formNvramSave method=POST name="formNvramSave">
+<input type="hidden" name="act" value="" />
+<table border="0" width="500">
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(saveconf_save_to_file)</script></b></td>
+    	<td width="60%"><font size=2>
+    		<input type="submit" value="Save..." name="save" onclick="return saveClick();">
+        	<script>document.formNvramSave.save.value = saveconf_save;</script>
+        </td>
+   </tr>
+</form>
+</table>
+
+<form method="post" action="boafrm/formNvramRestore" enctype="multipart/form-data" name="formNvramRestore">
+<table border="0" width="500">
+	<tr>
+    	<td width="40%"><font size=2><b><script>dw(saveconf_load_from_file)</script></b></td>
+    	<td width="60%"><font size=2>
+    		<input type="file" name="binary" id="binary" size=24>&nbsp;&nbsp;
+			<input type="button" value="Upload" name="Upload" onclick="fileCheck(this.form)">
+			<script>document.formNvramRestore.Upload.value = saveconf_load;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formSaveConfigReset method=POST name="formSaveConfigReset">
+<input type="hidden" name="device_status" value="" >
+<table border="0" width="500">
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(saveconf_reset_to_default)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="button" value="Reset" name="Reset" onclick="return restoreClick(this.form)">
+			<script>document.formSaveConfigReset.Reset.value = saveconf_default;</script>
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(saveconf_reset_to_reboot)</script></b></td>
+		<td width="60%"><font size=2>
+			<input type="button" value="Reboot" name="Reboot" onclick="return rebootClick(this.form)">
+			<script>document.formSaveConfigReset.Reboot.value = saveconf_reboot;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

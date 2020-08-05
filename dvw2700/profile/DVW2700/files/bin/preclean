@@ -1,0 +1,67 @@
+#!/bin/sh
+
+# $1 - prefix string which gets appended with index
+#      "PORTFW_TBL" + "0" e.g.
+# $2 - table count
+# $3 - starting index. unless specified, 1 is starting index
+
+unset_tbl() {
+	local stem="$1"
+	local num=${2:-0}
+	local i=${3:-1}
+
+	while [ $num -gt 0 ]; do
+		eval "nvram unset ${stem}${i}"
+		i=$((i + 1))
+		num=$((num - 1))
+	done
+}
+
+# -------------------------------------------------------------------------
+# unset table entry
+# -------------------------------------------------------------------------
+unset_tbl "x_STATICMAP_TBL" "$(nvram get x_STATICMAP_TBL_NUM)" 0
+unset_tbl "PORTFW_TBL" "$(nvram get PORTFW_TBL_NUM)"
+unset_tbl "x_Q_R_" "$(nvram get x_Q_R_NUM)" 0
+unset_tbl "DHCPRSVDIP_TBL" "$(nvram get DHCPRSVDIP_TBL_NUM)"
+unset_tbl "x_MACFILTER_TBL" "$(nvram get MACFILTER_TBL_NUM)"
+unset_tbl "webacl_addr" "$(nvram get webacl_num)"
+unset_tbl "PORTFILTER_TBL" "$(nvram get PORTFILTER_TBL_NUM)"
+unset_tbl "IPFILTER_TBL" "$(nvram get IPFILTER_TBL_NUM)"
+unset_tbl "DHCPRSVDIP_TBL" "$(nvram get DHCPRSVDIP_TBL_NUM)"
+
+for b in 0 1; do
+	eval "unset_tbl WLAN${b}_MACAC_ADDR \$(nvram get WLAN${b}_MACAC_NUM)"
+	for vap in 0 1 2 3; do
+		eval "unset_tbl WLAN${b}_VAP${vap}_MACAC_ADDR \$(nvram get WLAN${b}_VAP${vap}_MACAC_NUM)"
+	done
+	eval "unset_tbl WLAN${b}_WDS \$(nvram get WLAN${b}_WDS_NUM)"
+done
+
+# -------------------------------------------------------------------------
+# unset individual name
+# -------------------------------------------------------------------------
+names="touch_superUser \
+web_rootaccount_touch \
+touch_User \
+web_useraccount_touch \
+ping_test_result \
+tmp_cfgac \
+tmp_config_ver \
+tmp_fwac \
+x_sdmz_host \
+x_wlan1_ratelimit \
+x_wlan1_vap0_ratelimit \
+x_wlan1_vap1_ratelimit \
+x_wlan1_vap2_ratelimit \
+x_wlan0_ratelimit \
+x_wlan0_vap0_ratelimit \
+x_wlan0_vap1_ratelimit \
+x_igmp_expire_time \
+softreset_result"
+
+for name in $names; do
+	nvram unset ${name}
+done
+
+rm -f /var/log/mfg-run

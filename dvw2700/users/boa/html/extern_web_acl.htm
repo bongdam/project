@@ -1,0 +1,373 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+<title>외부 웹접속제어</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<link rel='STYLESHEET' type='text/css' href='style.css'>
+<script language="javascript">
+var TAB_CODE=9
+var DEL_CODE=46
+var BS_CODE=8
+var SP_CODE=32
+var DOT_CODE=190
+var DOT2_CODE=110
+
+var rs_addr = '<% getInfo("webacl_addr"); %>';
+var rs_port = '<% getInfo("webacl_port"); %>';
+
+function trim(value)
+{
+    return value.replace(/^\s+|\s+$/g,"");
+}
+
+function saveClick()
+{
+    var web_ip;
+    var check_ip;
+	var acl_num;
+
+	acl_num = <% write(getIndex("webaclNum")); %> ;
+
+    if(document.formWebAcl.webacl_mode.checked) {
+    	if(acl_num == 0 && document.formWebAcl.webacl_ip.checked == false) {
+    		alert("적어도 하나의 ACL 주소를 설정하셔야 합니다.");
+    		return;
+    	}
+    	if(document.formWebAcl.webacl_ip.checked) {
+        	if((acl_num + 1) > 10) {
+        		alert("ACL LIST는 최대 10개까지 설정 할 수 있습니다.");
+        		return false;
+        	}
+
+        	if ( document.formWebAcl.ip1.value=="" ||
+            	document.formWebAcl.ip1.value > 255 ||
+
+            	document.formWebAcl.ip2.value=="" ||
+            	document.formWebAcl.ip2.value > 255 ||
+
+            	document.formWebAcl.ip3.value=="" ||
+            	document.formWebAcl.ip3.value > 255 ||
+
+            	document.formWebAcl.ip4.value=="" ||
+            	document.formWebAcl.ip4.value > 255 ) {
+                	alert("IP주소가 잘못 되었습니다.");
+                	return;
+            }
+
+        	web_ip=document.formWebAcl.ip1.value+"."+document.formWebAcl.ip2.value+"."+document.formWebAcl.ip3.value+"."+document.formWebAcl.ip4.value;
+
+        	if (web_ip!="0.0.0.0") {
+            	if ( getDigit(web_ip,1) == "0" ) {
+                	alert ("IP 주소 값이 올바르지 않습니다!");
+                	return false;
+            	}
+            	if (!ip_class_check(web_ip)) {
+                	alert (" IP 주소 값이 올바르지 않습니다!!");
+	            	return false;
+	        	}
+        	} else
+        		alert ("0.0.0.0으로 설정 시 모든 IP가 접근 가능합니다!!");
+
+    		if (!IsDigit(document.formWebAcl.rcs_port.value)) {
+        		alert("포트 번호가 올바르지 않습니다! 10진수(0-9)를 입력해야 합니다.");
+	        	document.formWebAcl.rcs_port.focus();
+	        	return false;
+	    	}
+        	if (document.formWebAcl.rcs_port.value > 65535 || document.formWebAcl.rcs_port.value < 1) {
+            	alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+            	document.formWebAcl.rcs_port.focus();
+            	return false;
+        	}
+        }
+    }
+
+	document.formWebAcl.save1.disabled=true;
+	document.formWebAcl.submit();
+	return true;
+}
+
+function resetForm()
+{
+	document.location.assign("extern_web_acl.htm");
+}
+
+function CheckNum(keynum)
+{
+	if( ((keynum >= 96) && keynum <= 105)
+	  ||((keynum >= 48) && keynum <= 57)
+	  )
+		return true;
+	return false;
+}
+
+function IPKeyUp(prefix,idx)
+{
+	var obj=document.getElementsByName(prefix+idx);
+	var len;
+	var nextidx = idx + 1;
+	var keynum;
+
+    if(window.event)
+		keynum = event.keyCode;
+	else if(e.which) // Netscape/Firefox/Opera
+		keynum = event.which;
+
+	if(keynum == TAB_CODE || keynum == BS_CODE) return;
+
+	len = obj[0].value.length;
+	if(len == 3 || event.keyCode == DOT_CODE || event.keyCode == DOT2_CODE)
+	{
+		if(len == 0) return;
+		obj=document.getElementsByName(prefix+nextidx);
+		if(obj[0]) obj[0].focus();
+		return;
+	}
+}
+
+function IPKeyDown(prefix,idx)
+{
+	var obj=document.getElementsByName(prefix+idx);
+	var previdx = idx - 1;
+
+	if(window.event)
+		keynum = event.keyCode;
+	else /*if(event.which) // Netscape/Firefox/Opera*/
+		keynum = event.which;
+
+	if((keynum == TAB_CODE)
+	    || (keynum == DEL_CODE)
+	    || (keynum == BS_CODE) )
+	{
+		if(obj[0].value.length == 0 && event.keyCode == BS_CODE)
+		{
+			obj=document.getElementsByName(prefix+previdx);
+			if(obj[0]) obj[0].focus();
+		}
+		return 1;
+	}
+	return CheckNum(keynum);
+}
+
+function init_load() {
+    var ipSplitArray = new Array();
+    var acl_mode = <% write(getIndex("webacl_mode")); %>;
+    var webman_mode = <% write(getIndex("webman_enable")); %>;
+    var curLoginUser = <% write(getIndex("isAdmin")); %>;
+
+    ipSplitArray=rs_addr.split('.');
+
+    document.forms[0].ip1.value= ipSplitArray[0];
+    document.forms[0].ip2.value= ipSplitArray[1];
+    document.forms[0].ip3.value= ipSplitArray[2];
+    document.forms[0].ip4.value= ipSplitArray[3];
+
+    document.forms[0].rcs_port.value= rs_port;
+
+    if (acl_mode == 1)
+        document.formWebAcl.webacl_ip.disabled = false;
+     else
+    	document.formWebAcl.webacl_ip.disabled = true;
+
+    if(webman_mode == 0) {
+		document.formWebAcl.webacl_mode.disabled = true;
+		document.formWebAcl.webacl_ip.disabled = true;
+    } else {
+		document.formWebAcl.web_management.checked = true;
+	}
+
+    disableTextField(document.formWebAcl.ip1);
+    disableTextField(document.formWebAcl.ip2);
+    disableTextField(document.formWebAcl.ip3);
+    disableTextField(document.formWebAcl.ip4);
+    disableTextField(document.formWebAcl.rcs_port);
+
+    if ( curLoginUser == 1 ) {
+		document.all.acl_.style.display="none";
+	}
+}
+
+function webaclupdate()
+{
+    if(document.formWebAcl.webacl_mode.checked == true) //허용
+        document.formWebAcl.webacl_ip.disabled = false;
+    else	//차단
+        document.formWebAcl.webacl_ip.disabled = true;
+}
+
+function aclip_portsetup()
+{
+	if(document.formWebAcl.webacl_ip.checked == true) { //허용
+        enableTextField(document.formWebAcl.ip1);
+        enableTextField(document.formWebAcl.ip2);
+        enableTextField(document.formWebAcl.ip3);
+        enableTextField(document.formWebAcl.ip4);
+        enableTextField(document.formWebAcl.rcs_port)
+	} else {
+        disableTextField(document.formWebAcl.ip1);
+        disableTextField(document.formWebAcl.ip2);
+        disableTextField(document.formWebAcl.ip3);
+        disableTextField(document.formWebAcl.ip4);
+        disableTextField(document.formWebAcl.rcs_port);
+	}
+}
+
+function webmanupdate()
+{
+	var acl_mode = <% write(getIndex("webacl_mode")); %>;
+
+	if(document.formWebAcl.web_management.checked == false) {
+		document.formWebAcl.webacl_mode.checked = false;
+		document.formWebAcl.webacl_ip.checked = false;
+		document.formWebAcl.webacl_mode.disabled = true;
+		document.formWebAcl.webacl_ip.disabled = true;
+	} else {
+		if (acl_mode == 1)
+			document.formWebAcl.webacl_mode.checked = true;
+		else
+			document.formWebAcl.webacl_mode.checked = false;
+		document.formWebAcl.webacl_mode.disabled = false;
+		webaclupdate();
+	}
+
+    disableTextField(document.formWebAcl.ip1);
+    disableTextField(document.formWebAcl.ip2);
+    disableTextField(document.formWebAcl.ip3);
+    disableTextField(document.formWebAcl.ip4);
+    disableTextField(document.formWebAcl.rcs_port);
+}
+
+function Updatestate()
+{
+	var is_disable = false;
+	var acl_mode = <% write(getIndex("webacl_mode")); %>;
+
+	if (acl_mode == 1) {
+		document.formWebAcl.webacl_mode.checked = true;
+		document.formWebAcl.webacl_ip.checked = false;
+	} else {
+		document.formWebAcl.webacl_mode.checked = false;
+		document.formWebAcl.webacl_ip.disabled = true;
+	}
+
+	document.formWebAcl.save1.disabled = is_disable;
+
+    disableTextField(document.formWebAcl.ip1);
+    disableTextField(document.formWebAcl.ip2);
+    disableTextField(document.formWebAcl.ip3);
+    disableTextField(document.formWebAcl.ip4);
+    disableTextField(document.formWebAcl.rcs_port);
+
+	var acl_num = <% write(getIndex("webaclNum")); %> ;
+	for(i = 1 ; i <= acl_num; i++) {
+		get_by_id("deleteSelAcl"+i).disabled = is_disable;
+	}
+}
+
+function deleteClick(i)
+{
+	if ( !confirm('선택된 목록을 정말로 삭제하시겠습니까?') ) {
+		return false;
+	} else {
+		document.formWebAclDel.elements["acldel"].name = "select"+i;
+		return true;
+	}
+}
+
+</script>
+</head>
+<body onload="init_load(); mouse_r_click();">
+<blockquote>
+<h2>외부 웹접속제어</h2>
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+	<tr>
+		<font size=2>외부에서 단말의 웹 접속 허용/차단 설정을 할 수 있는 페이지입니다.</font></td>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formWebAcl method=POST name="formWebAcl">
+<input type="hidden" name="page" value="extern_web_acl.htm">
+<table border=0 width="400" cellspacing=4 cellpadding=0>
+	<tr>
+		<td colspan="2"><font size=2><b>
+			<input type="checkbox" name="web_management" value="ON" ONCLICK="webmanupdate()" >&nbsp;외부 WEB접근 설정
+		</td>
+	</tr>
+</table>
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+	<tr>
+		<td colspan="2"><font size=2><b>
+			<input type="checkbox" name="webacl_mode" value="ON" ONCLICK="webaclupdate()" >&nbsp;ACL 설정
+		</td>
+	</tr>
+
+	<tr>
+		<td colspan="3"><font size=2><b>
+			<input type="checkbox" name="webacl_ip" value="ON" ONCLICK="aclip_portsetup()" >&nbsp;ACL 주소 / 허용포트 설정
+		</td>
+	</tr>
+
+	<br>
+	<tr>
+		<td colspan=2 style="{width:20%}" ><font size=2><b>ACL 주소:</font></td>
+		<td width=400 >
+			<input type=text name="ip1" maxlength=3 size=3 style="{width:25pt}" value="" onfocus="this.select();">
+			.<input type=text name="ip2" maxlength=3 size=3 style="{width:25pt}" value="" onfocus="this.select();">
+			.<input type=text name="ip3" maxlength=3 size=3 style="{width:25pt}" value="" onfocus="this.select();">
+			.<input type=text name="ip4" maxlength=3 size=3 style="{width:25pt}" value="" onfocus="this.select();">
+		</td>
+	</tr>
+
+	<tr>
+		<td colspan=2 style="{width:20%}" ><font size=2><b>허용 포트:</font></td>
+		<td><input name='rcs_port' type='text' size="6" maxlength="6"></td>
+	</tr>
+</table>
+
+<table>
+<br>
+	<input type="button" value="적용" name ="save1" onClick="return saveClick()">&nbsp;&nbsp;
+	<input type="hidden" value="적용" name="save">
+	<input type="button" value="취소" name="reset" onClick="resetForm()">
+	<input type="hidden" value="/extern_web_acl.htm" name="submit-url">
+</table>
+
+</form>
+
+<br>
+<form action=/boafrm/formWebAcl method=POST name="formWebAclDel">
+<table border=0 width=300>
+	<tr>
+		<font size=2><b>ACL 리스트:</b></font>
+	</tr>
+	<% getInfo("web_aclList"); %>
+</table>
+
+<input type="hidden" value="ON" name="acldel">
+<input type="hidden" value="/extern_web_acl.htm" name="submit-url">
+<script> Updatestate(); </script>
+
+<br>
+<div id="webm_">
+<FIELDSET style="BORDER-RIGHT: #000000 1px solid; PADDING-RIGHT: 10px; BORDER-TOP: #000000 1px solid; PADDING-LEFT: 10px; PADDING-BOTTOM: 5px; BORDER-LEFT: #000000 1px solid; WIDTH: 300px; PADDING-TOP: 0px; BORDER-BOTTOM: #000000 1px solid; "><LEGEND>접속 허용 상태</LEGEND>
+	<table border="0" width=300>
+		<% getInfo("web_man_status"); %>
+	</table>
+</FIELDSET>
+</div>
+
+<br>
+<div id="acl_">
+<FIELDSET style="BORDER-RIGHT: #000000 1px solid; PADDING-RIGHT: 10px; BORDER-TOP: #000000 1px solid; PADDING-LEFT: 10px; PADDING-BOTTOM: 5px; BORDER-LEFT: #000000 1px solid; WIDTH: 300px; PADDING-TOP: 0px; BORDER-BOTTOM: #000000 1px solid; "><LEGEND>ACL설정 정보</LEGEND>
+	<table border="0" width=300>
+		<% getInfo("web_acl_list"); %>
+	</table>
+</FIELDSET>
+</div>
+
+</form>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>포트 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function selectSwitch()
+{
+	if (document.port_setup.nego%PRTNR_WAN0%.selectedIndex == 1) {
+		document.port_setup.speed%PRTNR_WAN0%.disabled = true;
+		document.port_setup.duplex%PRTNR_WAN0%.disabled = true;
+	} else {
+		document.port_setup.speed%PRTNR_WAN0%.disabled = false;
+		document.port_setup.duplex%PRTNR_WAN0%.disabled = false;
+	}
+
+	if (document.port_setup.nego%PRTNR_LAN1%.selectedIndex == 1) {
+		document.port_setup.speed%PRTNR_LAN1%.disabled = true;
+		document.port_setup.duplex%PRTNR_LAN1%.disabled = true;
+	} else {
+		document.port_setup.speed%PRTNR_LAN1%.disabled = false;
+		document.port_setup.duplex%PRTNR_LAN1%.disabled = false;
+	}
+
+	if (document.port_setup.nego%PRTNR_LAN2%.selectedIndex == 1) {
+		document.port_setup.speed%PRTNR_LAN2%.disabled = true;
+		document.port_setup.duplex%PRTNR_LAN2%.disabled = true;
+	} else {
+		document.port_setup.speed%PRTNR_LAN2%.disabled = false;
+		document.port_setup.duplex%PRTNR_LAN2%.disabled = false;
+	}
+
+	if (document.port_setup.nego%PRTNR_LAN3%.selectedIndex == 1) {
+		document.port_setup.speed%PRTNR_LAN3%.disabled = true;
+		document.port_setup.duplex%PRTNR_LAN3%.disabled = true;
+	} else {
+		document.port_setup.speed%PRTNR_LAN3%.disabled = false;
+		document.port_setup.duplex%PRTNR_LAN3%.disabled = false;
+	}
+
+	if (document.port_setup.nego%PRTNR_LAN4%.selectedIndex == 1) {
+		document.port_setup.speed%PRTNR_LAN4%.disabled = true;
+		document.port_setup.duplex%PRTNR_LAN4%.disabled = true;
+	} else {
+		document.port_setup.speed%PRTNR_LAN4%.disabled = false;
+		document.port_setup.duplex%PRTNR_LAN4%.disabled = false;
+	}
+}
+
+function resetClick()
+{
+  	document.location.assign("tcpipport.htm");
+}
+
+function formLoad()
+{
+	var op_mode = <% getIndex("opMode"); %>;
+
+	if(op_mode)
+		document.port_setup.opMode.options[1].selected = true;
+	else
+		document.port_setup.opMode.options[0].selected = true
+
+	var link_status = <% getInfo("wan_link_status"); %>;
+	document.port_setup.power%PRTNR_WAN0%.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego%PRTNR_WAN0%.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex%PRTNR_WAN0%.selectedIndex = 1;
+	document.port_setup.speed%PRTNR_WAN0%.selectedIndex = 1;
+	if (link_status & 0x20) {
+		document.port_setup.duplex%PRTNR_WAN0%.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		document.port_setup.speed%PRTNR_WAN0%.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan1_link_status"); %>;
+	document.port_setup.power%PRTNR_LAN1%.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego%PRTNR_LAN1%.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex%PRTNR_LAN1%.selectedIndex = 1;
+	document.port_setup.speed%PRTNR_LAN1%.selectedIndex = 1;
+	if (link_status & 0x20) {
+		document.port_setup.duplex%PRTNR_LAN1%.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		document.port_setup.speed%PRTNR_LAN1%.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan2_link_status"); %>;
+	document.port_setup.power%PRTNR_LAN2%.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego%PRTNR_LAN2%.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex%PRTNR_LAN2%.selectedIndex = 1;
+	document.port_setup.speed%PRTNR_LAN2%.selectedIndex = 1;
+	if (link_status & 0x20) {
+		document.port_setup.duplex%PRTNR_LAN2%.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		document.port_setup.speed%PRTNR_LAN2%.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan3_link_status"); %>;
+	document.port_setup.power%PRTNR_LAN3%.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego%PRTNR_LAN3%.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex%PRTNR_LAN3%.selectedIndex = 1;
+	document.port_setup.speed%PRTNR_LAN3%.selectedIndex = 1;
+	if (link_status & 0x20) {
+		document.port_setup.duplex%PRTNR_LAN3%.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		document.port_setup.speed%PRTNR_LAN3%.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan4_link_status"); %>;
+	document.port_setup.power%PRTNR_LAN4%.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego%PRTNR_LAN4%.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex%PRTNR_LAN4%.selectedIndex = 1;
+	document.port_setup.speed%PRTNR_LAN4%.selectedIndex = 1;
+	if (link_status & 0x20) {
+		document.port_setup.duplex%PRTNR_LAN4%.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		document.port_setup.speed%PRTNR_LAN4%.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	selectSwitch();
+}
+
+function apply_button(f)
+{
+	f.submitBtn.disabled = true;
+	f.reset.disabled = true;
+	f._port_reset_wan.disabled = true;
+	f._port_reset_lan1.disabled = true;
+	f._port_reset_lan2.disabled = true;
+	f._port_reset_lan3.disabled = true;
+	f._port_reset_lan4.disabled = true;
+	f.submit();
+}
+
+function apply_reset(c_port, f)
+{
+	f._port_reset_wan.disabled = true;
+	f._port_reset_lan1.disabled = true;
+	f._port_reset_lan2.disabled = true;
+	f._port_reset_lan3.disabled = true;
+	f._port_reset_lan4.disabled = true;
+	f.submitBtn.disabled = true;
+	f.reset.disabled = true;
+
+	if ( c_port == %PRTNR_WAN0% ) {
+		f.port_reset_%PRTNR_LAN1%.disabled = true;
+		f.port_reset_%PRTNR_LAN2%.disabled = true;
+		f.port_reset_%PRTNR_LAN3%.disabled = true;
+		f.port_reset_%PRTNR_LAN4%.disabled = true;
+		f.port_reset_%PRTNR_WAN0%.value="portReset";
+	}
+	else if ( c_port == %PRTNR_LAN1% ) {
+		f.port_reset_%PRTNR_WAN0%.disabled = true;
+		f.port_reset_%PRTNR_LAN2%.disabled = true;
+		f.port_reset_%PRTNR_LAN3%.disabled = true;
+		f.port_reset_%PRTNR_LAN4%.disabled = true;
+		f.port_reset_%PRTNR_LAN1%.value="portReset";
+	}
+	else if ( c_port == %PRTNR_LAN2% ) {
+		f.port_reset_%PRTNR_WAN0%.disabled = true;
+		f.port_reset_%PRTNR_LAN1%.disabled = true;
+		f.port_reset_%PRTNR_LAN3%.disabled = true;
+		f.port_reset_%PRTNR_LAN4%.disabled = true;
+		f.port_reset_%PRTNR_LAN2%.value="portReset";
+	}
+	else if ( c_port == %PRTNR_LAN3% ) {
+		f.port_reset_%PRTNR_WAN0%.disabled = true;
+		f.port_reset_%PRTNR_LAN1%.disabled = true;
+		f.port_reset_%PRTNR_LAN2%.disabled = true;
+		f.port_reset_%PRTNR_LAN4%.disabled = true;
+		f.port_reset_%PRTNR_LAN3%.value="portReset";
+	}
+	else if ( c_port == %PRTNR_LAN4% ) {
+		f.port_reset_%PRTNR_WAN0%.disabled = true;
+		f.port_reset_%PRTNR_LAN1%.disabled = true;
+		f.port_reset_%PRTNR_LAN2%.disabled = true;
+		f.port_reset_%PRTNR_LAN3%.disabled = true;
+		f.port_reset_%PRTNR_LAN4%.value="portReset";
+	}
+	f.submit();
+}
+</script>
+</head>
+
+  <body onload="formLoad(); mouse_r_click();">
+  <blockquote>
+  <form action=/boafrm/formPortSetup method=POST name="port_setup">
+  	<input type="hidden" value="/tcpipport.htm" name="submit-url">
+  <h2>포트 설정</h2>
+	<table border=0 width="600" cellspacing=4 cellpadding=0>
+	<tr><td><font size=2>
+		각 포트의 속도, 미디어 속성, 네트워크 모드 및 활성화/비활성화 설정을 할 수 있는 페이지입니다.
+	</font></td></tr>
+    <tr><td><hr size="1" align="top" noshade="noshade"></td></tr>
+  </table>
+  <br>
+
+<table border=0 width="450" cellpadding=2 cellspacing=1>
+<tr>
+<td colspan="2" align=center><b>네트워크 모드</b></td>
+<td colspan="4" align=center width=75 height=25>
+<select name=opMode onChange="">
+	<option value=0>공유기
+	<option value=1>허브
+</select>
+</tr>
+
+<tr><td colspan="6">&nbsp;</td></tr>
+<tr class="tbl_head">
+	<td align=center><b>포트</b></td>
+	<td align=center><b>협상</b></td>
+	<td align=center><b>속도</b></td>
+	<td align=center><b>전송방식</b></td>
+	<td align=center><b>전원</b></td>
+	<td align=center><b>리셋</b></td>
+</tr>
+
+<tr>
+	<td align=center height=25>WAN</td>
+	<td align=center height=25>
+	  <select name="nego%PRTNR_WAN0%"  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1 >auto
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="speed%PRTNR_WAN0%" disabled onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="duplex%PRTNR_WAN0%" disabled onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full
+	  </select>
+	</td>
+	<td align=center height=25>
+		<select name="power%PRTNR_WAN0%">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select>
+	</td>
+	<td align=center height=25><input type="button" value="리셋" name="_port_reset_wan" onClick="apply_reset(%PRTNR_WAN0%, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN1</td>
+	<td align=center height=25>
+	  <select name="nego%PRTNR_LAN1%"  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1 >auto
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="speed%PRTNR_LAN1%" onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="duplex%PRTNR_LAN1%" onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full
+	  </select>
+	</td>
+	<td align=center height=25>
+		<select name="power%PRTNR_LAN1%">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select>
+	</td>
+	<td align=center height=25><input type="button" value="리셋" name="_port_reset_lan1" onclick="apply_reset(%PRTNR_LAN1%, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN2</td>
+	<td align=center height=25>
+	  <select name="nego%PRTNR_LAN2%"  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1 >auto
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="speed%PRTNR_LAN2%" onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="duplex%PRTNR_LAN2%" onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full
+	  </select>
+	</td>
+	<td align=center height=25>
+		<select name="power%PRTNR_LAN2%">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select>
+	</td>
+	<td align=center height=25><input type="button" value="리셋" name="_port_reset_lan2" onclick="apply_reset(%PRTNR_LAN2%, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN3</td>
+	<td align=center height=25>
+	  <select name="nego%PRTNR_LAN3%"  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1 >auto
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="speed%PRTNR_LAN3%" onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="duplex%PRTNR_LAN3%" onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full
+	  </select>
+	</td>
+	<td align=center height=25>
+		<select name="power%PRTNR_LAN3%">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select>
+	</td>
+	<td align=center height=25><input type="button" value="리셋" name="_port_reset_lan3" onclick="apply_reset(%PRTNR_LAN3%, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN4</td>
+	<td align=center height=25>
+	  <select name="nego%PRTNR_LAN4%"  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1 >auto
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="speed%PRTNR_LAN4%" onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+	  </select>
+	</td>
+	<td align=center height=25>
+	  <select name="duplex%PRTNR_LAN4%" onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full
+	  </select>
+	</td>
+	<td align=center height=25>
+		<select name="power%PRTNR_LAN4%">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select>
+	</td>
+	<td align=center height=25><input type="button" value="리셋" name="_port_reset_lan4" onclick="apply_reset(%PRTNR_LAN4%, this.form);"></td>
+</tr>
+
+<tr><td colspan="6">&nbsp;</td></tr>
+<tr>
+	<td colspan="6">
+		<input type="button" value="적용" name="submitBtn" onclick="apply_button(this.form);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="button" value="취소" name="reset" onclick="resetClick();">
+		<input type="hidden" value="" name="port_reset_%PRTNR_WAN0%">
+		<input type="hidden" value="" name="port_reset_%PRTNR_LAN1%">
+		<input type="hidden" value="" name="port_reset_%PRTNR_LAN2%">
+		<input type="hidden" value="" name="port_reset_%PRTNR_LAN3%">
+		<input type="hidden" value="" name="port_reset_%PRTNR_LAN4%">
+	</td>
+</tr>
+</table>
+</form>
+<br>
+<br>
+<br>
+</blockquote>
+</body>
+</html>

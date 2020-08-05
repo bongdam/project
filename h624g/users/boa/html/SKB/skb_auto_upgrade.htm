@@ -1,0 +1,137 @@
+<html>
+<head>
+<meta HTTP-EQUIV="Pragma" CONTENT="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>자동 업그레이드</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var server_url_flag = 0;
+var pre_flag = 0;
+var datafile_flag = 0;
+
+function click_field(selectObj) {
+	if( (selectObj == "server_url") && (server_url_flag == 0) ){
+		document.formAutoup.server_url.value = "";
+		server_url_flag = 1;
+	} else if( (selectObj == "datafile") && (datafile_flag == 0) ){
+		document.formAutoup.datafile.value = "";
+		datafile_flag = 1;
+	} else if( (selectObj == "pre") && (pre_flag == 0) ){
+		document.formAutoup.pre.value = "";
+		pre_flag = 1;
+	}
+}
+
+function toggle() {
+	if (document.formAutoup.UseAutoup[0].checked == true) {
+		document.formAutoup.server_url.disabled = false;
+		document.formAutoup.pre.disabled = false;
+		document.formAutoup.datafile.disabled = false;
+		document.formAutoup.server_url.style.backgroundColor = 'white';
+		document.formAutoup.pre.style.backgroundColor = 'white';
+		document.formAutoup.datafile.style.backgroundColor = 'white';
+
+		document.formAutoup.server_url.value = "******************************";
+		document.formAutoup.pre.value = "**********";
+		document.formAutoup.datafile.value = "********************";
+
+	} else {
+		document.formAutoup.server_url.disabled = true;
+		document.formAutoup.pre.disabled = true;
+		document.formAutoup.datafile.disabled = true;
+		document.formAutoup.server_url.style.backgroundColor = '#DCDCDC';
+		document.formAutoup.pre.style.backgroundColor = '#DCDCDC';
+		document.formAutoup.datafile.style.backgroundColor = '#DCDCDC';
+	}
+}
+
+function frmOnload() {
+
+	if(<% getIndex("swms_enable"); %>) {
+		document.formAutoup.server_url.value = "******************************";
+		document.formAutoup.pre.value = "**********";
+		document.formAutoup.datafile.value = "********************";
+
+		document.formAutoup.UseAutoup[0].checked = true;
+		document.formAutoup.UseAutoup[1].checked = false;
+		document.formAutoup.UseAutoup[2].checked = false
+	} else if( <% getInfo("x_ldap_enabled"); %>) {
+		document.formAutoup.UseAutoup[0].checked = false;
+		document.formAutoup.UseAutoup[1].checked = true;
+		document.formAutoup.UseAutoup[2].checked = false;
+	} else {
+		document.formAutoup.UseAutoup[0].checked = false;
+		document.formAutoup.UseAutoup[1].checked = false;
+		document.formAutoup.UseAutoup[2].checked = true;
+	}
+	toggle();
+}
+
+function check_form() {
+
+	return true;
+}
+
+function change_type()
+{
+	toggle();
+}
+function resetForm()
+{
+	location=location;
+}
+
+</script>
+</head>
+<body onload="frmOnload();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>자동 업그레이드</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+<tr><font size=2>
+ 서버로부터 자동으로 업그레이드 할 수 있도록 설정하는 페이지입니다.
+</font></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formAutoup method="post" name="formAutoup" onSubmit="return check_form();">
+	<table class="content">
+		<tr>
+			<td colspan="2">
+			<font size=2>
+				<input type="radio" name="UseAutoup" value="swms" <% if (getIndex("UseAutoup")==1) write("checked"); %> onclick="change_type()"> SWMS
+				<input type="radio" name="UseAutoup" value="ldap" <% if (getIndex("UseAutoup")==2) write("checked"); %> onclick="change_type()"> LDAP CFG
+				<input type="radio" name="UseAutoup" value="disable" <% if (getIndex("UseAutoup")==0) write("checked"); %> onclick="change_type()"> 사용안함
+			</font>
+			</td>
+		</tr>
+		<tr>
+			<td><font size=2>서버 URL</td>
+			<td><input type="text" name="server_url" size="60" maxlength="127" onclick="click_field('server_url');"></td>
+		</tr>
+
+		<tr>
+			<td><font size=2>상대 경로</td>
+			<td><input type="text" name="pre" size="50" maxlength="127" onclick="click_field('pre');"></td>
+		</tr>
+
+		<tr>
+			<td><font size=2>파일명</td>
+			<td><input type="text" name="datafile" size="60" maxlength="63" onclick="click_field('datafile')"></td>
+		</tr>
+
+	</table>
+	<input type="hidden" value="/skb_auto_upgrade.htm" name="submit-url">
+	<p><input type="submit" value="저장" name="save">&nbsp;&nbsp;
+	<input type="reset" value="초기화" name="set"  onclick="resetForm()">
+</form>
+</blockquote>
+</body>
+</html>

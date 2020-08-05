@@ -1,0 +1,860 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script language="javascript" type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<style>
+.on {display:on}
+.off {display:none}
+</style>
+<script>
+var mode_change_flag = 0;
+var mode_change_wep = new Array();
+mode_change_wep[0] = 0;
+mode_change_wep[1] = 0;
+mode_change_wep[2] = 0;
+mode_change_wep[3] = 0;
+mode_change_wep[4] = 0;
+var value_changed = 0;
+
+function trim(value) {
+  return value.replace(/^\s+|\s+$/g, "");
+}
+
+function check_wepkey() {
+	var keyLen;
+	var result;
+
+	if (document.formSetOperation.length.selectedIndex == 0) {
+		if ( document.formSetOperation.format.selectedIndex == 0)
+			keyLen = 5;
+		else
+			keyLen = 10;
+	} else {
+		if ( document.formSetOperation.format.selectedIndex == 0)
+			keyLen = 13;
+		else
+			keyLen = 26;
+	}
+
+	if (value_changed) {
+		for (i = 1; i < 5; i++) {
+			str = document.formSetOperation.elements["key"+i].value;
+			if (document.formSetOperation.key_index[i-1].checked && str.length == 0) {
+				alert(operation_wep_key_empty);
+				document.formSetOperation.elements["key"+i].focus();
+				return false;
+			}
+
+			if ( ((mode_change_wep[i] == 1) && (document.formSetOperation.elements["key"+i].value.length > 0)) || (document.formSetOperation.key_index[i-1].checked) ) {
+		  		if (validateKey_wep(document.formSetOperation, i - 1, document.formSetOperation.elements["key"+i].value, keyLen, "") == 0) {
+					document.formSetOperation.elements["key"+i].focus();
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+function onApply(F)
+{
+	var ssid = document.formSetOperation.repeater_ssid;
+	var repeater_intf = document.formSetOperation.wispWanId;
+	var operation_mode = document.formSetOperation.operation_mode;
+	var method_index = document.formSetOperation.method.selectedIndex;
+	var repeater_radio;
+	var ret = "";
+	var auth;
+
+	if (operation_mode[2].checked == true || operation_mode[3].checked == true) {
+		ssid.value = trim(ssid.value);
+		if (ssid.value == "") {
+			alert(operation_wisp_ssid_empty);
+			ssid.focus();
+			return false;
+		}
+
+		var ssid_val = ssid.value;
+		var spaceBar_cnt = 0;
+		for (i = 0; i<ssid_val.length; i++) {
+			if (ssid_val.charAt(i) != " ")
+				spaceBar_cnt++;
+		}
+
+		if (spaceBar_cnt == 0) {
+			alert(operation_wisp_ssid_space);
+			ssid.focus();
+			return false;
+		}
+
+		if (method_index == 0 || method_index == 1 || method_index == 2 || method_index == 3 || method_index == 4) {	//WPA check
+
+			if (method_index == 4) {	//WPA only
+				if (document.formSetOperation.ciphersuite[0].checked == false && document.formSetOperation.ciphersuite[1].checked == false )	{
+					alert(operation_wpa_cipher_empty);
+					return false;
+				}
+				if (document.formSetOperation.ciphersuite[0].checked == true &&	 document.formSetOperation.ciphersuite[1].checked == true ) {
+					alert(operation_wpa_cipher_error);
+					return false;
+				}
+			} else if(method_index == 3) {	//WPA2 only
+				if (document.formSetOperation.wpa2ciphersuite[0].checked == false && document.formSetOperation.wpa2ciphersuite[1].checked == false ) {
+					alert(operation_wpa2_cipher_empty);
+					return false;
+				}
+				if (document.formSetOperation.wpa2ciphersuite[0].checked == true && document.formSetOperation.wpa2ciphersuite[1].checked == true ) {
+					alert(operation_wpa2_cipher_error);
+					return false;
+				}
+			} else if(method_index == 2) {	// WPA MIXED
+				if (document.formSetOperation.ciphersuite[0].checked == false && document.formSetOperation.ciphersuite[1].checked == false) {
+					alert(operation_wpa_cipher_empty);
+					return false;
+				}
+				if (document.formSetOperation.wpa2ciphersuite[0].checked == false && document.formSetOperation.wpa2ciphersuite[1].checked == false ) {
+					alert(operation_wpa2_cipher_empty);
+					return false;
+				}
+				if (document.formSetOperation.ciphersuite[0].checked == true && document.formSetOperation.ciphersuite[1].checked == true ) {
+					alert(operation_wpa_cipher_error);
+					return false;
+				}
+				if (document.formSetOperation.wpa2ciphersuite[0].checked == true && document.formSetOperation.wpa2ciphersuite[1].checked == true ) {
+					alert(operation_wpa2_cipher_error);
+					return false;
+				}
+			}
+
+			if (check_wpa_psk(document.formSetOperation, "") == false)
+				return false;
+
+		} else if (method_index == 5) {	//WEP check
+			var select_key = document.formSetOperation.select_key.selectedIndex;
+
+			document.formSetOperation.key_index[select_key].checked = true;
+			document.formSetOperation.elements["key"+(select_key + 1)].value = document.formSetOperation.wep_key.value;
+
+			if (check_wepkey() != true)
+				return false;
+		}
+
+		if (document.formSetOperation.wispWanId[1].checked == true)
+			repeater_radio = 1;
+		else
+			repeater_radio = 0;
+
+		ret += "<input type='hidden' name='method"+repeater_radio+"' value='"+document.formSetOperation.method.value+"'>";
+
+		//WPA
+		if (method_index == 0 || method_index == 1) {
+			ret += "<input type='hidden' name='wpa11w"+repeater_radio+"' value='capable'>";
+			ret += "<input type='hidden' name='wpa2EnableSHA256"+repeater_radio+"' value='enable'>";
+		}
+		ret += "<input type='hidden' name='wpaAuth"+repeater_radio+"' value='psk'>";
+		if (document.formSetOperation.ciphersuite[0].checked == true)
+			ret += "<input type='hidden' name='ciphersuite"+repeater_radio+"' value='tkip'>";
+
+		if (document.formSetOperation.ciphersuite[1].checked == true)
+			ret += "<input type='hidden' name='ciphersuite"+repeater_radio+"' value='aes'>";
+
+		if (document.formSetOperation.wpa2ciphersuite[0].checked == true)
+			ret += "<input type='hidden' name='wpa2ciphersuite"+repeater_radio+"' value='tkip'>";
+
+		if (document.formSetOperation.wpa2ciphersuite[1].checked == true)
+			ret += "<input type='hidden' name='wpa2ciphersuite"+repeater_radio+"' value='aes'>";
+
+		ret += "<input type='hidden' name='pskFormat"+repeater_radio+"' value='"+document.formSetOperation.pskFormat.value+"'>";
+		ret += "<input type='hidden' name='pskValue"+repeater_radio+"' value='"+document.formSetOperation.pskValue.value+"'>";
+
+		//WEP
+		if (document.formSetOperation.auth_type[0].checked)
+			auth = "open";
+		else if (document.formSetOperation.auth_type[1].checked)
+			auth = "shared";
+		else
+			auth = "auto";
+
+		ret += "<input type='hidden' name='authType"+repeater_radio+"' value='"+auth+"'>";
+		ret += "<input type='hidden' name='length"+repeater_radio+"' value='"+document.formSetOperation.length.value+"'>";
+		ret += "<input type='hidden' name='format"+repeater_radio+"' value='"+document.formSetOperation.format.value+"'>";
+		ret += "<input type='hidden' name='wepEnabled"+repeater_radio+"' value='"+document.formSetOperation.wepEnabled.value+"'>";
+
+		document.getElementById("hidden_value").innerHTML = ret;
+	}
+
+	if ( !confirm(operation_save_confirm) )
+		return false;
+
+	F.submit();
+	return true;
+}
+
+function init_mode_change_flag()
+{
+	mode_change_flag = 0;
+	mode_change_wep[0] = 0;
+	mode_change_wep[1] = 0;
+	mode_change_wep[2] = 0;
+	mode_change_wep[3] = 0;
+	mode_change_wep[4] = 0;
+}
+
+function modeEvent(mode)
+{
+	init_mode_change_flag();
+
+	if (mode == "2" || mode == "3")
+		show_div(1, "wisp_display");
+	else
+		show_div(0, "wisp_display");
+}
+
+function show_search_ap()
+{
+	var wlan_idx;
+
+	if (document.formSetOperation.wispWanId[0].checked == true)
+		wlan_idx = 0;
+	else
+		wlan_idx = 1;
+
+	openWindow('boafrm/formWlanRedirect?redirect-url=/repeater_search_ap.htm&wlan_id='+wlan_idx, 'P201', 800, 750);
+}
+
+function setDefault_WPAPSK_KeyValue()
+{
+	var wpapsk_format_idx = document.formSetOperation.pskFormat.selectedIndex;
+	var wpapsk_len;
+	var wpapsk;
+
+	if (document.formSetOperation.wispWanId[1].checked == true) { 	//2.4GHz
+		wpapsk_len = parseInt(<% getInfo("repeater_psk_len", "1"); %>, 10);
+		wpapsk = "<% getInfo("repeater_psk", "1"); %>";
+	} else { 															//5GHz
+		wpapsk_len = parseInt(<% getInfo("repeater_psk_len", "0"); %>, 10);
+		wpapsk = "<% getInfo("repeater_psk", "0"); %>";
+	}
+
+	if (wpapsk_format_idx == 0) {
+		document.formSetOperation.pskValue.maxLength = 63;
+		if (wpapsk_len == 0) {
+			document.formSetOperation.pskValue.value = "";
+			mode_change_flag = 1;
+		} else {
+			document.formSetOperation.pskValue.value = wpapsk;
+			mode_change_flag = 0;
+		}
+	} else {
+		document.formSetOperation.pskValue.maxLength = 64;
+		if (wpapsk_len == 0) {
+			document.formSetOperation.pskValue.value = "";
+			mode_change_flag = 1;
+		} else {
+			document.formSetOperation.pskValue.value = wpapsk;
+			mode_change_flag = 0;
+		}
+	}
+}
+
+function change_authentication()
+{
+	var method_index = document.formSetOperation.method.selectedIndex;
+
+	if (method_index == 6) { //none
+		document.getElementById("setting_wpa").style.display = "none";
+		document.getElementById("show_wep_auth").style.display = "none";
+		document.getElementById("setting_wep").style.display = "none";
+	} else if (method_index == 5) {	//wep
+		document.getElementById("setting_wpa").style.display = "none";
+		document.getElementById("show_wep_auth").style.display = "";
+		document.getElementById("setting_wep").style.display = "";
+	} else { //wpa
+		document.getElementById("setting_wpa").style.display = "";
+		document.getElementById("show_wep_auth").style.display = "none";
+		document.getElementById("setting_wep").style.display = "none";
+
+		if (method_index == 0) {	//wpa3-wpa2 mixed
+			document.getElementById("show_wpa_cipher").style.display = "none";
+			document.getElementById("show_wpa2_cipher").style.display = "";
+			document.formSetOperation.wpa2ciphersuite[0].checked = false;
+			document.formSetOperation.wpa2ciphersuite[1].checked = true;
+			document.formSetOperation.wpa2ciphersuite[0].disabled = true;
+			document.formSetOperation.wpa2ciphersuite[1].disabled = true;
+		} else if (method_index == 1) {	//wpa3
+			document.getElementById("show_wpa_cipher").style.display = "none";
+			document.getElementById("show_wpa2_cipher").style.display = "";
+			document.formSetOperation.wpa2ciphersuite[0].checked = false;
+			document.formSetOperation.wpa2ciphersuite[1].checked = true;
+			document.formSetOperation.wpa2ciphersuite[0].disabled = true;
+			document.formSetOperation.wpa2ciphersuite[1].disabled = true;
+		} else if (method_index == 2) {	//wpa-mixed
+			document.getElementById("show_wpa_cipher").style.display = "";
+			document.getElementById("show_wpa2_cipher").style.display = "";
+		} else if (method_index == 3) {	//wpa2
+			document.getElementById("show_wpa_cipher").style.display = "none";
+			document.getElementById("show_wpa2_cipher").style.display = "";
+		} else {						//wpa
+			document.getElementById("show_wpa_cipher").style.display = "";
+			document.getElementById("show_wpa2_cipher").style.display = "none";
+		}
+
+		document.getElementById("show_wpa_psk_format").style.display = "";
+		document.getElementById("show_wpa_psk").style.display = "";
+	}
+}
+
+function change_key_index()
+{
+	var select_index = document.formSetOperation.select_key.selectedIndex;
+	var wep_len_index = document.formSetOperation.length.selectedIndex;
+	var key_index;
+	var wep_key_len;
+	var wep_key;
+
+	mode_change_wep[0] = 0;
+	if (wep_len_index == 0) {	//64bit
+		if (document.formSetOperation.wispWanId[1].checked == true) { //2.4GHz
+			if (select_index == 0) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "64", "1"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "64", "1"); %>";
+			} else if (select_index == 1) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "64", "2"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "64", "2"); %>";
+			} else if (select_index == 2) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "64", "3"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "64", "3"); %>";
+			} else if (select_index == 3) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "64", "4"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "64", "4"); %>";
+			}
+		} else { //5.4GHz
+			if (select_index == 0) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "64", "1"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "64", "1"); %>";
+			} else if (select_index == 1) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "64", "2"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "64", "2"); %>";
+			} else if (select_index == 2) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "64", "3"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "64", "3"); %>";
+			} else if (select_index == 3) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "64", "4"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "64", "4"); %>";
+			}
+		}
+
+		if (document.formSetOperation.format.selectedIndex == 0) {
+			document.formSetOperation.elements["wep_key"].maxLength = 5;
+			if (wep_key_len == 0) {
+				document.formSetOperation.elements["wep_key"].value = "";
+			} else {
+				document.formSetOperation.elements["wep_key"].value = wep_key;
+			}
+		} else {
+			document.formSetOperation.elements["wep_key"].maxLength = 10;
+			if (wep_key_len == 0) {
+				document.formSetOperation.elements["wep_key"].value = "";
+			} else {
+				document.formSetOperation.elements["wep_key"].value = wep_key;
+			}
+		}
+	} else {	//128bit
+		if (document.formSetOperation.wispWanId[1].checked == true) { //2.4GHz
+			if (select_index == 0) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "128", "1"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "128", "1"); %>";
+			} else if (select_index == 1) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "128", "2"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "128", "2"); %>";
+			} else if (select_index == 2) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "128", "3"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "128", "3"); %>";
+			} else if (select_index == 3) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "1", "128", "4"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "1", "128", "4"); %>";
+			}
+		} else { //5GHz
+			if (select_index == 0) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "128", "1"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "128", "1"); %>";
+			} else if (select_index == 1) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "128", "2"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "128", "2"); %>";
+			} else if (select_index == 2) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "128", "3"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "128", "3"); %>";
+			} else if (select_index == 3) {
+				wep_key_len = parseInt(<% getInfo("repeater_wep_key_len", "0", "128", "4"); %>, 10);
+				wep_key = "<% getInfo("repeater_wep_key", "0", "128", "4"); %>";
+			}
+		}
+
+		if (document.formSetOperation.format.selectedIndex == 0) {
+			document.formSetOperation.elements["wep_key"].maxLength = 13;
+			if (wep_key_len == 0) {
+				document.formSetOperation.elements["wep_key"].value = "";
+			} else {
+				document.formSetOperation.elements["wep_key"].value = wep_key;
+			}
+		} else {
+			document.formSetOperation.elements["wep_key" + key_index].maxLength = 26;
+			if (wep_key_len == 0) {
+				document.formSetOperation.elements["wep_key" + key_index].value = "";
+			} else {
+				document.formSetOperation.elements["wep_key" + key_index].value = wep_key;
+			}
+		}
+	}
+}
+
+function DefaultKeyValue(key_index)
+{
+	if (document.formSetOperation.length.selectedIndex == 0) {
+		if (document.formSetOperation.format.selectedIndex == 0) {
+			document.formSetOperation.elements["key" + key_index].maxLength = 5;
+			document.formSetOperation.elements["key" + key_index].value = "";
+		} else {
+			document.formSetOperation.elements["key" + key_index].maxLength = 10;
+			document.formSetOperation.elements["key" + key_index].value = "";
+		}
+	} else {
+		if (document.formSetOperation.format.selectedIndex == 0) {
+			document.formSetOperation.elements["key" + key_index].maxLength = 13;
+			document.formSetOperation.elements["key" + key_index].value = "";
+		} else {
+			document.formSetOperation.elements["key" + key_index].maxLength = 26;
+			document.formSetOperation.elements["key" + key_index].value = "";
+		}
+	}
+}
+
+function setAllDefaultKeyValue()
+{
+	change_key_index();
+
+	DefaultKeyValue(1);
+	DefaultKeyValue(2);
+	DefaultKeyValue(3);
+	DefaultKeyValue(4);
+}
+
+function updateWepFormat()
+{
+	var key_index;
+
+	if (document.formSetOperation.length.selectedIndex == 0) {
+		document.formSetOperation.format.options[0].text = 'ASCII (5 characters)';
+		document.formSetOperation.format.options[1].text = 'Hex (10 characters)';
+	} else {
+		document.formSetOperation.format.options[0].text = 'ASCII (13 characters)';
+		document.formSetOperation.format.options[1].text = 'Hex (26 characters)';
+	}
+
+	if (document.formSetOperation.wispWanId[1].checked == true) {
+		key_index = parseInt("<% getInfo("repeater", "WLAN1_VAP4_WEP_DEFAULT_KEY"); %>", 10);
+		document.formSetOperation.format.selectedIndex = parseInt("<% getInfo("repeater", "WLAN1_VAP4_WEP_KEY_TYPE"); %>", 10);
+	} else {
+		key_index = parseInt("<% getInfo("repeater", "WLAN0_VAP4_WEP_DEFAULT_KEY"); %>", 10);
+		document.formSetOperation.format.selectedIndex = parseInt("<% getInfo("repeater", "WLAN0_VAP4_WEP_KEY_TYPE"); %>", 10);
+	}
+
+	document.formSetOperation.key_index[key_index].checked = true;
+	document.formSetOperation.select_key.selectedIndex = key_index;
+
+	setAllDefaultKeyValue();
+}
+
+function change_repeater_intf(radio)
+{
+	var method_mode;
+	var wpa_cipher;
+	var wpa2_cipher;
+	var psk_fmt;
+	var wep_auth;
+	var wep_length;
+	var tmpstr;
+
+	if (radio == 1) {	//2.4GHz
+		tmpstr = "<% getInfo("REPEATER_SSID2"); %>";
+		method_mode = parseInt("<% getInfo("repeater", "WLAN1_VAP4_ENCRYPT"); %>", 10);
+
+		//wpa
+		wpa_cipher = parseInt("<% getInfo("repeater", "WLAN1_VAP4_WPA_CIPHER_SUITE"); %>", 10);
+		wpa2_cipher = parseInt("<% getInfo("repeater", "WLAN1_VAP4_WPA2_CIPHER_SUITE"); %>", 10);
+		psk_fmt = parseInt("<% getInfo("repeater", "WLAN1_VAP4_PSK_FORMAT"); %>", 10);
+
+		//wep
+		wep_auth = parseInt("<% getInfo("repeater", "WLAN1_VAP4_AUTH_TYPE"); %>", 10);
+		wep_length = parseInt("<% getInfo("repeater", "WLAN1_VAP4_WEP"); %>", 10);
+	} else {	//5GHz
+		tmpstr = "<% getInfo("REPEATER_SSID1"); %>";
+		method_mode = parseInt("<% getInfo("repeater", "WLAN0_VAP4_ENCRYPT"); %>", 10);
+
+		wpa_cipher = parseInt("<% getInfo("repeater", "WLAN0_VAP4_WPA_CIPHER_SUITE"); %>", 10);
+		wpa2_cipher = parseInt("<% getInfo("repeater", "WLAN0_VAP4_WPA2_CIPHER_SUITE"); %>", 10);
+		psk_fmt = parseInt("<% getInfo("repeater", "WLAN0_VAP4_PSK_FORMAT"); %>", 10);
+
+		//wep
+		wep_auth = parseInt("<% getInfo("repeater", "WLAN0_VAP4_AUTH_TYPE"); %>", 10);
+		wep_length = parseInt("<% getInfo("repeater", "WLAN0_VAP4_WEP"); %>", 10);
+	}
+
+	if (tmpstr.match("&quot;") != null)
+		tmpstr = tmpstr.replace(/&quot;/g, "\"");
+
+	if (tmpstr.match("&#39;") != null)
+		tmpstr = tmpstr.replace(/&#39;/g, "'");
+
+	if (tmpstr.match("&#92;") != null)
+		tmpstr = tmpstr.replace(/&#92;/g, "\\");
+
+	if (tmpstr.match("&#62;") != null)
+		tmpstr = tmpstr.replace(/&#62;/g, ">");
+
+	if (tmpstr.match("&#60;")!=null)
+		tmpstr = tmpstr.replace(/&#60;/g, "<");
+
+	document.formSetOperation.repeater_ssid.value = tmpstr;
+
+	if (method_mode == '0') {
+		document.formSetOperation.method.selectedIndex = 6; // Disabled
+	} else if (method_mode == '1') {
+		document.formSetOperation.method.selectedIndex = 5; // WEP
+	} else if (method_mode == '2') {
+		document.formSetOperation.method.selectedIndex = 4; // WPA
+	} else if (method_mode == '4') {
+		document.formSetOperation.method.selectedIndex = 3; // WPA2
+	} else if (method_mode == '6') {
+		document.formSetOperation.method.selectedIndex = 2; // WPA2-Mixed
+	} else if (method_mode == '8') {
+		document.formSetOperation.method.selectedIndex = 1; // WPA3
+	} else
+		document.formSetOperation.method.selectedIndex = 0; // WPA3-WPA2 Mixed
+
+	document.formSetOperation.ciphersuite[0].checked = false;
+	document.formSetOperation.ciphersuite[1].checked = false;
+	document.formSetOperation.wpa2ciphersuite[0].checked = false;
+	document.formSetOperation.wpa2ciphersuite[1].checked = false;
+
+	if (wpa_cipher & 1)
+		document.formSetOperation.ciphersuite[0].checked = true;
+	if (wpa_cipher & 2)
+		document.formSetOperation.ciphersuite[1].checked = true;
+	if (wpa2_cipher & 1)
+		document.formSetOperation.wpa2ciphersuite[0].checked = true;
+	if (wpa2_cipher & 2)
+		document.formSetOperation.wpa2ciphersuite[1].checked = true;
+
+	document.formSetOperation.pskFormat.selectedIndex = psk_fmt;
+	setDefault_WPAPSK_KeyValue();	//change wpa psk key length(8 ~ 63 or 64)
+
+	//wep
+	document.formSetOperation.auth_type[wep_auth].checked = true;
+
+	if (wep_length != 2)
+		document.formSetOperation.length.selectedIndex = 0;
+	else
+		document.formSetOperation.length.selectedIndex = 1;
+
+	change_authentication();
+
+	updateWepFormat();
+}
+
+function click_passwd()
+{
+	value_changed = 1;
+}
+
+function click_password_field(encrypt, key_index)
+{
+	if (encrypt == 0) {
+		if (mode_change_wep[key_index] == 0) {
+			mode_change_wep[key_index] = 1;
+			document.formSetOperation.elements["wep_key"].value = "";
+	   	}
+	} else if (encrypt == 1) {
+		if (mode_change_wep[key_index] == 0) {
+			mode_change_wep[key_index] = 1;
+			document.formSetOperation.elements["key"+key_index].value = "";
+		}
+    } else {
+		if (mode_change_flag == 0) {
+			document.formSetOperation.pskValue.value = "";
+			mode_change_flag = 1;
+        }
+    }
+}
+
+function LoadConfig()
+{
+	var opmode = <% getIndex("opMode"); %>;
+	var wispinfer = <% getIndex("wispWanId"); %>;
+	var repeater_2g = <% getIndex("repeater_enable_2g"); %>;
+	var repeater_5g = <% getIndex("repeater_enable_5g"); %>;
+
+	document.formSetOperation.operation_mode[opmode].checked = true;
+	document.formSetOperation.wispWanId[wispinfer].checked = true;
+
+	if (opmode == 1) {									/* bridge */
+		if (repeater_2g || repeater_5g)					/* repeater check */
+			document.formSetOperation.operation_mode[3].checked = true;
+		if (repeater_2g)
+			document.formSetOperation.wispWanId[1].checked = true;
+		if (repeater_5g)
+			document.formSetOperation.wispWanId[0].checked = true;
+	}
+
+	modeEvent(document.formSetOperation.operation_mode.value);
+	change_repeater_intf(document.formSetOperation.wispWanId.value);
+}
+</script>
+</head>
+
+<body onload="LoadConfig();">
+<blockquote>
+<form action=/boafrm/formSetOperation method=POST name="formSetOperation">
+<table border=0 width="650" cellspacing=4 cellpadding=0>
+	<tr>
+		<h2><script>dw(operation_header)</script></h2>
+	</tr>
+	<tr>
+		<font size=2><script>dw(operation_explain)</script></font>
+	</tr>
+	<hr size=1 noshade align=top>
+</table>
+
+<table border=0 width="650" cellspacing=4 cellpadding=0>
+	<tr>
+		<td width="30%">
+			<input type="radio" name="operation_mode" value="0" onclick="modeEvent(this.value);">&nbsp;
+			<font size="2"><b><script>dw(operation_gateway)</script></b></font>
+		</td>
+		<td width="70%">
+			<font size=2><script>dw(operation_gateway_explain)</script></font>
+		</td>
+	</tr>
+
+	<tr height="10">
+
+	</tr>
+
+	<tr>
+		<td width="30%">
+			<input type="radio" name="operation_mode" value="1" onclick="modeEvent(this.value);">&nbsp;
+			<font size="2"><b><script>dw(operation_bridge)</script></b></font>
+		</td>
+		<td width="70%">
+			<font size=2><script>dw(operation_bridge_explain)</script></font>
+		</td>
+	</tr>
+
+	<tr height="10">
+
+	</tr>
+
+	<tr>
+		<td width="30%">
+			<input type="radio" name="operation_mode" value="2" onclick="modeEvent(this.value);">&nbsp;
+			<font size="2"><b><script>dw(operation_wisp)</script></b></font>
+		</td>
+		<td width="70%">
+			<font size=2><script>dw(operation_wisp_explain)</script></font>
+		</td>
+	</tr>
+
+	<tr height="10">
+
+	</tr>
+
+	<tr>
+		<td width="30%">
+			<input type="radio" name="operation_mode" value="3" onclick="modeEvent(this.value);">&nbsp;
+			<font size="2"><b><script>dw(operation_repeater)</script></b></font>
+		</td>
+		<td width="70%">
+			<font size=2><script>dw(operation_repeater_explain)</script></font>
+		</td>
+	</tr>
+</table>
+<br>
+
+<span id="wisp_display" class="off">
+	<table border=0 width="650" cellspacing=4 cellpadding=0>
+		<tr>
+			<td width="30%"><b><script>dw(operation_wisp_interface)</script></b></td>
+			<td width="70%">
+				<input type="radio" name="wispWanId" value="0" onclick="change_repeater_intf(0);"><b><script>dw(operation_wisp_5ghz)</script></b>&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type="radio" name="wispWanId" value="1" onclick="change_repeater_intf(1);"><b><script>dw(operation_wisp_2ghz)</script></b>&nbsp;&nbsp;
+				<input type="button" name="search_ssid" value="search" onclick="show_search_ap();change_authentication();">
+				<script>document.formSetOperation.search_ssid.value = wlsurvey_site_survey;</script>
+			</td>
+		</tr>
+
+		<tr>
+			<td width="30%"><b><script>dw(operation_wisp_ssid)</script></b></td>
+			<td width="70%">
+				<input type="text" id="repeater_ssid" name="repeater_ssid" size="32" maxlength="64" value="">
+			</td>
+		</tr>
+
+		<tr>
+			<td width="30%"><b><script>dw(operation_wisp_encryption)</script></b></td>
+			<td width="70%">
+				<select size="1"  id="method" name="method" onChange="change_authentication()">
+					<option value="10"> WPA2-WPA3-MIXED </option>
+					<option value="8">WPA3 </option>
+					<option value="6"> WPA-Mixed </option>
+		 			<option value="4"> WPA2 </option>
+					<option value="2"> WPA </option>
+					<option value="1"> WEP </option>
+					<option value="0"> Disable </option>
+				</select>
+			</td>
+		</tr>
+
+		<tr id="setting_wpa" style="display:none">
+			<td colspan="2" width="100%">
+				<table width="100%" border="0" cellpadding="0" cellspacing="4">
+					<tr id="show_wpa_cipher" style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_wpa_cipher_suite)</script></b></font></td>
+						<td width="70%" class="bggrey"><font size="2">
+							<input type="checkbox" name="ciphersuite" value="tkip" >TKIP&nbsp;
+							<input type="checkbox" name="ciphersuite" value="aes">AES
+						</td>
+					</tr>
+
+					<tr id="show_wpa2_cipher" style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_wpa2_cipher_suite)</script></b></font></td>
+						<td width="70%" class="bggrey"><font size="2">
+							<input type="checkbox" name="wpa2ciphersuite" value="tkip" >TKIP&nbsp;
+							<input type="checkbox" name="wpa2ciphersuite" value="aes">AES
+						</td>
+					</tr>
+
+	  				<tr id="show_wpa_psk_format" style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_psk_format)</script></b></font></td>
+						<td width="70%" class="bggrey"><font size="2">
+							<select id="pskFormat" name="pskFormat" onChange="setDefault_WPAPSK_KeyValue();mode_change_flag=0;">
+								<option value="0"><script>dw(wlsecurity_passphrase)</script></option>
+								<option value="1"><script>dw(wlsecurity_hex_64_characters)</script></option>
+							</select>
+						</td>
+					</tr>
+
+					<tr id="show_wpa_psk" style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_pre_shared_key)</script></b></font></td>
+						<td width="70%" class="bggrey">
+							<input type="password" name="pskValue" id="pskValue" size="32" maxlength="64" value="" onclick="click_password_field(2)" onmousedown="click_passwd()" onkeypress="click_passwd()">
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr id="show_wep_auth" style="display:none">
+			<td colspan="2" width="100%">
+				<table width="100%" border="0" cellpadding="0" cellspacing="4">
+				 	<tr>
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_authentication)</script></b></font></td>
+						<td width="70%" class="bggrey"><font size="2">
+							<input name="auth_type" type=radio value=0><script>dw(wlsecurity_open_system)</script>
+							<input name="auth_type" type=radio value=1><script>dw(wlsecurity_shared_key)</script>
+							<input name="auth_type" type=radio value=2 checked><script>dw(wlsecurity_auto)</script>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+
+		<tr id="setting_wep" style="display:none">
+			<td colspan="2" width="100%">
+				<table width="100%" border="0" cellpadding="0" cellspacing="4">
+			    	<input type="hidden" name="wepEnabled" value="ON" >
+			 		<tr>
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_key_length)</script></b></font></td>
+						<td width="70%" class="bggrey"><font size="2">
+							<select size="1" name="length" id="length" onChange="updateWepFormat();init_mode_change_flag();value_changed=0;">
+								 <option value=1><script>dw(wlsecurity_64_bit)</script></option>
+								 <option value=2><script>dw(wlsecurit_128_bit)</script></option>
+							</select>
+						</td>
+					</tr>
+
+					<tr>
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_key_format)</script></script></b></font></td>
+						<td width="70%" class="bggrey">
+							<select id="format" name="format" onChange="setAllDefaultKeyValue();init_mode_change_flag();value_changed=0;">
+					     		<option value="1"><script>dw(wlsec_key_ascii)</script></option>
+								<option value="2"><script>dw(wlsec_key_hex)</script></option>
+							</select>
+						</td>
+					</tr>
+
+					<tr>
+						<td width="30%" class="bgblue"><font size="2"><b>암호화 Key :</b></font></td>
+						<td width="70%" class="bggrey" id="wep_key_parent">
+							<select name="select_key" id="select_key" onchange="change_key_index()">
+								 <option value=0> 1 </option>
+								 <option value=1> 2 </option>
+								 <option value=2> 3 </option>
+								 <option value=3> 4 </option>
+							</select>
+							<input type="password" id="wep_key" name="wep_key" maxlength="26" size="26" value="" onclick="click_password_field(0, 0)" onmousedown="click_passwd()" onkeypress="click_passwd()">
+						</td>
+					</tr>
+
+					<tr style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_encryption_key1)</script></b></font></td>
+						<td width="70%" class="bggrey">
+							<input name="key_index" type=radio value=0 onmousedown="click_passwd()" onkeypress="click_passwd()">
+							<input type="password" id="key1" name="key1" maxlength="26" size="26" value="" onclick="click_password_field(1, 1)" onmousedown="click_passwd()" onkeypress="click_passwd()">
+						</td>
+					</tr>
+					<tr style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_encryption_key2)</script></b></font></td>
+						<td width="70%" class="bggrey">
+							<input name="key_index" type=radio value=1 onmousedown="click_passwd()" onkeypress="click_passwd()">
+							<input type="password" id="key2" name="key2" maxlength="26" size="26" value="" onclick="click_password_field(1, 2)" onmousedown="click_passwd()" onkeypress="click_passwd()">
+						</td>
+					</tr>
+					<tr style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_encryption_key3)</script></b></font></td>
+						<td width="70%" class="bggrey">
+							<input name="key_index" type=radio value=2 onmousedown="click_passwd()" onkeypress="click_passwd()">
+							<input type="password" id="key3" name="key3" maxlength="26" size="26" value="" onclick="click_password_field(1, 3)" onmousedown="click_passwd()" onkeypress="click_passwd()">
+						</td>
+					</tr>
+					<tr style="display:none">
+						<td width="30%" class="bgblue"><font size="2"><b><script>dw(wlsecurity_encryption_key4)</script></b></font></td>
+						<td width="70%" class="bggrey">
+							<input name="key_index" type=radio value=3 onmousedown="click_passwd()" onkeypress="click_passwd()">
+							<input type="password" id="key4" name="key4" maxlength="26" size="26" value="" onclick="click_password_field(1, 4)" onmousedown="click_passwd()" onkeypress="click_passwd()">
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+	<span id="hidden_value"></span>
+</span>
+
+<br>
+<table border=0 width=650 cellspacing=0 cellpadding=0>
+	<tr>
+		<input type="button" value="Save & Apply" name="save_apply" onClick="return onApply(this.form);">
+		<script>document.formSetOperation.save_apply.value = operation_save_apply;</script>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

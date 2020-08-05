@@ -1,0 +1,115 @@
+#!/bin/sh
+
+ifconfig lo 127.0.0.1
+
+CINIT=1
+
+hostname GNT2100
+
+mount -t proc proc /proc
+mount -t ramfs ramfs /var
+echo GNT2100 "%VERSION%" > /var/.version
+cd var/
+mkdir tmp web log run lock system dnrd lib lib/misc lib/dhcp6 home linuxigd ppp ppp/peers config private tmp/usb udhcpc udhcpd myca 1x 
+cd /
+
+mount -t jffs2 /dev/mtdblock2 /var/log
+
+cp /etc/tmp/pics* /var/linuxigd 2>/dev/null
+
+cp /bin/pppoe.sh /var/ppp/true
+echo "#!/bin/sh" > /var/ppp/true
+
+cp /etc/shadow.sample /var/shadow
+
+#extact web pages
+cd /web
+flash extr /web
+cd /
+
+cp /bin/init.sh /var/udhcpc/eth0.deconfig
+echo " " > /var/udhcpc/eth0.deconfig
+cp /bin/init.sh /var/udhcpc/eth1.deconfig
+echo " " > /var/udhcpc/eth1.deconfig
+cp /bin/init.sh /var/udhcpc/br0.deconfig
+echo " " > /var/udhcpc/br0.deconfig
+cp /bin/init.sh /var/udhcpc/wlan0.deconfig
+echo " " > /var/udhcpc/wlan0.deconfig
+cp /bin/init.sh /var/udhcpc/usb0.deconfig
+echo " " > /var/udhcpc/usb0.deconfig
+
+if [ "$CINIT" = 1 ]; then
+  startup.sh
+fi
+
+# for wapi certs related
+# wapi cert(must done before init.sh)
+if [ -d /usr/local/ssl ]; then
+  cp -rf /usr/local/ssl/* /var/myca/ 2>/dev/null
+fi
+# loadWapiFiles >/dev/null 2>&1
+
+# for wireless client mode 802.1x
+if [ -d /usr/1x ]; then
+  cp -rf /usr/1x/* /var/1x/ 2>/dev/null
+fi
+laborer
+# Start system script
+init.sh gw all
+
+# modify dst-cache setting
+echo "24576" > /proc/sys/net/ipv4/route/max_size
+echo "180" > /proc/sys/net/ipv4/route/gc_thresh
+echo 20 > /proc/sys/net/ipv4/route/gc_elasticity
+# echo 35 > /proc/sys/net/ipv4/route/gc_interval
+# echo 60 > /proc/sys/net/ipv4/route/secret_interval
+# echo 10 > /proc/sys/net/ipv4/route/gc_timeout
+
+# echo "4096" > /proc/sys/net/nf_conntrack_max
+echo "12288" > /proc/sys/net/netfilter/nf_conntrack_max
+echo "600" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_established
+echo "20" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_time_wait
+echo "20" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout
+echo "120" > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout_stream
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_generic_timeout
+# echo "1048576" > /proc/sys/net/ipv4/rt_cache_rebuild_count
+echo "32" > /proc/sys/net/netfilter/nf_conntrack_expect_max
+
+# modify IRQ Affinity setting
+echo "3" > /proc/irq/33/smp_affinity
+
+#echo 1 > /proc/sys/net/ipv4/ip_forward #don't enable ip_forward before set MASQUERADE
+#echo 2048 > /proc/sys/net/core/hot_list_length
+
+# start web server
+if [ -f /bin/watchdog ]; then
+  watchdog 1000&
+fi
+
+#webs&
+
+AP_IP_ADDR=`nvram get IP_ADDR`
+AP_OPMODE=`nvram get OP_MODE`
+
+REPEATER_MODE=`nvram get REPEATER_ENABLED1`
+if [ "$REPEATER_MODE" != '1' ]; then
+REPEATER_MODE=`nvram get REPEATER_ENABLED2`
+fi
+
+if [[ "$AP_OPMODE" == '1' && "$REPEATER_MODE" != '1' ]]; then
+  WEBS_PORT=8080
+else
+  WEBS_PORT=80
+fi
+
+if [ "$REPEATER_MODE" == '1' ]; then
+boa -p $WEBS_PORT&
+else
+boa -p $WEBS_PORT -i $AP_IP_ADDR&
+fi
+
+dvflag INITED 1
+
+#enable usb port
+echo "5" > /proc/gpio

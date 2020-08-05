@@ -1,0 +1,149 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<title>VoIP 단말 접속</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<link rel='STYLESHEET' type='text/css' href='style.css'>
+<script language='javascript'>
+
+var externalIP= "<%getInfo("wan-ip"); %>";
+var LanIP="<% getInfo("ip"); %>";
+function open_voip_windows(phone_ip, phone_port)
+{
+    var sData;
+    var externalport = document.formConnectVoIP.externalPort.value;
+    var tURL = location.href;
+    if (tURL.match(LanIP)!=null) {
+        externalIP = phone_ip;
+        externalport = phone_port;
+    }
+
+    sData = "<html>";
+    sData = sData + "<head>";
+    sData = sData + "<script language='javascript'>";
+    sData = sData + "var totalCount = 1; ";
+    sData = sData + "var nowCount = 0; ";
+    sData = sData + "function do_count_down(){ ";
+    sData = sData + " if (nowCount == totalCount) { ";
+    sData = sData + "  document.location.href=\"http://"+externalIP+":"+externalport+"\"; ";
+    sData = sData + " }";
+    sData = sData + " if (nowCount < totalCount) { ";
+    sData = sData + " nowCount++; ";
+    sData = sData + " setTimeout('do_count_down()', 100); ";
+    sData = sData + " } ";
+    sData = sData + "}  ";
+    sData = sData + " <\/script>";
+    sData = sData + " <\/head>";
+    sData = sData + " <body onload='do_count_down(); mouse_r_click();'>";
+    sData = sData + " loading...";
+    sData = sData + " <script language='javascript'> do_count_down(); <\/script>";
+    sData = sData + " <\/body>";
+    sData = sData + " <\/html>";
+
+    OpenWindow=window.open("", "");
+    OpenWindow.document.write(sData);
+    OpenWindow.focus()
+}
+
+function submit_check(id)
+{
+    var connect_Action = eval('document.formConnectVoIP.action_type_'+id).value;
+    if (connect_Action==0) {
+        var internalPort = eval('document.formConnectVoIP.internalPort'+id).value;
+        var internalIp = eval('document.formConnectVoIP.internal_ip_'+id).value;
+
+        internalPort = trim(internalPort);
+
+    	if (!IsDigit(internalPort)) {
+        	alert("포트 번호가 올바르지 않습니다! 10진수(0-9)를 입력해야 합니다.");
+	        return false;
+	    }
+
+        if (internalPort > 65535 || internalPort < 1) {
+            alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+            return false;
+        }
+        document.formConnectVoIP.internalPort.value = internalPort;
+        document.formConnectVoIP.internalIp.value = internalIp;
+
+        open_voip_windows(internalIp, internalPort);
+    }
+    document.formConnectVoIP.reboot_flag.value = "0";
+    document.formConnectVoIP.connect_Action.value = connect_Action;
+    document.formConnectVoIP.submit();
+}
+
+function submit_reboot_check(id)
+{
+
+    var internalPort = eval('document.formConnectVoIP.internalPort'+id).value;
+    var internalIp = eval('document.formConnectVoIP.internal_ip_'+id).value;
+    var dn_number = eval('document.formConnectVoIP.dn'+id).value;
+    internalPort = trim(internalPort);
+
+	if (!IsDigit(internalPort)) {
+    	alert("포트 번호가 올바르지 않습니다! 10진수(0-9)를 입력해야 합니다.");
+        return false;
+    }
+
+    if (internalPort > 65535 || internalPort < 1) {
+        alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+        return false;
+    }
+
+    if (dn_number == "") {
+        alert("전화번호가 비워있습니다.");
+        return false;
+    }
+
+    if (!IsDigit(dn_number)) {
+    	alert("전화 번호가 올바르지 않습니다! 숫자만 입력해야 합니다.");
+        return false;
+    }
+
+    document.formConnectVoIP.internalPort.value = internalPort;
+    document.formConnectVoIP.internalIp.value = internalIp;
+    document.formConnectVoIP.reboot_flag.value = "1";
+    document.formConnectVoIP.dn.value = dn_number;
+
+    document.formConnectVoIP.submit();
+}
+
+</script>
+</head>
+
+<body onload='mouse_r_click();'>
+<blockquote>
+<h2>VoIP 단말 접속</h2>
+<table border=0 width="800" cellspacing=0 cellpadding=0>
+	<tr><font size=2>VoIP 단말 접속을 위한 페이지입니다.</font></tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formConnectVoIP method=POST name="formConnectVoIP">
+<input type="hidden" name="internalIp" value="">
+<input type="hidden" name="internalPort" value="">
+<input type="hidden" name="connect_Action" value="">
+<input type="hidden" name="submit-url" value="/connect_VoIP_Client.htm">
+<input type="hidden" name="reboot_flag" value="0">
+<input type="hidden" name="dn" value="">
+
+<br>
+<table border='1' width="800">
+<tr class="tbl_head">
+    <td style="width:12%;" align="center"><font size=2><b>내부 IP</b></td>
+    <td style="width:11%;" align="center"><font size=2><b>하드웨어주소</b></td>
+    <td style="width:10%;" align="center"><font size=2><b>내부 Port</b></td>
+    <td style="width:5%;" align="center"><font size=2><b>종류</b></td>
+    <td style="width:10%;" align="center"><font size=2><b>상태</b></td>
+    <td style="width:12%;" align="center"><font size=2><b>외부 IP</b></td>
+    <td style="width:10%;" align="center"><font size=2><b>외부 Port</b></td>
+    <td style="width:8%;" align="center"><font size=2><b>연결</b></td>
+    <td style="width:22%;" align="center"><font size=2><b>재부팅</b></td>
+</tr>
+<% showConnectVoIPtbl(); %>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

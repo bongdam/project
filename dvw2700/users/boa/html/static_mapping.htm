@@ -1,0 +1,179 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Expires" content="-1">
+<% getIndex("no-cache"); %>
+<title>Static Mapping</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function addClick()
+{
+ 	if (document.formStMappingAdd.s_ip.value=="") {
+		alert("출발지 주소를 입력해주세요!");
+		return false;
+	}
+
+	if(document.formStMappingAdd.fromSport.value=="") {
+		alert("출발지 포트를 입력해주세요!");
+		return false;
+	}
+
+  	if ( checkIpAddr(document.formStMappingAdd.s_ip, 'IP 주소가 올바르지 않습니다') == false )
+	    return false;
+
+  	if (document.formStMappingAdd.fromSport.value=="") {
+		alert("포트 범위가 비어있습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		document.formStMappingAdd.fromSport.focus();
+		return false;
+  	}
+
+  	if ( validateKey( document.formStMappingAdd.fromSport.value ) == 0 ) {
+		alert("포트 번호가 올바르지 않습니다! 숫자를 입력해야 합니다");
+		document.formStMappingAdd.fromSport.focus();
+		return false;
+  	}
+
+  	d1 = getDigit(document.formStMappingAdd.fromSport.value, 1);
+
+  	if (d1 > 65535 || d1 < 1) {
+		alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		document.formStMappingAdd.fromSport.focus();
+		return false;
+  	}
+
+   	return true;
+}
+
+
+function deleteClick()
+{
+  	if ( !confirm('선택한 목록을 삭제하시겠습니까?') ) {
+		return false;
+  	}
+  	else
+		return true;
+}
+
+function deleteAllClick()
+{
+   	if ( !confirm('모든 목록을 삭제하시겠습니까?') ) {
+		return false;
+  	}
+  	else
+		return true;
+}
+function disableDelButton()
+{
+	disableButton(document.formStMappingDel.deleteMappingElement);
+	disableButton(document.formStMappingDel.deleteAllMapping);
+}
+
+function resetForm()
+{
+	document.location.assign("static_mapping.htm");
+}
+
+function frmload()
+{
+	var check_button = <% write(getIndex("stMappingNum")); %>;
+	if(!check_button)
+		disableDelButton();
+}
+
+</script>
+</head>
+
+<body onload="frmload();">
+<blockquote>
+<h2>Static Mapping</h2>
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<tr><font size=2>
+ 출발지 IP, Port를 보고 목적지 IP, Port로 연결시켜주는 설정을 할 수 있는 페이지입니다.
+</font></tr>
+<tr><hr size=1 noshade align=top></tr>
+
+<form action=/boafrm/formStMapping method=POST name="formStMappingAdd">
+<font size=2><b>&nbsp;&nbsp;Static Mapping 설정</b>
+<table border=0 width="550">
+
+<tr class="tbl_head">
+    <td align="center" width="25%">
+    <p><font size=2><b>출발지 주소</b>
+    </td>
+
+    <td align="center" width="15%">
+    <p><font size=2><b>출발지 포트</b>
+    </td>
+
+    <td align="center">
+    <p><font size=2><b>&nbsp;프로토콜&nbsp;</b>
+    </td>
+
+    <td align="center" width="25%">
+    <p><font size=2><b>목적지 주소</b>
+    </td>
+
+    <td align="center" width="15%">
+    <p><font size=2><b>목적지 포트</b>
+    </td>
+</tr>
+<tr>
+    <td>
+    <input type="text" name="s_ip" size="10" style="width:100%;">
+    </td>
+
+    <td>
+    <input type="text" name="fromSport" size="3" style="width:100%;">
+    </td>
+
+    <td align="center">
+    <select style="width:100%;" name="protocol">
+    <option value="3">TCP+UDP</option>
+    <option value="1">TCP</option>
+    <option value="2">UDP</option>
+    </select>
+    </td>
+
+    <td>
+    <input type="text" name="d_ip" size="10" style="width:100%;">
+    </td>
+
+    <td>
+    <input type="text" name="fromDport" style="width:100%;">
+    </td>
+</tr>
+<tr>
+<td>
+  <p><input type="submit" value="적용" name="addStMapping" onClick="return addClick()">&nbsp;&nbsp;
+     <input type="button" value="취소" name="reset" onClick="resetForm();"></p>
+  <input type="hidden" value="/static_mapping.htm" name="submit-url">
+</td>
+</tr>
+
+</table>
+</form>
+
+<br>
+<form action=/boafrm/formStMapping method=POST name="formStMappingDel">
+<table border=0 width="550">
+  <tr><font size=2><b>Static Mapping Table</b></font></tr>
+  <% staticMappingTbl(); %>
+</table>
+
+ <br><input type="submit" value="선택 삭제" name="deleteMappingElement" onClick="return deleteClick()">&nbsp;&nbsp;
+     <input type="submit" value="전체 삭제" name="deleteAllMapping" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+     <input type="reset" value="취소" name="reset">
+     <input type="hidden" value="/static_mapping.htm" name="submit-url">
+</td></tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>
+

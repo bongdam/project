@@ -1,0 +1,25 @@
+#
+# Davolink Custom Package Configuration
+#
+# 2015-03-24 20:48:26 young
+#
+
+menu "Davolink custom package(cpkg) devices"
+
+config BCMNVRAM
+	bool "Broadcom nvram device support"
+
+config NF_NAT_BATTLENET
+	bool "ALG for StartCraft"
+	default y
+
+config WLAN0_RX_FREEZE_CRUDE_WORKAROUND
+	bool "Workaround for 5G's rx hang up"
+	default y
+	help
+	  Workaround to overcome rx hang up of 5G wifi which is likely to happen immediately
+	  after boot up.
+
+	  If unsure, say N.
+
+endmenu

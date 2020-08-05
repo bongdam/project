@@ -1,0 +1,452 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>포트 설정</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function selectSwitch()
+{
+	if (document.port_setup.nego0.selectedIndex == 1) {
+		document.port_setup.speed0.disabled = true;
+		document.port_setup.duplex0.disabled = true;
+	} else {
+		document.port_setup.speed0.disabled = false;
+		document.port_setup.duplex0.disabled = false;
+	}
+	if (document.port_setup.nego1.selectedIndex == 1) {
+		document.port_setup.speed1.disabled = true;
+		document.port_setup.duplex1.disabled = true;
+	} else {
+		document.port_setup.speed1.disabled = false;
+		document.port_setup.duplex1.disabled = false;
+	}
+	if (document.port_setup.nego2.selectedIndex == 1) {
+		document.port_setup.speed2.disabled = true;
+		document.port_setup.duplex2.disabled = true;
+	} else {
+		document.port_setup.speed2.disabled = false;
+		document.port_setup.duplex2.disabled = false;
+	}
+	if (document.port_setup.nego3.selectedIndex == 1) {
+		document.port_setup.speed3.disabled = true;
+		document.port_setup.duplex3.disabled = true;
+	} else {
+		document.port_setup.speed3.disabled = false;
+		document.port_setup.duplex3.disabled = false;
+	}
+	if (document.port_setup.nego4.selectedIndex == 1) {
+		document.port_setup.speed4.disabled = true;
+		document.port_setup.duplex4.disabled = true;
+	} else {
+		document.port_setup.speed4.disabled = false;
+		document.port_setup.duplex4.disabled = false;
+	}
+}
+
+function resetClick()
+{
+  	document.location.assign("skb_tcpipport.htm");
+}
+
+function formLoad()
+{
+	/*var tx_pause;*/
+	var rx_pause;
+
+	/*
+	var op_mode = <% getIndex("opMode"); %>;
+
+	if(op_mode)
+		document.port_setup.opMode.options[1].selected = true;
+	else
+		document.port_setup.opMode.options[0].selected = true;
+	*/
+
+	var link_status = <% getInfo("wan_link_status"); %>;
+	document.port_setup.power4.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego4.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex4.selectedIndex = 1;
+	document.port_setup.speed4.selectedIndex = 2;
+	if (link_status & 0x20) {
+		document.port_setup.duplex4.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		if(link_status & 0x100)
+			document.port_setup.speed4.selectedIndex = 2;
+		else
+			document.port_setup.speed4.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan1_link_status"); %>;
+	document.port_setup.power0.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego0.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex0.selectedIndex = 1;
+	document.port_setup.speed0.selectedIndex = 2;
+	if (link_status & 0x20) {
+		document.port_setup.duplex0.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		if(link_status & 0x100)
+			document.port_setup.speed0.selectedIndex = 2;
+		else
+			document.port_setup.speed0.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan2_link_status"); %>;
+	document.port_setup.power1.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego1.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex1.selectedIndex = 1;
+	document.port_setup.speed1.selectedIndex = 2;
+	if (link_status & 0x20) {
+		document.port_setup.duplex1.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		if(link_status & 0x100)
+			document.port_setup.speed1.selectedIndex = 2;
+		else
+			document.port_setup.speed1.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan3_link_status"); %>;
+	document.port_setup.power2.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego2.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex2.selectedIndex = 1;
+	document.port_setup.speed2.selectedIndex = 2;
+	if (link_status & 0x20) {
+		document.port_setup.duplex2.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		if(link_status & 0x100)
+			document.port_setup.speed2.selectedIndex = 2;
+		else
+			document.port_setup.speed2.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	link_status = <% getInfo("lan4_link_status"); %>;
+	document.port_setup.power3.selectedIndex = (link_status & 0x10) ? 0 : 1;
+	document.port_setup.nego3.selectedIndex = (link_status & 0x20) ? 0 : 1;
+	document.port_setup.duplex3.selectedIndex = 1;
+	document.port_setup.speed3.selectedIndex = 2;
+	if (link_status & 0x20) {
+		document.port_setup.duplex3.selectedIndex = (link_status & 0x40) ? 0 : 1;
+		if(link_status & 0x100)
+			document.port_setup.speed3.selectedIndex = 2;
+		else
+			document.port_setup.speed3.selectedIndex = (link_status & 0x80) ? 0 : 1;
+	}
+
+	rx_pause = <% getInfo("wan_rx_pause"); %>;
+	/*tx_pause = <% getInfo("wan_tx_pause"); %>;*/
+
+	document.port_setup.rx4_pause.selectedIndex = rx_pause;
+	/*document.port_setup.tx4_pause.selectedIndex = tx_pause;*/
+
+	rx_pause = <% getInfo("lan1_rx_pause"); %>;
+	/*tx_pause = <% getInfo("lan1_tx_pause"); %>;*/
+
+	document.port_setup.rx0_pause.selectedIndex = rx_pause;
+	/*document.port_setup.tx0_pause.selectedIndex = tx_pause;*/
+
+	rx_pause = <% getInfo("lan2_rx_pause"); %>;
+	/*tx_pause = <% getInfo("lan2_tx_pause"); %>;*/
+
+	document.port_setup.rx1_pause.selectedIndex = rx_pause;
+	/*document.port_setup.tx1_pause.selectedIndex = tx_pause;*/
+
+	rx_pause = <% getInfo("lan3_rx_pause"); %>;
+	/*tx_pause = <% getInfo("lan3_tx_pause"); %>;*/
+
+	document.port_setup.rx2_pause.selectedIndex = rx_pause;
+	/*document.port_setup.tx2_pause.selectedIndex = tx_pause;*/
+
+	rx_pause = <% getInfo("lan4_rx_pause"); %>;
+	/*tx_pause = <% getInfo("lan4_tx_pause"); %>;*/
+
+	document.port_setup.rx3_pause.selectedIndex = rx_pause;
+	/*document.port_setup.tx3_pause.selectedIndex = tx_pause;*/
+
+	selectSwitch();
+}
+
+function apply_button(f)
+{
+	f.submitBtn.disabled=true;
+	f.reset.disabled=true;
+	f.port_reset_0.disabled=true;
+	f.port_reset_1.disabled=true;
+	f.port_reset_2.disabled=true;
+	f.port_reset_3.disabled=true;
+	f.port_reset_4.disabled=true;
+	f.submit();
+}
+
+function apply_reset(c_port, f)
+{
+	f._port_reset_0.disabled=true;
+	f._port_reset_1.disabled=true;
+	f._port_reset_2.disabled=true;
+	f._port_reset_3.disabled=true;
+	f._port_reset_4.disabled=true;
+	
+	if ( c_port == 0 ) {
+		f.port_reset_1.disabled=true;
+		f.port_reset_2.disabled=true;
+		f.port_reset_3.disabled=true;
+		f.port_reset_4.disabled=true;
+	}
+	else if ( c_port == 1 ) {
+		f.port_reset_0.disabled=true;
+		f.port_reset_2.disabled=true;
+		f.port_reset_3.disabled=true;
+		f.port_reset_4.disabled=true;
+	}
+	else if ( c_port == 2 ) {
+		f.port_reset_0.disabled=true;
+		f.port_reset_1.disabled=true;
+		f.port_reset_3.disabled=true;
+		f.port_reset_4.disabled=true;
+	}
+	else if ( c_port == 3 ) {
+		f.port_reset_0.disabled=true;
+		f.port_reset_1.disabled=true;
+		f.port_reset_2.disabled=true;
+		f.port_reset_4.disabled=true;
+	}
+	else if ( c_port == 4 ) {
+		f.port_reset_0.disabled=true;
+		f.port_reset_1.disabled=true;
+		f.port_reset_2.disabled=true;
+		f.port_reset_3.disabled=true;
+	}
+	f.submit();
+}
+</script>
+</head>
+
+  <body onload="formLoad();">
+  <blockquote>
+  <form action=/boafrm/formPortSetup method=POST name="port_setup">
+  	<input type="hidden" value="/skb_tcpipport.htm" name="submit-url">
+  <h2>포트 설정</h2>
+	<table border=0 width="600" cellspacing=4 cellpadding=0>
+	<tr><td><font size=2>
+		각 포트의 속도, 미디어 속성, 네트워크 모드 및 활성화/비활성화 설정을 할 수 있는 페이지입니다.
+	</font></td></tr>
+    <tr><td><hr size="1" align="top" noshade="noshade"></td></tr>
+  </table>
+  <br>
+
+<table border=0 cellpadding=2 cellspacing=1>
+<!--tr>
+<td colspan="2" align=center><b>전체 네트워크 모드</b></td>
+<td align=center width=75 height=25>
+<select name=opMode onChange="">
+	<option value=0>공유기
+	<option value=1>허브
+</select>
+</tr-->
+
+<tr><td colspan=9>&nbsp;</td></tr>
+<tr class="tbl_head">
+	<td align=center><b>포트</b></td>
+	<td align=center><b>협상</b></td>
+	<td align=center><b>속도</b></td>
+	<td align=center><b>전송방식</b></td>
+	<td align=center><b>흐름제어</b></td>
+	<!--<td align=center><b>송신<br>흐름제어</b></td>-->
+	<td align=center><b>전원</b></td>
+	<td align=center><b>리셋</b></td>
+</tr>
+
+<tr>
+	<td align=center height=25>WAN</td>
+	<td align=center height=25>
+	<input type="hidden" name="mode0" value="1">
+	  <select name=nego4  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1>auto</select></td>
+	<td align=center height=25>
+	  <select name=speed4 disabled onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+		<option value=2>1000</select></td>
+	<td align=center height=25>
+	  <select name=duplex4 disabled onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1>full</select></td>
+	<td align=center height=25>
+		<select name="rx4_pause" style="text-align:center;">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select>
+	</td>
+	<!--<td align=center height=25>
+		<select name="tx4_pause">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select></td>-->
+	<td align=center height=25>
+		<select name="power4">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select></td>
+	<td><input type="button" value="리셋" name="_port_reset_4" onclick="apply_reset(4, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN1</td>
+	<td align=center height=25>
+	  <select name=nego0  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1 selected>auto</select></td>
+	<td align=center height=25>
+	  <select name=speed0 onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+		<option value=2 >1000</select></td>
+	<td align=center height=25>
+		<select name=duplex0 onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 selected>full</select></td>
+	<td align=center height=25>
+		<select name="rx0_pause" style="text-align:center;">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select>
+	</td>
+	<!--<td align=center height=25>
+		<select name="tx0_pause">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select></td>-->
+	<td align=center height=25>
+		<select name="power0">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select></td>
+	<td><input type="button" value="리셋" name="_port_reset_0" onclick="apply_reset(0, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN2</td>
+	<td align=center height=25>
+	  <select name=nego1  onChange="selectSwitch();">
+		<option value=0>force
+		<option value=1>auto</select></td>
+	<td align=center height=25>
+	  <select name=speed1 onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+		<option value=2 >1000
+	  </select></td>
+	<td align=center height=25>
+	  <select name=duplex1 onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1>full</select></td>
+	<td align=center height=25>
+		<select name="rx1_pause" style="text-align:center;">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select>
+	</td>
+	<!--<td align=center height=25>
+		<select name="tx1_pause">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select></td>-->
+	<td align=center height=25>
+		<select name="power1">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select></td>
+	<td><input type="button" value="리셋" name="_port_reset_1" onclick="apply_reset(1, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN3</td>
+	<td align=center height=25>
+	  <select name=nego2  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1>auto</select></td>
+	<td align=center height=25>
+	  <select name=speed2 onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+		<option value=2 >1000
+	  </select></td>
+	<td align=center height=25>
+	  <select name=duplex2 onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full</select></td>
+	<td align=center height=25>
+		<select name="rx2_pause" style="text-align:center;">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select>
+	</td>
+	<!--<td align=center height=25>
+		<select name="tx2_pause">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select></td>-->
+	<td align=center height=25>
+		<select name="power2">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select></td>
+	<td><input type="button" value="리셋" name="_port_reset_2" onclick="apply_reset(2, this.form);"></td>
+</tr>
+
+<tr>
+	<td align=center height=25>LAN4</td>
+	<td align=center height=25>
+	  <select name=nego3  onChange="selectSwitch();">
+		<option value=0 >force
+		<option value=1>auto</select></td>
+	<td align=center height=25>
+	  <select name=speed3 onChange="selectSwitch();">
+		<option value=0 >10
+		<option value=1 >100
+		<option value=2 >1000
+	  </select></td>
+	<td align=center height=25>
+	  <select name=duplex3 onChange="selectSwitch();">
+		<option value=0 >half
+		<option value=1 >full</select></td>
+	<td align=center height=25>
+		<select name="rx3_pause" style="text-align:center;">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select>
+	</td>
+	<!--<td align=center height=25>
+		<select name="tx3_pause">
+			<option value="0">사용안함</option>
+			<option value="1">사용</option>
+		</select></td>-->
+	<td align=center height=25>
+		<select name="power3">
+			<option value="0">ON</option>
+			<option value="1">OFF</option>
+		</select></td>
+	<td><input type="button" value="리셋" name="_port_reset_3" onclick="apply_reset(3, this.form);"></td>
+</tr>
+
+<tr><td colspan=9>&nbsp;</td></tr>
+<tr>
+	<td colspan="9">
+		<input type="button" value="적용" name="submitBtn" onclick="apply_button(this.form);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<input type="button" value="취소" name="reset" onclick="resetClick();">
+		<input type="hidden" value="리셋" name="port_reset_0">
+		<input type="hidden" value="리셋" name="port_reset_1">
+		<input type="hidden" value="리셋" name="port_reset_2">
+		<input type="hidden" value="리셋" name="port_reset_3">
+		<input type="hidden" value="리셋" name="port_reset_4">
+	</td>
+</tr>
+</table>
+</form>
+<br>
+<br>
+<br>
+</blockquote>
+</body>
+</html>

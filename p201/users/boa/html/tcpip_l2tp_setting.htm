@@ -1,0 +1,602 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>L2TP/PPTP VPN Setup</title>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<style>
+.on {display:on}
+.off {display:none}
+</style>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT>
+var pptp_max_conn = "<% getInfo("pptp_vpn_max_conn");%>";
+
+function calc_end_ip()
+{
+	var end_ip, i;
+	var start_ip1 = document.getElementById("ID_POOL_START_1").value;
+	var start_ip2 = document.getElementById("ID_POOL_START_2").value;
+	var start_ip3 = document.getElementById("ID_POOL_START_3").value;
+	var start_ip4 = document.getElementById("ID_POOL_START_4").value;
+	var maxConn = document.getElementById("ID_L2TP_MAX_CONN").value;
+
+	if (start_ip1 == "" || start_ip2 == "" || start_ip3 == "" || start_ip4 == "")
+		return;
+
+	if (start_ip1 == null || start_ip2 == null || start_ip3 == null || start_ip4 == null) {
+		alert(tcpip_pptp_ip_pool_invalid);
+		return;
+	}
+
+	if (parseInt(start_ip1) <= 0 || parseInt(start_ip1) >= 255) {
+		alert(tcpip_pptp_ip_pool_invalid);
+		return;
+	}
+
+	if (parseInt(start_ip2) < 0 || parseInt(start_ip2) >= 255) {
+		alert(tcpip_pptp_ip_pool_invalid);
+		return;
+	}
+
+	if (parseInt(start_ip3) < 0 || parseInt(start_ip3) >= 255) {
+		alert(tcpip_pptp_ip_pool_invalid);
+		return;
+	}
+
+	if (parseInt(start_ip4) < 0 || parseInt(start_ip4) >= 255) {
+		alert(tcpip_pptp_ip_pool_invalid);
+		return;
+	}
+
+	end_ip = parseInt(start_ip4) + parseInt(maxConn) - 1;
+	if (end_ip > 254)
+		end_ip = 254;
+
+	for (i = 1; i < 4; i++)
+		document.getElementById("ID_POOL_END_"+i).value = document.getElementById("ID_POOL_START_"+i).value;
+
+	document.getElementById("ID_POOL_END_4").value = end_ip;
+}
+
+function changeTunnelStatus()
+{
+	if (document.L2tpVpnSetting.ID_L2TP_TUNNEL.value == "0") {
+		document.getElementById("ID_L2TP_MAX_CONN").value = pptp_max_conn;
+		document.getElementById("ID_L2TP_MAX_CONN").disabled = false;
+	} else {
+		document.getElementById("ID_L2TP_MAX_CONN").value = "1";
+		document.getElementById("ID_L2TP_MAX_CONN").disabled = true;
+	}
+
+	calc_end_ip();
+}
+
+function updateModestatus()
+{
+	var i;
+	var proto = document.L2tpVpnSetting.ID_L2TP_PROTOCOL.value;
+
+	if (document.getElementById("ID_L2TP_MODE").value == "server") {
+		document.L2tpVpnSetting.ID_L2TP_PRIMARY.disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_SECONDARY.disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = false;
+		for (i = 1; i < 5; i++)
+			document.getElementById("ID_POOL_END_"+i).disabled = false;
+	} else {
+		document.L2tpVpnSetting.ID_L2TP_PRIMARY.disabled = true;
+		document.L2tpVpnSetting.ID_L2TP_SECONDARY.disabled = true;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 1;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = true;
+		for (i = 1; i < 5; i++)
+			document.getElementById("ID_POOL_END_"+i).disabled = true;
+	}
+
+	if (proto == "l2tp")
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = true;
+}
+
+function updateEncstatus()
+{
+	if (document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.value == "1") {
+		if (document.L2tpVpnSetting.ID_L2TP_PROTOCOL.value == "pptp")
+			document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = true;
+		else
+			document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = false;
+	} else {
+		document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = true;
+	}
+}
+
+function updateProtocolstatus()
+{
+	updateModestatus();
+
+	if (document.L2tpVpnSetting.ID_L2TP_PROTOCOL.value == "pptp") {
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.disabled = true;
+
+		if (document.L2tpVpnSetting.ID_L2TP_TUNNEL.value == "0") {
+			document.getElementById("ID_L2TP_MAX_CONN").value = pptp_max_conn;
+			document.getElementById("ID_L2TP_MAX_CONN").disabled = false;
+		} else {
+			document.getElementById("ID_L2TP_MAX_CONN").value = "1";
+			document.getElementById("ID_L2TP_MAX_CONN").disabled = true;
+		}
+		document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = true;
+	} else {
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 1;
+		document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = true;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 1;
+		document.getElementById("ID_L2TP_MAX_CONN").value = "1";
+		document.getElementById("ID_L2TP_MAX_CONN").disabled = true;
+
+		if (document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.value == "1")
+			document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = false;
+		else
+			document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = true;
+	}
+
+	calc_end_ip();
+}
+
+function Load_Setting()
+{
+	var i = 0;
+	var pptp_enable = "<% getInfo("pptp_vpn_enable");%>";
+	var pptp_interval = "<% getInfo("pptp_vpn_interval");%>";
+	var pptp_pri_dns = "<% getInfo("pptp_vpn_pri_dns");%>";
+	var pptp_sec_dns =  "<% getInfo("pptp_vpn_sec_dns");%>";
+	var pptp_protocol = "<% getInfo("pptp_vpn_protocol");%>";
+	var pptp_encrypt = "<% getInfo("pptp_vpn_encrypt");%>";
+	var pptp_tunnel = "<% getInfo("pptp_vpn_tunnel");%>";
+	var pptp_mode = "<% getInfo("pptp_vpn_mode");%>";
+	var pptp_account = "<% getInfo("pptp_vpn_account");%>";
+	var pptp_acc_passwd = "<% getInfo("pptp_vpn_acc_passwd");%>";
+	var pptp_remote_host = "<% getInfo("pptp_vpn_remote_host");%>";
+	var pptp_psk = "<% getInfo("pptp_vpn_psk");%>";
+	var pptp_start_ip = "<% getInfo("pptp_vpn_start_ip");%>".split('.');
+	var pptp_end_ip = "<% getInfo("pptp_vpn_end_ip");%>".split('.');
+	var pptp_subnet = "<% getInfo("pptp_vpn_subnet");%>";
+
+	if (pptp_enable == "0")
+		document.L2tpVpnEnable.ID_L2TP_ENABLE.selectedIndex = 0;
+	else
+		document.L2tpVpnEnable.ID_L2TP_ENABLE.selectedIndex = 1;
+
+	document.L2tpVpnEnable.ID_L2TP_INTERVAL.value = pptp_interval;
+
+	document.L2tpVpnSetting.ID_L2TP_PRIMARY.value = pptp_pri_dns;
+	document.L2tpVpnSetting.ID_L2TP_SECONDARY.value = pptp_sec_dns;
+
+	if (pptp_encrypt == "0")
+		document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.selectedIndex = 0;
+	else
+		document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.selectedIndex = 1;
+
+	if (pptp_protocol == "pptp") {
+		document.L2tpVpnSetting.ID_L2TP_PROTOCOL.selectedIndex = 0;
+		document.getElementById("ID_L2TP_ENCRYPTION").disabled = true;
+		document.getElementById("ID_L2TP_TUNNEL").disabled = false;
+		if (pptp_tunnel == "0")
+			document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 0;
+		else
+			document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 1;
+
+		document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = true;
+	} else {
+		document.L2tpVpnSetting.ID_L2TP_PROTOCOL.selectedIndex = 1;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 1;
+		document.getElementById("ID_L2TP_ENCRYPTION").disabled = false;
+		document.getElementById("ID_L2TP_TUNNEL").disabled = true;
+
+		if (document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.value == "1")
+			document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = false;
+		else
+			document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.disabled = true;
+	}
+
+	if (pptp_mode == "server") {
+		document.L2tpVpnSetting.ID_L2TP_MODE.selectedIndex = 0;
+		document.L2tpVpnSetting.ID_L2TP_PRIMARY.disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_SECONDARY.disabled = false;
+		for (i = 1; i < 5; i++)
+			document.getElementById("ID_POOL_START_"+i).disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = false;
+	} else {
+		document.L2tpVpnSetting.ID_L2TP_MODE.selectedIndex = 1;
+		document.L2tpVpnSetting.ID_L2TP_PRIMARY.disabled = true;
+		document.L2tpVpnSetting.ID_L2TP_SECONDARY.disabled = true;
+		for (i = 1; i < 5; i++)
+			document.getElementById("ID_POOL_START_"+i).disabled = true;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.selectedIndex = 1;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = true;
+	}
+
+	document.L2tpVpnSetting.ID_L2TP_ACCOUNT.value = pptp_account;
+	document.L2tpVpnSetting.ID_L2TP_PASSWORD.value = pptp_acc_passwd;
+
+	document.getElementById("ID_L2TP_MAX_CONN").value = pptp_max_conn;
+	document.L2tpVpnSetting.ID_L2TP_REMOTE_HOST.value = pptp_remote_host;
+	document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.value = pptp_psk;
+
+	for (i = 1; i < 5; i++) {
+		document.getElementById("ID_POOL_START_"+i).value = pptp_start_ip[i-1];
+		document.getElementById("ID_POOL_END_"+i).value = pptp_end_ip[i-1];
+	}
+
+	if (pptp_subnet != "") {
+		var ip_info = pptp_subnet.split('/');
+		var ip = ip_info[0].split('.');
+
+		for (i = 1; i < 5; i++)
+			document.getElementById("ID_SUBNET_"+i).value = ip[i-1];
+
+		document.L2tpVpnSetting.ID_SUBNET_PREFIX.value = ip_info[1];
+	}
+
+	changeTunnelStatus();
+	updateEncstatus();
+	updateProtocolstatus();
+	updateModestatus();
+}
+
+function numberOnly(e)
+{
+	var evt=(e)?e:(window.event)?window.event:null;
+	if(evt){
+		var key=(evt.charCode)?evt.charCode:
+			((evt.keyCode)?evt.keyCode:((evt.which)?evt.which:0));
+		if(key > 31 && (key < 48 || key > 57))
+			return false;
+	}
+	return true;
+}
+
+function check_subnet_prefix()
+{
+	var prefix = document.L2tpVpnSetting.ID_SUBNET_PREFIX.value;
+
+	if (parseInt(prefix) < 24 || parseInt(prefix) > 31) {
+		alert(tcpip_pptp_subnet_invalid);
+		return -1;
+	}
+}
+
+function onApplyEnable()
+{
+	var pptp_interval = parseInt(document.L2tpVpnEnable.ID_L2TP_INTERVAL.value);
+
+	if (pptp_interval < 5 || pptp_interval > 604800) {
+		alert(tcpip_pptp_interval_error);
+		return;
+	}
+
+	document.L2tpVpnEnable.submit();
+}
+
+function onCancel()
+{
+	window.location.reload();
+}
+
+function check_subnet(ip)
+{
+	if (ip == "")
+		return -1;
+
+	if (ip == null || ip == null || ip == null || ip == null)
+		return -1;
+
+	if (ip < 0 || ip > 255)
+		return -1;
+
+	if (ip < 0 || ip > 255)
+		return -1;
+
+	if (ip < 0 || ip > 255)
+		return -1;
+
+	if (ip < 0 || ip > 255)
+		return -1;
+
+	return 0;
+}
+
+function check_ip(ip)
+{
+	if (ip == "")
+		return -1;
+
+	if (ip == null || ip == null || ip == null || ip == null)
+		return -1;
+
+	if (ip < 0 || ip >= 255)
+		return -1;
+
+	if (ip < 0 || ip >= 255)
+		return -1;
+
+	if (ip < 0 || ip >= 255)
+		return -1;
+
+	if (ip < 0 || ip >= 255)
+		return -1;
+
+	return 0;
+}
+
+function onApplySetting()
+{
+	var i = 0;
+	var id_primary_dns = document.L2tpVpnSetting.ID_L2TP_PRIMARY.value;
+	var id_second_dns = document.L2tpVpnSetting.ID_L2TP_SECONDARY.value;
+	var id_mode = document.L2tpVpnSetting.ID_L2TP_MODE.value;
+	var id_protocol = document.L2tpVpnSetting.ID_L2TP_PROTOCOL.value;
+	var id_enc = document.L2tpVpnSetting.ID_L2TP_ENCRYPTION.value;
+	var id_psk = document.L2tpVpnSetting.ID_L2TP_SHARED_KEY.value;
+
+	if (id_mode == "server" && id_primary_dns == "") {
+		alert(tcpip_pptp_primary_error);
+		return;
+	}
+
+	if (id_mode == "server" && id_second_dns == "") {
+		alert(tcpip_pptp_secondary_error);
+		return;
+	}
+
+	for (i = 1; i < 5; i++) {
+		if (check_ip(document.getElementById("ID_POOL_START_"+i).value) < 0) {
+			alert(tcpip_pptp_ip_pool_invalid);
+			return;
+		}
+
+		if (check_subnet(document.getElementById("ID_SUBNET_"+i).value) < 0) {
+			alert(tcpip_pptp_remote_subnet_error);
+			return;
+		}
+	}
+
+	if (check_subnet_prefix() < 0)
+		return;
+
+	if (document.L2tpVpnSetting.ID_SUBNET_PREFIX.value == "")	 {
+		alert(tcpip_pptp_prefix_error);
+		return;
+	}
+
+	if (document.L2tpVpnSetting.ID_L2TP_ACCOUNT.value == "") {
+		alert(tcpip_pptp_account_error);
+		return;
+	}
+
+	if (document.L2tpVpnSetting.ID_L2TP_PASSWORD.value == "") {
+		alert(tcpip_pptp_account_passwd_error);
+		return;
+	}
+
+	if (document.L2tpVpnSetting.ID_L2TP_REMOTE_HOST.value == "") {
+		alert(tcpip_pptp_remote_host_error);
+		return;
+	}
+
+	if (id_protocol == "l2tp" && id_enc == "1") {
+		if (id_psk == "") {
+			alert(tcpip_pptp_shared_key_error);
+			return;
+		}
+	}
+
+	if (id_protocol == "l2tp") {
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = false;
+		document.L2tpVpnSetting.ID_L2TP_TUNNEL.value = "1";
+	} else {
+		if (id_mode == "client") {
+			document.L2tpVpnSetting.ID_L2TP_TUNNEL.disabled = false;
+			document.L2tpVpnSetting.ID_L2TP_TUNNEL.value = "1";
+		}
+	}
+
+	document.L2tpVpnSetting.x_pptp_ippool.value = document.getElementById("ID_POOL_START_1").value + "." + document.getElementById("ID_POOL_START_2").value + "." + document.getElementById("ID_POOL_START_3").value + "." + document.getElementById("ID_POOL_START_4").value;
+	document.L2tpVpnSetting.x_pptp_subnet.value = document.getElementById("ID_SUBNET_1").value + "." + document.getElementById("ID_SUBNET_2").value + "." + document.getElementById("ID_SUBNET_3").value + "." + document.getElementById("ID_SUBNET_4").value + "/" + document.getElementById("ID_SUBNET_PREFIX").value;
+	document.L2tpVpnSetting.submit();
+}
+
+function onSettingApply(F)
+{
+	if ( !confirm(tcpip_pptp_setting_apply) )
+		return false;
+
+	F.submit();
+	return true;
+}
+
+</SCRIPT>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(tcpip_l2tp_header)</script></h2>
+<form action=/boafrm/formL2tpVpnEnable method=POST name="L2tpVpnEnable">
+<table border=0 width="480" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+<script>dw(tcpip_l2tp_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+  <tr>
+</table>
+
+<table border="0" width="550">
+	<tr>
+		<td height="35" colspan="2"><font size=2><b><script>dw(tcpip_l2tp_header)</script></b></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp)</script></b></td>
+		<td>
+			<select id="ID_L2TP_ENABLE" name="ID_L2TP_ENABLE" >
+				<option value="0" id="oL2tpDisable"><script>dw(tcpip_l2tp_disable)</script></option>
+				<option value="1" id="oL2tpEnable"><script>dw(tcpip_l2tp_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_interval)</script></b></td>
+		<td><font size=2><input type="text" name="ID_L2TP_INTERVAL" onKeyPress="return numberOnly(event);" size="3" maxlength="6" value="">&nbsp;Sec (5 ~ 604800)</td>
+	</tr>
+
+	<tr>
+		<td width="45%" height="55" align="right">
+			<input type="button" value="APPLY" name="l2tp_enable" onClick="onApplyEnable();" >
+			<script>document.L2tpVpnEnable.l2tp_enable.value = tcpip_pptp_apply;</script>
+		</td>
+		<td align="left">
+			<input type="button" value="CANCEL" name="l2tp_cancel" onClick="onCancel();" >
+			<script>document.L2tpVpnEnable.l2tp_cancel.value = tcpip_pptp_cancel;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formL2tpVpnSetting method=POST name="L2tpVpnSetting">
+<input type="hidden" value="" name="x_pptp_ippool">
+<input type="hidden" value="" name="x_pptp_subnet">
+<table border="0" width="550">
+	<tr>
+		<td height="35" colspan="2"><font size=2><b><script>dw(tcpip_l2tp_dns_title)</script></b></td>
+	</tr>
+	<tr>
+		<td width="45%"><font size=2><b><script>dw(tcpip_l2tp_primary)</script></b></td>
+		<td><font size=2><input type="text" name="ID_L2TP_PRIMARY" size="20" maxlength="32" value=""></td>
+	</tr>
+	<tr>
+		<td width="45%"><font size=2><b><script>dw(tcpip_l2tp_secondary)</script></b></td>
+		<td><font size=2><input type="text" name="ID_L2TP_SECONDARY" size="20" maxlength="32" value=""></td>
+	</tr>
+</table>
+
+<table border="0" width="550">
+	<tr>
+		<td height="35" colspan="2"><font size=2><b><script>dw(tcpip_l2tp_tunnel_title)</script></b></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_protocol)</script></b></td>
+		<td>
+			<select id="ID_L2TP_PROTOCOL" name="ID_L2TP_PROTOCOL" onchange="updateProtocolstatus();" >
+				<option value="pptp"><script>dw(tcpip_l2tp_protocol_pptp)</script></option>
+				<option value="l2tp"><script>dw(tcpip_l2tp_protocol_l2tp)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_mode)</script></b></td>
+		<td>
+			<select id="ID_L2TP_MODE" name="ID_L2TP_MODE" onchange="updateModestatus();" >
+				<option value="server"><script>dw(tcpip_l2tp_server)</script></option>
+				<option value="client"><script>dw(tcpip_l2tp_client)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_account)</script></b></td>
+		<td><font size=2><input type="text" name="ID_L2TP_ACCOUNT" size="20" maxlength="64" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_password)</script></b></td>
+		<td><font size=2><input type="text" name="ID_L2TP_PASSWORD" size="20" maxlength="64" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_tunnel)</script></b></td>
+		<td>
+			<select id="ID_L2TP_TUNNEL" name="ID_L2TP_TUNNEL" onchange="changeTunnelStatus();" >
+				<option value="0"><script>dw(tcpip_l2tp_client_to_lan)</script></option>
+				<option value="1"><script>dw(tcpip_l2tp_lan_to_lan)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_max_station)</script></b></td>
+		<td>
+			<select id="ID_L2TP_MAX_CONN" name="ID_L2TP_MAX_CONN" onchange="calc_end_ip();" >
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="5">5</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_remote_host)</script></b></td>
+		<td><font size=2><input type="text" name="ID_L2TP_REMOTE_HOST" size="20" maxlength="64" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_encryption)</script></b></td>
+		<td>
+			<select id="ID_L2TP_ENCRYPTION" name="ID_L2TP_ENCRYPTION" onchange="updateEncstatus();" >
+				<option value="0"><script>dw(tcpip_l2tp_disable)</script></option>
+				<option value="1"><script>dw(tcpip_l2tp_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_shared_key)</script></b></td>
+		<td><font size=2><input type="password" name="ID_L2TP_SHARED_KEY" size="20" maxlength="20" value=""></td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_ip_addr_pool)</script></b></td>
+		<td><font size=2>
+			<input type="text" style="width:23px" maxlength="3" id="ID_POOL_START_1" name="ID_POOL_START_1" onKeyPress="return numberOnly(event);" onchange="calc_end_ip();"/> .
+			<input type="text" style="width:23px" maxlength="3" id="ID_POOL_START_2" name="ID_POOL_START_2" onKeyPress="return numberOnly(event);" onchange="calc_end_ip();"/> .
+			<input type="text" style="width:23px" maxlength="3" id="ID_POOL_START_3" name="ID_POOL_START_3" onKeyPress="return numberOnly(event);" onchange="calc_end_ip();"/> .
+			<input type="text" style="width:23px" maxlength="3" id="ID_POOL_START_4" name="ID_POOL_START_4" onKeyPress="return numberOnly(event);" onchange="calc_end_ip();"/>
+			&nbsp;~&nbsp;
+			<input disabled style="width:23px" maxlength="3" id="ID_POOL_END_1" name="ID_POOL_END_1" onKeyPress="return numberOnly(event);" /> .
+			<input disabled style="width:23px" maxlength="3" id="ID_POOL_END_2" name="ID_POOL_END_2" onKeyPress="return numberOnly(event);" /> .
+			<input disabled style="width:23px" maxlength="3" id="ID_POOL_END_3" name="ID_POOL_END_3" onKeyPress="return numberOnly(event);" /> .
+			<input disabled style="width:23px" maxlength="3" id="ID_POOL_END_4" name="ID_POOL_END_4" onKeyPress="return numberOnly(event);" />
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2><b><script>dw(tcpip_l2tp_remote_subnet)</script></b></td>
+		<td><font size=2>
+			<input type="text" style="width:23px" maxlength="3" id="ID_SUBNET_1" name="ID_SUBNET_1" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:23px" maxlength="3" id="ID_SUBNET_2" name="ID_SUBNET_2" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:23px" maxlength="3" id="ID_SUBNET_3" name="ID_SUBNET_3" onKeyPress="return numberOnly(event);" /> .
+			<input type="text" style="width:23px" maxlength="3" id="ID_SUBNET_4" name="ID_SUBNET_4" onKeyPress="return numberOnly(event);" />
+			&nbsp;&nbsp;/&nbsp;
+			<input type="text" style="width:23px" maxlength="2" id="ID_SUBNET_PREFIX" name="ID_SUBNET_PREFIX" onKeyPress="return numberOnly(event);" onchange="check_subnet_prefix();">
+		</td>
+	</tr>
+	<tr>
+		<td width="45%" height="55" align="right">
+			<input type="button" value="APPLY" name="pptp_setting" onClick="onApplySetting();" >
+			<script>document.L2tpVpnSetting.pptp_setting.value = tcpip_pptp_apply;</script>
+		</td>
+		<td align="left">
+			<input type="button" value="CANCEL" name="pptp_cancel" onClick="onCancel();" >
+			<script>document.L2tpVpnSetting.pptp_cancel.value = tcpip_pptp_cancel;</script>
+		</td>
+	</tr>
+</table>
+</form>
+
+<form action=/boafrm/formSaveConfigReset method=POST name="formSaveConfigReset">
+<br>
+<table border="0" width="440">
+	<tr>
+		<td width="45%"><font size=2><b><script>dw(tcpip_pptp_setting_info)</script></b></td>
+		<td><font size=2>
+			<input type="button" value="apply" name="pptp_apply" onClick="onSettingApply(this.form);" >
+			<script>document.formSaveConfigReset.pptp_apply.value = tcpip_pptp_setting;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

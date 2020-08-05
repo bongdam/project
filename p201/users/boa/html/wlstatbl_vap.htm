@@ -1,0 +1,149 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<% getIndex("no-cache"); %>
+<title>Active Wireless Client Table</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<style>
+.on {display:on}
+.off {display:none}	
+</style>
+<script>
+var vap_num;
+var vap_id;
+function write_comment(id, is_head)
+{
+	if (vap_num != id) {
+		if (is_head) {	
+			document.write("<!"); 
+			document.write("--\n");
+		}
+		else
+			document.write("-->\n");
+	}
+}
+
+function init()
+{
+	
+	var url_tmp = location.href;
+	var url_tmp_1 = url_tmp.split("?");
+	var id = url_tmp_1[1].split("=");
+
+	vap_id = id[1]*1;
+	get_by_id("submit-url").value = "/wlstatbl_vap.htm?id="+vap_id;
+
+}
+</script>
+</head>
+<body>
+<form action=/boafrm/formWirelessTbl method=POST name="formWirelessTbl">
+<input type="hidden" value="" id="submit-url" name="submit-url">
+<blockquote>
+<h2><script>dw(wlstatbl_tbl_name)</script>
+	<script>
+		init();
+		//if (window.opener.aclist_index == 1) 
+		if(vap_id == 1)
+		{
+			document.write(" - AP1");
+			vap_num = 1;
+		}
+		//else if (window.opener.aclist_index == 2) 
+		else if (vap_id == 2) 
+		{
+			document.write(" - AP2");
+			vap_num = 2;
+		}
+		//else if (window.opener.aclist_index == 3) 
+		else if (vap_id == 3) 
+		{
+			document.write(" - AP3");
+			vap_num = 3;
+		}
+		//else if (window.opener.aclist_index == 4)
+		else if (vap_id == 4) 
+		{
+			document.write(" - AP4");
+			vap_num = 4;
+		}
+		else
+		{
+			alert("We can not process AP"+vap_id+". The windows will be closed.");
+			window.opener=null;   
+			window.open("","_self");   
+			window.close();
+		}
+	</script>
+	</h2>
+
+<table border=0 width="600" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+<script>dw(wlstatbl_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+<script> if (vap_num != 1) document.write("</table><span class = \"off\" ><table>"); </script>
+<script>
+	var which_lang="<% getInfo("lang");%>"
+	if(which_lang=="language_sc.js")
+		document.title="活跃的无线客户端列表"
+</script>
+<table border='1' width="600">
+<tr class="tbl_head"><td width="100"><font size=2><b><script>dw(wlstatbl_mac)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_mode)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_rx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx_rate)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_ps)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_expired_time)</script></b></td></tr>
+<% wirelessClientList(" ", "1"); %>	
+<script> if (vap_num != 1) document.write("</table></span><table border='1' width=\"600\">"); </script>
+
+<script> if (vap_num != 2) document.write("</table><span class = \"off\" ><table>"); </script>
+<tr class="tbl_head"><td width="100"><font size=2><b><script>dw(wlstatbl_mac)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_mode)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_rx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx_rate)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_ps)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_expired_time)</script></b></td></tr>
+<% wirelessClientList(" ", "2"); %>	
+<script> if (vap_num != 2) document.write("</table></span><table border='1' width=\"600\">"); </script>
+
+<script> if (vap_num != 3) document.write("</table><span class = \"off\" ><table>"); </script>
+<tr class="tbl_head"><td width="100"><font size=2><b><script>dw(wlstatbl_mac)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_mode)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_rx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx_rate)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_ps)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_expired_time)</script></b></td></tr>
+<% wirelessClientList(" ", "3"); %>	
+<script> if (vap_num != 3) document.write("</table></span><table border='1' width=\"600\">"); </script>
+
+<script> if (vap_num != 4) document.write("</table><span class = \"off\" ><table>"); </script>
+<tr class="tbl_head"><td width="100"><font size=2><b><script>dw(wlstatbl_mac)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_mode)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_rx)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_tx_rate)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_ps)</script></b></td>
+<td width="60"><font size=2><b><script>dw(wlstatbl_expired_time)</script></b></td></tr>
+<% wirelessClientList(" ", "4"); %>	
+<script> if (vap_num != 4) document.write("</table></span><table border='1' width=\"600\">"); </script>
+
+</table>
+  <p><input type="submit" value="Refresh" name="refresh">&nbsp;&nbsp;
+  <script>document.formWirelessTbl.refresh.value = wlstatbl_refresh;</script>
+  <input type="button" value=" Close " name="close" onClick="javascript: window.close();"></p>
+  <script>document.formWirelessTbl.close.value = wlstatbl_close;</script>
+</form>
+</blockquote>
+</body>
+
+</html>

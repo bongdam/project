@@ -1,0 +1,21 @@
+#!/bin/sh
+led_connect() {
+	for gpio in G6 G7 H0 H1 H2; do gpio -s out ${gpio}; done
+	for band in 0 1; do echo 0 > /proc/wlan${band}/led; done
+}
+
+led_disconnect() {
+	:
+}
+
+led_on() {
+	for gpio in G6 G7 H0 H1 H2; do gpio -w 0 ${gpio}; done
+	for gpio in B4 B5; do gpio -w 0 ${gpio}; done
+}
+
+led_off() {
+	for gpio in G6 G7 H0 H1 H2; do gpio -w 1 ${gpio}; done
+	for gpio in B4 B5; do gpio -w 1 ${gpio}; done
+}
+
+eval led_$1

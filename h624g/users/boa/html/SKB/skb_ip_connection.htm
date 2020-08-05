@@ -1,0 +1,169 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>커넥션 통계</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var second=minute=hour=day=0;
+var f_timer;
+
+/*function reset_timer(){
+	window.clearInterval(f_timer);
+}
+*/
+function start_timer(){
+	second=minute=hour=day=0;
+	window.clearInterval(f_timer);
+	document.IpConnection.conn_init_timer.value=day+"일 "+hour+"시 "+minute+"분 "+second+"초";
+	f_timer=window.setInterval("update_timer();", 1000);
+}
+
+function update_timer(){
+	second++;
+	if(second>59){
+		minute++;
+		second=0;
+			if(minute>59){
+				hour++;
+				minute=0;
+				if(hour>23){
+					day++;
+					hour=0;
+				}
+			}
+	}
+	document.IpConnection.conn_init_timer.value=day+"일 "+hour+"시 "+minute+"분 "+second+"초";
+}
+
+
+
+function reset_timer()
+{
+  	document.location.assign("skb_ip_connection.htm");
+}
+
+function formLoad()
+{
+	var init_time = parseInt("<% getInfo("connection_init_time"); %>", 10); //sec
+	var day_ = 0;
+	var hour_ = 0;
+	var min_ = 0;
+	var sec_ = 0;
+	var tmp = 0;
+	var ap_url=location.search;
+	var init_info = ap_url.split("=");
+	var isAdmin = <% getIndex("isAdmin"); %>;
+
+	if (init_info[1]=="1") {
+		start_timer();
+	} else {
+		if (init_time > 0) {
+			tmp=init_time;
+			if (tmp>86400) {
+				day_ = Math.floor(tmp/86400);
+				tmp = tmp%86400;
+			}
+			if (tmp > 3600) {
+				hour_ = Math.floor(tmp/3600);
+				tmp = tmp%3600;
+			}
+			if (tmp>60) {
+				min_ = Math.floor(tmp/60);
+				tmp = tmp%60;
+			}
+			sec_ = tmp;
+		}
+		document.IpConnection.conn_init_timer.value = day_+"일 "+hour_+"시 "+min_+"분 "+sec_+"초 ";
+	}
+}
+
+</script>
+</head>
+<body onload="formLoad();">
+<form action=/boafrm/formIpConnection method=POST name="IpConnection">
+<input type="hidden" value="/skb_ip_connection.htm" name="submit-url">
+<blockquote>
+	<h2>커넥션 통계</h2>
+	<table border=0 width="600" cellspacing=4 cellpadding=0>
+		<tr><td><font size=2>
+			전체 및 IP 별 커넥션 정보를 확인 할 수 있는 페이지입니다.<br>
+			전체 커넥션 정보는 WAN구간의 정보를 의미합니다
+		</font></td></tr>
+		<tr><td><hr size="1" align="top" noshade="noshade"></td></tr>
+	</table>
+	<br>
+	<table width="600" border="0">
+		<tr>
+			<td width="30%"><font size="3"><b>전체 커넥션 정보</b></font></td>
+			<td width="40%">
+				<!--새로고침 버튼, 패킷 카운트 초기화 버튼 ,-->
+				<input type="button" value="새로 고침" onClick="reset_timer()" />
+				<input type="submit" name="count_init" value="패킷 카운트 초기화" />
+
+			</td>
+			<td align="right" width="30%">
+				<!--timer-->
+				<input name="conn_init_timer" type="text" style="background-color:#EEEEEE;border:none;text-align:right;" readonly onfocus="this.blur" name="show_timer" size="20" value=""></span>
+			</td>
+		</tr>
+	</table>
+	<table width="600" border=0 cellpadding=2 cellspacing=1>
+		<tr><td colspan=9>&nbsp;</td></tr>
+		<tr class="tbl_head">
+			<td align=center><b>전체 커넥션</b></td>
+			<td align=center><b>TCP</b></td>
+			<td align=center><b>UDP</b></td>
+			<td align=center><b>ICMP</b></td>
+			<td align=center><b>Other</b></td>
+			<td align=center><b>송신<br>패킷</b></td>
+			<td align=center><b>수신<br>패킷</b></td>
+			<td align=center><b>송신<br>바이트</b></td>
+			<td align=center><b>수신<br>바이트</b></td>
+		</tr>
+			<% get_connection_info(); %>
+	</table>
+	<br><br>
+	<table width="600" border="0">
+		<tr>
+			<td ><font size="3"><b>IP별 커넥션 정보</b></font></td>
+		</tr>
+	</table>
+	<table width="600" border=0 cellpadding=2 cellspacing=1>
+		<tr><td colspan=9>&nbsp;</td></tr>
+		<tr class="tbl_head">
+			<td align=center><b>IP 주소</b></td>
+			<td align=center><b>호스트 정보</b></td>
+			<td align=center><b>유/무선</b></td>
+			<td align=center><b>커넥션<br>수</b></td>
+			<td align=center><b>송신<br>패킷</b></td>
+			<td align=center><b>수신<br>패킷</b></td>
+			<td align=center><b>송신<br>바이트</b></td>
+			<td align=center><b>수신<br>바이트</b></td>
+		</tr>
+		<% get_IP_connection_info(); %>
+
+	</table>
+	<br><br>
+
+	<div id="net_viewer_title">
+	<table width="600" border="0">
+		<tr>
+			<td ><font size="3"><b>AP 시스템 커넥션 정보</b></font></td>
+		</tr>
+	</table>
+	</div>
+	<br>
+	<div id="net_viewer" style="width:620px; height:300px; overflow:auto">
+  	<table name="conn_info" border="1" rules="none" width="600" cellpadding="0" cellspacing="1" style='color:white; background-color:black;'>
+  		<% netconn_viewer(); %>
+  	</table>
+	</div>
+</blockquote>
+</form>
+</body>
+</html>

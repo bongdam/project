@@ -1,0 +1,136 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>MAC 필터링</title>
+<% getInfo("include_css"); %>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<script>
+function macTblClick(url)
+{
+	openWindow(url, 'macTbl', 700, 400);
+}
+
+function addClick()
+{
+	if (document.formFilterAdd.mac.value=="" && document.formFilterAdd.comment.value=="" ){
+		alert("입력된 정보가 없습니다.");
+		return false;
+	}
+
+	var str = document.formFilterAdd.mac.value;
+	var tmp = "";
+	if (str.length != 12 && str.length != 17) {
+		alert("MAC 주소가 올바르지 않습니다. 16진수 12자리 또는 콜론을 포함한 17자리를 입력해야 합니다");
+		document.formFilterAdd.mac.focus();
+		return false;
+	}
+
+	for (var i=0; i<str.length; i++) {
+		if ((str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+				(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+				(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+				(str.charAt(i) == ':')) {
+			if (str.charAt(i) != ':')
+				tmp += str.charAt(i);
+			continue;
+		}
+		alert("MAC 주소가 올바르지 않습니다. 16진수를 입력해야 합니다. (0-9 또는 a-f 또는 :)");
+		document.formFilterAdd.mac.focus();
+		return false;
+	}
+	document.formFilterAdd.mac.value = tmp;
+
+	return true;
+}
+
+function deleteClick(i)
+{
+	document.formFilterAdd.elements["select"].name = "select"+i;
+
+	if (!confirm('선택한 목록을 삭제하시겠습니까?'))
+		return false;
+	else
+		return true;
+}
+
+function updateState()
+{
+	var is_disable = false;
+	var macFilter_num = <% getInfo("x_MACFILTER_TBL_NUM"); %>;
+
+ 	document.formFilterAdd.mac.disabled = is_disable;
+	document.formFilterAdd.comment.disabled = is_disable;
+	document.formFilterAdd.port.disabled = is_disable;
+	document.formFilterAdd.macSearch.disabled = is_disable;
+
+	document.formFilterAdd.opmode1.disabled = is_disable;
+	document.formFilterAdd.opmode2.disabled = is_disable;
+	document.formFilterAdd.opmode3.disabled = is_disable;
+	document.formFilterAdd.opmode4.disabled = is_disable;
+
+	document.formFilterAdd.addFilterMac.disabled = is_disable;
+
+	for(var i=1 ; i <= macFilter_num ; i++)
+		get_by_id("deleteSelFilterMac"+i).disabled = is_disable;
+}
+
+function modeChange()
+{
+	var f = document.formFilterAdd;
+	f.submit();
+}
+
+function do_init()
+{
+	var active_port = <% write(getIndex("macfil_active_port")); %>;
+
+	document.formFilterAdd.opmode1.disabled = ( active_port & 1 )? false: true;
+	document.formFilterAdd.opmode2.disabled = ( active_port & 2 )? false: true;
+	document.formFilterAdd.opmode3.disabled = ( active_port & 4 )? false: true;
+	document.formFilterAdd.opmode4.disabled = ( active_port & 8 )? false: true;
+}
+</script>
+</head>
+
+<body onLoad="do_init();">
+<blockquote>
+<h2>MAC 필터링</h2>
+
+<table border=0 width="570" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+ 해당 MAC 주소를 사용하는 호스트에 대해 접속을 허용할 것인지 차단할 것인지 설정하는 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formFilter method=POST name="formFilterAdd">
+<input type="hidden" name="pageName" value="MACF">
+
+<br>
+<table border="0" width=500 cellpadding="5">
+	<tr><font size=2><b>MAC 필터링 리스트:</b></font></tr>
+	<% macFilterList(); %>
+	<!--tr align="center"><td><select name='port'><option value="02" selected>LAN1<option value="04">LAN2<option value="08">LAN3<option value="16">LAN4</select></td> -->
+	<tr align="center"><td><select name='port'><option value="01" selected>LAN1<option value="02">LAN2<option value="04">LAN3<option value="08">LAN4</select></td>
+		<td><input type="text" name="mac" size="20" maxlength="17"></td>
+		<td><input type="text" name="comment" size="16" maxlength="20"></td>
+		<td><input type="submit" value=" 추가 " name="addFilterMac" onClick="return addClick()"></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td align="center"><input type="button" id="macSearch" name="macSearch" value="MAC search" onClick="macTblClick('/skb_mactbl.htm')"></td>
+		<td colspan="2">&nbsp;</td>
+	</tr>
+</table>
+<script> updateState(); </script>
+<input type="hidden" value="ON" name="select">
+<input type="hidden" value="ON" name="changeModeFilterMac">
+<input type="hidden" name="page" value="skb_macfilter.htm">
+<input type="hidden" value="/skb_macfilter.htm" name="submit-url">
+</form>
+
+</blockquote>
+</body>
+</html>

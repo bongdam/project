@@ -1,0 +1,437 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>BGP Setup</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script>
+
+function deleteClick()
+{
+  if ( !confirm('Do you really want to delete the selected entry?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function deleteAllClick()
+{
+   if ( !confirm('Do you really want to delete the all entries?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+function checkIpSubnetAddr(field, msg)
+{
+  if (field.value=="") {
+	alert("IP address cannot be empty! It should be filled with 4 digit numbers as xxx.xxx.xxx.xxx.");
+	field.value = field.defaultValue;
+	field.focus();
+	return false;
+  }
+   if ( validateKey(field.value) == 0) {
+      alert(msg + ' value. It should be the decimal number (0-9).');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,1,1,223) ) {
+      alert(msg+' range in 1st digit. It should be 1-223.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,2,0,255) ) {
+      alert(msg + ' range in 2nd digit. It should be 0-255.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,3,0,255) ) {
+      alert(msg + ' range in 3rd digit. It should be 0-255.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   if ( !checkDigitRange(field.value,4,0,255) ) {
+      alert(msg + ' range in 4th digit. It should be 0-255.');
+      field.value = field.defaultValue;
+      field.focus();
+      return false;
+   }
+   return true;
+}
+function bgpaddnetClick()
+{
+   var t1; 	
+   var first_ip;
+   var route_meteric;
+  if (!document.bgpon.bgp_on.checked)
+  	return false;
+
+  if (document.networksetup.bgpnetwork.value=="" && document.networksetup.bgpsubnet.value=="")
+	return true;
+  if ( checkIpSubnetAddr(document.networksetup.bgpnetwork, 'Invalid network address value! ') == false )
+              return false;
+  if (checkIPMask(document.networksetup.bgpsubnet) == false)
+		        return false ;
+ 
+
+   return true;
+
+
+}
+
+function disablenetDelButton()
+{
+	disableButton(document.networksetup.deletenet);
+	disableButton(document.networksetup.deleteallnet);
+}
+
+
+
+function disablepeerDelButton()
+{
+	disableButton(document.peersetup.deletepeer);
+	disableButton(document.peersetup.deleteallpeer);
+}
+
+
+function bgp_on_update()
+{
+ if (document.bgpon.bgp_on.checked) {
+ 	enableTextField(document.bgpon.bgprouteid);
+	enableTextField(document.bgpon.AS);
+	enableButton(document.bgpon.showdebug);
+  }
+  else {
+ 
+	disableTextField(document.bgpon.bgprouteid);
+	disableButton(document.bgpon.showdebug);
+	disableTextField(document.bgpon.AS);
+  
+  }
+
+}
+function bgpaddasClick()
+{
+var t1; 
+ t1 = parseInt(document.bgpon.AS.value);
+  if((document.bgpon.AS.value=="") || (t1 > 65535 ) || (t1 < 1)){
+  	alert('Invalid area value! The range of Metric is 1 ~ 65535.');
+  	return false;
+  }
+
+}
+function peeraddClick()
+{
+var t1; 
+ if (!document.bgpon.bgp_on.checked)
+  	return false;
+ t1 = parseInt(document.peersetup.peer_as.value);
+  if((document.peersetup.peer_as.value=="") || (t1 > 65535 ) || (t1 < 1)){
+  	alert('Invalid area value! The range of Metric is 1 ~ 65535.');
+  	return false;
+  }
+
+ if ( checkIpSubnetAddr(document.peersetup.ip_address, 'Invalid network address value! ') == false )
+              return false;
+  return true;
+}
+
+
+function debug_update()
+{
+ if (document.bgpon.bgp_debug.checked) {
+	enableButton(document.bgpon.showdebug);
+  }
+  else {
+ 
+	disableButton(document.bgpon.showdebug);
+  
+  }
+
+}
+function routeinputClick()
+{
+	if (document.routeimport.routeinput.checked) {
+		if (!document.routeimport.ospfimport.checked) {
+			alert('please select ospf input');
+  		return false;
+			}
+	
+  }
+	return true;
+
+
+	
+
+}
+function StaticRouteTblClick(url) {
+		openWindow(url, 'bgpdebug',1000, 800 );
+}
+function bgp_LoadSetting()
+{
+	var dF=document.bgpon;
+	var bgp_enabled=<%getIndex("bgp_on");%>;
+	var bgp_debug=<%getIndex("bgp_debug");%>;
+	var route_id=<%getIndex("bgp_route_id");%>;
+	//var bgpas_number=<%getIndex("bgp_as");%>;
+	var bgp_route_input=<%getIndex("route_input");%>;
+	var ospfd_route_input=<%getIndex("ospf_route_input");%>;
+	if(bgp_enabled==1)	
+	{
+		dF.bgp_on.checked=true;
+		enableTextField(document.bgpon.bgprouteid);
+		enableTextField(document.bgpon.AS);
+		enableButton(document.bgpon.showdebug);
+		if(route_id)
+			document.bgpon.bgprouteid.value=route_id;
+		if(<%getIndex("bgp_as");%>)
+			document.bgpon.AS.value=<%getIndex("bgp_as");%>;
+	}
+	else
+	{
+	
+		dF.bgp_on.checked=false;
+		disableTextField(document.bgpon.bgprouteid);
+		disableTextField(document.bgpon.AS);
+		disableButton(document.bgpon.showdebug);
+		
+	}
+	if(bgp_debug==1)
+	{
+		dF.bgp_debug.checked=true;
+		enableButton(document.bgpon.showdebug);
+	}
+
+	else
+	{
+		dF.bgp_debug.checked=false;
+		disableButton(document.bgpon.showdebug);
+		
+		
+	}
+	if(bgp_route_input==1)
+	{
+		document.routeimport.routeinput.checked=true;
+		if(ospfd_route_input==1)
+			document.routeimport.ospfimport.checked=true;
+		else
+			document.routeimport.ospfimport.checked=false;
+			
+	
+	}
+	else	
+	{
+		document.routeimport.routeinput.checked=false;
+		document.routeimport.ospfimport.checked=false;
+	
+	}
+	if ( <% getIndex("bgpnetworkNum"); %> == 0 )
+		disablenetDelButton();
+	if ( <% getIndex("bgppeerNum"); %> == 0 )
+		disablepeerDelButton();
+
+}
+</script>
+</head>
+<body onload="bgp_LoadSetting();">
+<blockquote>
+
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<h2><font color="#0000FF">Bgp Routing Setup</font></h2>
+
+
+<tr><td colspan= 2><font size=2>
+ This page is used to setup Bgp routing.
+</font></td></tr>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+
+
+<form action=/boafrm/formbgproute method=POST name="bgpon">
+<tr><td><font size=2><b>BGP SETUP</b></font></td></tr>
+	<tr>
+		<td><font size=2>BGP:</font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="bgp_on" value="ON" onClick="bgp_on_update()">&nbsp;&nbsp;Enable </b>
+   	
+
+		</font></td>
+		
+	</tr>
+	<tr>
+       <td width="30%"><font size=2>As Number(1~65535):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="AS" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+    <tr>
+       <td width="30%"><font size=2>Route ID(1~65535):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="bgprouteid" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+	<tr>
+		<td><font size=2>Bgp Debug:</font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="bgp_debug" value="ON" onClick="debug_update()">&nbsp;&nbsp;Enable Debug </b><br>
+
+		</font></td>
+		<input type="button" value="Show debug info" name="showdebug" onClick="StaticRouteTblClick('/bgpdebug.htm')">
+	</tr>
+
+<tr>
+	<br><td><input type="submit" value="Apply Changes" name="bgpset" onClick="return bgpaddasClick()"></td>
+</tr>
+<tr>
+	<td colspan= 2><font size=2>
+ [After modify the config,must restart the bgp]
+</font></td>
+<td><input type="submit" value="restart" name="restart" ></td>
+</tr>
+<input type="hidden" value="/bgproute.htm" name="submit-url">
+  </table>      
+</form>
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b>NETWORK SETUP</b></font></td></tr>
+<form action=/boafrm/formbgproute method=POST name="networksetup">
+<tr>
+       <td width="30%"><font size=2>Network:</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="bgpnetwork" size="18" maxlength="15" value="">
+      </td>
+    </tr>
+    <tr>
+      <td width="30%"><font size=2><b>Subnet Mask:</b></td>
+      <td width="70%"><font size=2><input type="text" name="bgpsubnet" size="18" maxlength="15" value=""></td>
+    </tr>
+    <tr>
+
+
+   <tr><td colspan=2>
+     <p><input type="submit" value="Add network" name="add_network" onClick="return bgpaddnetClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+<table border="0" width=500>
+  <tr><font size=2>Network Table:</font></tr>
+  <% bgpnetList(); %>
+  </table>
+  <input type="submit" value="Delete Selected" name="deletenet" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallnet" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/bgproute.htm" name="submit-url">
+</form>
+
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b>Redistribute to BGP</b></font></td></tr>
+<form action=/boafrm/formbgproute method=POST name="routeimport">
+
+	<tr>
+		<td><font size=2>Redistribute:</font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="routeinput" value="ON">&nbsp;&nbsp;Enable </b>
+   	
+
+		</font></td>
+		
+	</tr>
+
+	<tr>
+		<td><font size=2>Ospf Redistribute:</font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="ospfimport" value="ON" >&nbsp;&nbsp;Enable </b>
+   	
+
+		</font></td>
+		
+	</tr>
+
+   <tr><td colspan=2>
+     <p><input type="submit" value="Apply" name="input_static_route" onClick="return routeinputClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+  <input type="hidden" value="/bgproute.htm" name="submit-url">
+</form>
+  
+
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b>PEER SETUP</b></font></td></tr>
+<form action=/boafrm/formbgproute method=POST name="peersetup">
+<tr>
+       <td width="30%"><font size=2>Peer IP ADDRESS:</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="ip_address" size="18" maxlength="15" value="">
+      </td>
+    </tr>
+</tr>
+	<tr>
+       <td width="30%"><font size=2>Peer As Number(1~65535):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="peer_as" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+
+
+
+	
+   <tr><td colspan=2>
+     <p><input type="submit" value="peer_setup" name="add_peer" onClick="return peeraddClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+
+<table border="0" width=500>
+  <tr><font size=2>Peer Information Table:</font></tr>
+  <% bgppeerList(); %>
+  </table>
+<input type="submit" value="Delete Selected" name="deletepeer" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallpeer" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/bgproute.htm" name="submit-url">
+</form>
+
+ <script>
+	if ( <% getIndex("bgpnetworkNum"); %> == 0 )
+		disablenetDelButton();
+	if ( <% getIndex("bgppeerNum"); %> == 0 )
+		disablepeerDelButton();
+ </script>
+
+  
+
+	</blockquote>
+</body>
+
+</html>
+

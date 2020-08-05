@@ -1,0 +1,74 @@
+#!/bin/sh
+
+ifconfig lo 127.0.0.1
+
+CINIT=1
+
+hostname P201
+
+mount -t proc proc /proc
+mount -t ramfs ramfs /var
+
+mkdir /var/tmp /var/web /var/log /var/run /var/lock /var/system /var/dnrd /var/lib /var/lib/misc /var/home /var/root /var/tmp/net /var/linuxigd /var/ppp /var/ppp/peers /var/udhcpc /var/udhcpd
+
+mount -t jffs2 /dev/mtdblock2 /var/log
+
+# For miniigd
+cp /etc/tmp/pics* /var/linuxigd 2>/dev/null
+
+cp /bin/pppoe.sh /var/ppp/true
+echo "#!/bin/sh" > /var/ppp/true
+
+# for console login
+cp /etc/shadow.sample /var/shadow
+
+cp /bin/init.sh /var/udhcpc/eth0.deconfig
+echo " " > /var/udhcpc/eth0.deconfig
+cp /bin/init.sh /var/udhcpc/eth1.deconfig
+echo " " > /var/udhcpc/eth1.deconfig
+cp /bin/init.sh /var/udhcpc/br0.deconfig
+echo " " > /var/udhcpc/br0.deconfig
+cp /bin/init.sh /var/udhcpc/wlan0.deconfig
+echo " " > /var/udhcpc/wlan0.deconfig
+
+nvram populate nvram
+
+eval $(nvram print USER_NAME)
+echo -e "root::0:0:root:/:/bin/sh\n${USER_NAME:-admin}::0:0:${USER_NAME:-admin}:/:/bin/sh\nnobody:x:0:0:nobody:/:/dev/null" >/var/passwd
+chpwd -f "root" SUPER_PASSWORD
+chpwd ${USER_NAME:-admin} USER_PASSWORD
+
+[ ! -x "/usr/bin/laborer" ] || laborer&
+
+if [ "$CINIT" -eq 1 ]; then
+	startup.sh
+fi
+
+# for wireless client mode 802.1x
+mkdir /var/1x
+cp -rf /usr/1x/* /var/1x/ 2>/dev/null
+
+# Start system script
+init.sh gw all
+echo "0 -1 -1 0" >/sys/module/rtl_gpio_r/parameters/sysled
+# modify dst-cache setting
+echo "24576" > /proc/sys/net/ipv4/route/max_size
+echo "180" > /proc/sys/net/ipv4/route/gc_thresh
+echo 20 > /proc/sys/net/ipv4/route/gc_elasticity
+
+# echo "4096" > /proc/sys/net/nf_conntrack_max
+echo "12288" > /proc/sys/net/netfilter/nf_conntrack_max
+echo "600" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_established
+echo "20" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_time_wait
+echo "20" > /proc/sys/net/ipv4/netfilter/ip_conntrack_tcp_timeout_close
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout
+echo "120" > /proc/sys/net/ipv4/netfilter/ip_conntrack_udp_timeout_stream
+echo "90" > /proc/sys/net/ipv4/netfilter/ip_conntrack_generic_timeout
+echo "32" > /proc/sys/net/netfilter/nf_conntrack_expect_max
+
+# start web server
+[ ! -x "/bin/watchdog" ] || watchdog 1000&
+boa
+post_startup.sh
+dvflag INITED 1
+[ ! -x "/var/log/mfg-run" ] || /var/log/mfg-run

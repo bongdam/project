@@ -1,0 +1,114 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>ydespaces-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>ydespaces(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>ydespaces - 입력문자열의 앞(Leading)과 뒤(Trailing)의 공백(<i>White Space</i>)을 제거</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+char *ydespaces(char *<a href="#">src</a>);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 인자로 전달된 <a href="#">src</a> 문자열 포인터 변수의 앞과 뒤의 연속된 공백을 제거해 주는 함수이다. <a href="#">src</a>는 null-terminated 문자열 포인터 변수이다. 앞 부분에 공백이 존재하면 해당 공백을 제거한 후 제거된 공간 만큼 메모리 내용이 앞으로 이동된다. 뒷 부분에 공백이 존재하면 단순히 '\0'문자가 채워진다.</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>인자로 전달된 <a href="#">src</a> 문자열 변수를 그대로 리턴한다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+<p>인자로 전달된 <a href="#">src</a> 문자열 변수의 NULL 체크를 수행하지 않는다.</p>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<pre class="fixed_font">
+<span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> &lt;string.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"libytool.h"</span>
+
+static <span style="color:Blue;">void</span> mdisp(<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *p, <span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span> s, <span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *base)
+{
+    <span style="color:Blue;">int</span> i, c;
+
+    <span style="color:Blue;">while</span> ((<span style="color:Blue;">int</span>)s &gt; 0) {
+        printf(<span style="color:#A31515;">"%08x: "</span>, (<span style="color:Blue;">unsigned</span> <span style="color:Blue;">int</span>)base);
+
+        <span style="color:Blue;">for</span> (i = 0; i &lt; 16; i++) {
+            <span style="color:Blue;">if</span> (i &lt; (<span style="color:Blue;">int</span>)s)
+                printf(<span style="color:#A31515;">"%02x "</span>, p[i] &amp; 0xFF);
+            <span style="color:Blue;">else</span>
+                printf(<span style="color:#A31515;">"   "</span>);
+
+            <span style="color:Blue;">if</span> (i == 7)
+                printf(<span style="color:#A31515;">" "</span>);
+        }
+        printf(<span style="color:#A31515;">" |"</span>);
+        <span style="color:Blue;">for</span> (i = 0; i &lt; 16; i++) {
+            <span style="color:Blue;">if</span> (i &lt; (<span style="color:Blue;">int</span>)s) {
+                c = p[i] &amp; 0xFF;
+                <span style="color:Blue;">if</span> ((c &lt; 0x20) || (c &gt;= 0x7F))
+                    c = '.';
+            } <span style="color:Blue;">else</span>
+                c = ' ';
+
+            printf(<span style="color:#A31515;">"%c"</span>, c);
+        }
+        printf(<span style="color:#A31515;">"|\n"</span>);
+        s -= 16;
+        p += 16;
+        base += 16;
+    }
+}
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+    <span style="color:Blue;">char</span> buffer[16];
+
+    strncpy(buffer, <span style="color:#A31515;">"  Hello World! "</span>, <span style="color:Blue;">sizeof</span>(buffer));
+    printf(<span style="color:#A31515;">"!!실행 전 메모리 상태\n"</span>);
+    mdisp((<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)buffer, <span style="color:Blue;">sizeof</span>(buffer), (<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)buffer);
+
+    ydespaces(buffer);
+
+    printf(<span style="color:#A31515;">"\n!!실행 후 메모리 상태\n"</span>);
+    mdisp((<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)buffer, <span style="color:Blue;">sizeof</span>(buffer), (<span style="color:Blue;">unsigned</span> <span style="color:Blue;">char</span> *)buffer);
+    <span style="color:Blue;">return</span> 0;
+}
+
+위 프로그램의 실행결과는 아래와 같다.
+
+!!실행 전 메모리 상태
+bf958d4c: <b>20 20</b> 48 65 6c 6c 6f 20  57 6f 72 6c 64 21 <b>20</b> 00  |  Hello World! .|
+
+!!실행 후 메모리 상태
+bf958d4c: 48 65 6c 6c 6f 20 57 6f  72 6c 64 21 <b>00</b> 21 00 00  |Hello World!.!..|
+
+</pre>
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+<p><a href="ystrargs-man.html">ystrargs</a>(3)</p>
+</body>
+</html>

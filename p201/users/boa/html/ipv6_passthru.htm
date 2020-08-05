@@ -1,0 +1,62 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2004. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function init()
+{
+	var passThru = <% getIndex("ipv6passthrouh"); %>;
+	if  (passThru)
+		document.formIpv6PassThru.passthruEnable.selectedIndex = 1;
+}
+
+function saveChanges(f)
+{
+	if ( !confirm(ipv6_passthru_confirm) )
+		return false;
+
+	f.save.disabled = true;
+	f.submit();
+	return true;
+}
+
+</script>
+</head>
+
+<body onload="init();">
+<blockquote>
+<h2><script>dw(ipv6_passthru_header)</script></h2>
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+ 	<tr><font size=2><script>dw(ipv6_passthru_explain)</script></tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+<br>
+
+<form action=/boafrm/formIpv6PassThru method=POST name="formIpv6PassThru">
+<input type="hidden" value="apply" name="save_apply">
+<table border="0" width=550>
+	<tr height="20">
+		<td width="30%">
+			<font size=2><b><script>dw(ipv6_passthru_onoff)</script></b></font>
+		</td>
+		<td width="30%">
+			<select style="width:80px;" name="passthruEnable" id="passthruEnable">
+				<option value='OFF'><script>dw(ipv6_passthru_disable)</script></option>
+				<option value='ON'><script>dw(ipv6_passthru_enable)</script></option>
+			</select>
+		</td>
+		<td width="40%">
+			<input type="button" value="Save & Apply" name="save" onClick="return saveChanges(document.formIpv6PassThru)">
+			<script>document.formIpv6PassThru.save.value = ipv6_passthru_save_apply;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+
+function macReload()
+{
+	location.assign("mactbl.htm");
+}
+
+function macInput(macSelectValue)
+{
+	document.formmactbl.macValue.value = macSelectValue;
+}
+
+function macSelect()
+{
+	if (document.formmactbl.macValue.value == "") {
+		alert(mactbl_mac_error);
+		return false;
+	}
+
+	str = document.formmactbl.macValue.value;
+	var tmp = "";
+
+	if ( str.length != 12 && str.length != 17) {
+		alert(mactbl_mac_error);
+		document.formmactbl.macValue.focus();
+		return false;
+	}
+
+	for (var i = 0; i < str.length; i++) {
+		if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+			(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+			(str.charAt(i) == ':')) {
+			if (str.charAt(i) != ':')
+				tmp += str.charAt(i);
+			continue;
+		}
+		alert(mactbl_mac_error);
+		document.formmactbl.macValue.focus();
+		return false;
+	}
+
+	window.opener.document.getElementById('mac_addr').value = tmp;
+
+	window.close();
+}
+
+</script>
+</head>
+
+<body>
+<blockquote>
+<h2><script>dw(mactbl_maclist)</script></h2>
+<table border=0 width="480" cellspacing="1" cellpadding=0 >
+<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formmactbl method=POST name="formmactbl">
+<table border='1' width="100%">
+	<tr class="tbl_head" align="center">
+		<td width="40%"><font size=2><b><script>dw(mactbl_ipaddress)</script></b></td>
+		<td width="40%"><font size=2><b><script>dw(mactbl_macaddr)</script></b></td>
+		<td width="20%"><font size=2><b><script>dw(mactbl_select)</script></b></td>
+	</tr>
+	<% dhcpClientList("macSelect"); %>
+</table>
+
+<table border='0' width="100%">
+	<tr class="tbl_head" align="center">
+		<td width="50%"><font size=2><b><script>dw(mactbl_macaddr)</script></b></td>
+	</tr>
+	<tr class="tbl_body" align="center">
+		<td><font size=2><input type='text' size=30 maxlength=17 name='macValue' value=''></td>
+	</tr>
+	<tr bgcolor="#f0f0f0">
+		<td align="center">
+			<input type="button" value="select" name="select" onClick="macSelect()">&nbsp;&nbsp;
+			<script>document.formmactbl.select.value = mactbl_select;</script>
+			<input type="button" value="refresh" name="refresh" onClick="macReload()">&nbsp;&nbsp;
+			<script>document.formmactbl.refresh.value = mactbl_refresh;</script>
+			<input type="button" value="close" name="close" onClick="javascript: window.close();">
+			<script>document.formmactbl.close.value = mactbl_close;</script>
+		</td>
+	</tr>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

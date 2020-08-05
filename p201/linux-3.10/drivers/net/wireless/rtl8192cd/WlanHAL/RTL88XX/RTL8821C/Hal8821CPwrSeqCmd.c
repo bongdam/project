@@ -1,0 +1,99 @@
+/*++
+Copyright (c) Realtek Semiconductor Corp. All rights reserved.
+
+Module Name:
+	Hal8821CPwrSeqCmd.c
+	
+Abstract:
+	This file includes all kinds of Power Action event for RTL8821C and 
+	corresponding hardware configurtions which are released from HW SD.
+	    
+Major Change History:
+	When       Who               What
+	---------- ---------------   -------------------------------
+	2015-06-25 Eric             Create.
+	
+--*/
+
+#ifndef __ECOS
+#include "HalPrecomp.h"
+#else
+#include "../../HalPrecomp.h"
+#endif
+/*
+ *	drivers should parse below arrays and do the corresponding actions
+ */
+
+/*	Power on  Array	*/
+WLAN_PWR_CFG rtl8821C_power_on_flow[RTL8821C_TRANS_CARDEMU_TO_ACT_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_CARDEMU_TO_ACT
+	RTL8821C_TRANS_END
+};
+
+/*	Radio off Array	*/
+WLAN_PWR_CFG rtl8821C_radio_off_flow[RTL8821C_TRANS_ACT_TO_CARDEMU_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_ACT_TO_CARDEMU
+	RTL8821C_TRANS_END
+};
+
+/*	Card Disable Array	*/
+WLAN_PWR_CFG rtl8821C_card_disable_flow[RTL8821C_TRANS_ACT_TO_CARDEMU_STEPS+RTL8821C_TRANS_CARDEMU_TO_PDN_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_ACT_TO_CARDEMU
+	RTL8821C_TRANS_CARDEMU_TO_CARDDIS
+	RTL8821C_TRANS_END
+};
+
+/*	Card Enable Array	*/
+WLAN_PWR_CFG rtl8821C_card_enable_flow[RTL8821C_TRANS_ACT_TO_CARDEMU_STEPS+RTL8821C_TRANS_CARDEMU_TO_PDN_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_CARDDIS_TO_CARDEMU
+	RTL8821C_TRANS_CARDEMU_TO_ACT
+	RTL8821C_TRANS_END
+};
+
+/*	Suspend Array	*/
+WLAN_PWR_CFG rtl8821C_suspend_flow[RTL8821C_TRANS_ACT_TO_CARDEMU_STEPS+RTL8821C_TRANS_CARDEMU_TO_SUS_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_ACT_TO_CARDEMU
+	RTL8821C_TRANS_CARDEMU_TO_SUS
+	RTL8821C_TRANS_END
+};
+
+/*	Resume Array		*/
+WLAN_PWR_CFG rtl8821C_resume_flow[RTL8821C_TRANS_ACT_TO_CARDEMU_STEPS+RTL8821C_TRANS_CARDEMU_TO_SUS_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_SUS_TO_CARDEMU
+	RTL8821C_TRANS_CARDEMU_TO_ACT
+	RTL8821C_TRANS_END
+};
+
+
+
+/*	HWPDN Array		*/
+WLAN_PWR_CFG rtl8821C_hwpdn_flow[RTL8821C_TRANS_ACT_TO_CARDEMU_STEPS+RTL8821C_TRANS_CARDEMU_TO_PDN_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	RTL8821C_TRANS_ACT_TO_CARDEMU
+	RTL8821C_TRANS_CARDEMU_TO_PDN	
+	RTL8821C_TRANS_END
+};
+
+/*	Enter LPS 	*/
+WLAN_PWR_CFG rtl8821C_enter_lps_flow[RTL8821C_TRANS_ACT_TO_LPS_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	//FW behavior
+	RTL8821C_TRANS_ACT_TO_LPS	
+	RTL8821C_TRANS_END
+};
+
+/*	Leave LPS 	*/
+WLAN_PWR_CFG rtl8821C_leave_lps_flow[RTL8821C_TRANS_LPS_TO_ACT_STEPS+RTL8821C_TRANS_END_STEPS]=
+{
+	//FW behavior
+	RTL8821C_TRANS_LPS_TO_ACT
+	RTL8821C_TRANS_END
+};
+
+

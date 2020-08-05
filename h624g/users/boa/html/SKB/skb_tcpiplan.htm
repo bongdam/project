@@ -1,0 +1,516 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>LAN Interface Setup </title>
+<% language=javascript %>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<SCRIPT>
+var initialDhcp;
+var curLoginUser = <% getIndex("isAdmin"); %>;
+
+function checkMode()
+{
+	var opmode=<% getIndex("wlanMode"); %> ;
+	var initialDhcp = <% getIndex("dhcp"); %>;
+	var check_opt82 = document.getElementById("lan_opt82");
+
+	if( opmode > 3 )
+		disableTextField(document.tcpip.stp);
+
+	if (initialDhcp == 0)
+		dhcpChange(0);
+	else
+		dhcpChange(1);
+
+	if (curLoginUser == 1) {
+		disableTextField(document.tcpip.lan_mask);
+		document.tcpip.dhcpRangeStart.readOnly = true;
+		document.tcpip.dhcpRangeEnd.readOnly = true;
+		check_opt82.style.display="none";
+	}
+}
+
+function lan_ipaddr_change()
+{
+	var lan_ipaddr, lan_netaddr, lan_netmask, dhcp_start, dhcp_end;
+
+	if (checkIPMask(document.tcpip.lan_mask) == false)
+		return;
+
+	lan_ipaddr = inet_aton(document.tcpip.lan_ip.value);
+	lan_netmask = inet_aton(document.tcpip.lan_mask.value);
+	lan_netaddr = lan_ipaddr;
+	lan_netaddr &= lan_netmask;
+
+	dhcp_start = 0x1;
+	dhcp_start |= lan_netaddr;
+
+	dhcp_end = 0xfffffffd;		/* 254 -> 253 changed */
+	dhcp_end &= ~lan_netmask;
+	dhcp_end |= lan_netaddr;
+
+	if (lan_ipaddr >= dhcp_start && lan_ipaddr <= dhcp_end) {
+	   if ((lan_ipaddr - dhcp_start) > (dhcp_start - lan_ipaddr)) {
+		   dhcp_end = lan_ipaddr - 0x1;
+		   dhcp_end &= ~lan_netmask;
+		   dhcp_end |= lan_netaddr;
+	   } else {
+		   dhcp_start = lan_ipaddr + 0x1;
+		   dhcp_start &= ~lan_netmask;
+		   dhcp_start |= lan_netaddr;
+	   }
+	}
+
+	document.tcpip.dhcpRangeStart.value = inet_ntoa(dhcp_start);
+	document.tcpip.dhcpRangeEnd.value = inet_ntoa(dhcp_end);
+}
+
+function dhcpChange(index)
+{
+	//var check_staticdhcp = document.tcpip.static_dhcp;
+	var dF = document.tcpip;
+//  if ( index == 0 || index == 1) {
+	if (index == 0) {
+		disableTextField(document.tcpip.dhcpRangeStart);
+   	  	disableTextField(document.tcpip.dhcpRangeEnd);
+   	  	//enableTextField(document.tcpip.lan_gateway);
+	  	disableButton( document.tcpip.dhcpClientTbl );
+   	  	//disableTextField(document.tcpip.domainName);
+	  	disableTextField(document.tcpip.dhcpLeaseTime);
+   	   	//check_staticdhcp.disabled = true;
+   	   	disableButton(dF.elements["staticdhcpTbl"]);
+  	}
+  	else {
+   	  	enableTextField(document.tcpip.dhcpRangeStart);
+   	  	enableTextField(document.tcpip.dhcpRangeEnd);
+   	  	//disableTextField(document.tcpip.lan_gateway);
+	  	enableButton( document.tcpip.dhcpClientTbl );
+   	  	//enableTextField(document.tcpip.domainName);
+	  	enableTextField(document.tcpip.dhcpLeaseTime);
+   	  	//check_staticdhcp.disabled = false;
+   	  	enableButton(dF.elements["staticdhcpTbl"]);
+  	}
+  	enableTextField(document.tcpip.lan_ip);
+  	/*if ( index == 1 ) {
+ 	 	disableTextField(document.tcpip.lan_ip);
+	  	disableTextField(document.tcpip.lan_mask);
+	  	disableTextField(document.tcpip.lan_gateway);
+  	}
+  	else {
+ 	  	enableTextField(document.tcpip.lan_ip);
+	  	enableTextField(document.tcpip.lan_mask);
+   	  	enableTextField(document.tcpip.lan_gateway);
+  	}*/
+}
+
+function resetClick()
+{
+	document.location.assign("skb_tcpiplan.htm");
+}
+
+
+function checkClientRange(start,end)
+{
+  start_d = getDigit(start,4);
+  start_d += getDigit(start,3)*256;
+  start_d += getDigit(start,2)*256;
+  start_d += getDigit(start,1)*256;
+
+  end_d = getDigit(end,4);
+  end_d += getDigit(end,3)*256;
+  end_d += getDigit(end,2)*256;
+  end_d += getDigit(end,1)*256;
+
+  if ( start_d < end_d )
+	return true;
+
+  return false;
+}
+
+function checkDhcpLeaseTime(time)
+{
+	if (time >= 60 && time <= 7200)
+		return true;
+	else
+		return false;
+}
+
+function dhcp_range_check(start, end)
+{
+	var dhcp_start, dhcp_end;
+	var diff;
+
+	dhcp_start = inet_aton(start);
+	dhcp_end = inet_aton(end);
+
+	diff = dhcp_end - dhcp_start;
+	if (diff <= 0 || diff > 256*3)
+		return false;
+
+	return true;
+}
+
+function saveChanges(f)
+{
+	var lan_netaddr, lan_netmask, dhcp_start, dhcp_end, lan_ipaddr;
+
+  	if ( checkIpAddr(document.tcpip.lan_ip, 'IP 주소가 올바르지 않습니다! ') == false )
+		return false;
+
+  	/*if (isReservedIpAddress(document.tcpip.lan_ip.value) == true)
+  	{
+		alert('Invalid IP address value!\nIt should not be reserved IP address(127.x.x.x).');
+		return false;
+  	}*/
+
+  	if (checkIPMask(document.tcpip.lan_mask) == false)
+  		return false ;
+
+  	if (dhcp_range_check(document.tcpip.dhcpRangeStart.value, document.tcpip.dhcpRangeEnd.value) == false) {
+  		alert("DHCP 클라이언트 할당 범위를 초과했습니다.");
+  		return false;
+  	}
+
+  	if(checkHostIPValid(document.tcpip.lan_ip,document.tcpip.lan_mask,'IP 주소가 올바르지 않습니다!')== false)
+		return false;
+
+  	if ( document.tcpip.dhcp.selectedIndex == 1) {
+  		if ( checkIpAddr(document.tcpip.dhcpRangeStart, 'DHCP 클라이언트 시작 주소가 올바르지 않습니다! ') == false )
+	    		return false;
+
+		if(checkHostIPValid(document.tcpip.dhcpRangeStart,document.tcpip.lan_mask,'DHCP 클라이언트 시작 주소가 올바르지 않습니다! ')== false)
+			return false;
+
+		if ( !checkSubnet(document.tcpip.lan_ip.value,document.tcpip.lan_mask.value,document.tcpip.dhcpRangeStart.value)) {
+			alert('DHCP 클라이언트 시작 주소가 올바르지 않습니다!\n현재 IP 주소의 서브넷과 동일한 영역에 위치해야 합니다.');
+			document.tcpip.dhcpRangeStart.value = document.tcpip.dhcpRangeStart.defaultValue;
+			document.tcpip.dhcpRangeStart.focus();
+			return false;
+		}
+
+  		if ( checkIpAddr(document.tcpip.dhcpRangeEnd, 'DHCP 클라이언트 마지막 주소가 올바르지 않습니다! ') == false )
+			return false;
+
+		if(checkHostIPValid(document.tcpip.dhcpRangeEnd,document.tcpip.lan_mask,'DHCP 클라이언트 마지막 주소가 올바르지 않습니다! ')== false)
+			return false;
+
+		if ( !checkSubnet(document.tcpip.lan_ip.value,document.tcpip.lan_mask.value,document.tcpip.dhcpRangeEnd.value)) {
+			alert('DHCP 클라이언트 마지막 주소가 올바르지 않습니다!\n현재 IP 주소의 서브넷과 동일한 영역에 위치해야 합니다.');
+			document.tcpip.dhcpRangeEnd.value = document.tcpip.dhcpRangeEnd.defaultValue;
+			document.tcpip.dhcpRangeEnd.focus();
+			return false;
+		}
+
+       		if ( !checkClientRange(document.tcpip.dhcpRangeStart.value,document.tcpip.dhcpRangeEnd.value) ) {
+			alert('DHCP 클라이언트 주소 범위가 올바르지 않습니다!\n마지막 주소가 시작 주소보다 커야 합니다.');
+			document.tcpip.dhcpRangeStart.focus();
+			return false;
+       		}
+
+		if (!checkDhcpLeaseTime(document.tcpip.dhcpLeaseTime.value)) {
+			alert('DHCP 임대 시간이 올바르지 않습니다!\n60 ~ 7200 사이의 값을 입력해야 합니다.');
+			document.tcpip.dhcpLeaseTime.focus();
+			return false;
+		}
+
+
+   		lan_ipaddr = inet_aton(document.tcpip.lan_ip.value);
+   		lan_netaddr = inet_aton(document.tcpip.lan_ip.value);
+   		lan_netmask = inet_aton(document.tcpip.lan_mask.value);
+   		lan_netaddr &= lan_netmask;
+   		dhcp_start = inet_aton(document.tcpip.dhcpRangeStart.value);
+   		dhcp_end = inet_aton(document.tcpip.dhcpRangeEnd.value);
+
+		if ( (lan_ipaddr & ~lan_netmask) == 254 ) {
+			alert('IP 주소의 끝자리는 254를 입력할 수 없습니다!');
+			return false;
+		}
+
+		if( (dhcp_end & ~lan_netmask) == 254 ) {
+			alert('DHCP 클라이언트 마지막 주소의 끝자리는 254를 입력할 수 없습니다!');
+			return false;
+		}
+
+   		if ( dhcp_start == lan_ipaddr || dhcp_end == lan_ipaddr ) {
+	   		alert('DHCP 클라이언트 주소 범위가 올바르지 않습니다!');
+   			return false;
+   		}
+
+   		if ((lan_ipaddr == lan_netaddr) || (lan_ipaddr == (lan_ipaddr | ~lan_netmask))) {
+	   		alert("DHCP 클라이언트 주소 범위가 올바르지 않습니다!");
+   			return false;
+   		}
+
+   		if (((lan_ipaddr & ~lan_netmask) >= (dhcp_start & ~lan_netmask) && (lan_ipaddr & ~lan_netmask) <= (dhcp_end & ~lan_netmask))) {
+	   		alert("DHCP 클라이언트 주소 범위가 올바르지 않습니다!");
+   			return false;
+   		}
+   	}
+
+	if ( document.tcpip.dhcp.selectedIndex != 1) {
+
+		var tempIp = document.tcpip.lan_ip.value;
+		var tempStr  = tempIp.split(".");
+		tempStr = parseInt(tempStr[3]);
+
+		tempIp = document.tcpip.dhcpRangeStart.value;
+		var tempStr1 = tempIp.split(".");
+		tempStr1 = parseInt(tempStr1[3]);
+
+		tempIp = document.tcpip.dhcpRangeEnd.value;
+		var tempStr2 = tempIp.split(".");
+		tempStr2 = parseInt(tempStr2[3]);
+
+		if( (tempStr >= tempStr1) && (tempStr <= tempStr2) ) {
+			alert('DHCP 클라이언트 주소 범위가 올바르지 않습니다!');
+			return false;
+		}
+   		/*if ( document.tcpip.lan_gateway.value=="")
+			document.tcpip.lan_gateway.value = '0.0.0.0';
+
+		if (document.tcpip.lan_gateway.value!="0.0.0.0") {
+			if ( checkIpAddr(document.tcpip.lan_gateway, 'Invalid DHCP client End address! ') == false )
+	    			return false;
+	    		if ( !checkSubnet(document.tcpip.lan_ip.value,document.tcpip.lan_mask.value,document.tcpip.lan_gateway.value)) {
+				alert('Invalid gateway address!\nIt should be located in the same subnet of current IP address.');
+				document.tcpip.lan_gateway.value = document.tcpip.lan_gateway.defaultValue;
+				document.tcpip.lan_gateway.focus();
+				return false;
+      			}
+		}*/
+  	}
+
+	f.reset.disabled= true;
+  	f.save.disabled = true;
+	f.submit();
+
+/*  var str = document.tcpip.lan_macAddr.value;
+   if(str.length ==0){
+  	document.tcpip.lan_macAddr.value = "000000000000";
+ // 	return true;
+  }
+  if ( str.length > 0 && str.length < 12) {
+	alert("Input MAC address is not complete. It should be 12 digits in hex.");
+	document.tcpip.lan_macAddr.focus();
+	return false;
+  }
+  // add for "All MAC Address field can't reject 00:00:00:00:00:00/ff:ff:ff:ff:ff:ff MAC Address" issue
+  if(str == "ffffffffffff")
+  {
+	alert("Invalid MAC address. It should not be ff:ff:ff:ff:ff:ff.");
+	document.tcpip.lan_macAddr.focus();
+	return false;
+  }
+
+  //var reg = /01005[eE][0-7][0-9a-fA-F]{5}/;
+  //if(reg.exec(str))
+  if(parseInt(str.substr(0, 2), 16) & 0x01 != 0)
+  {
+	document.tcpip.lan_macAddr.value = document.tcpip.lan_macAddr.defaultValue;
+	document.tcpip.lan_macAddr.focus();
+	alert("Invalid MAC address. It should not be multicast mac address.");
+	return false;
+  }
+
+  for (var i=0; i<str.length; i++) {
+    if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+			(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') )
+			continue;
+	alert("Invalid MAC address. It should be in hex number (0-9 or a-f).");
+	document.tcpip.lan_macAddr.focus();
+	return false;
+  }
+
+  var str = document.tcpip.domainName.value;
+  if(str.length == 0){
+  	document.tcpip.domainName.value = "Realtek";
+//	return true;
+  }
+
+  if(str.length > 63){
+  	alert("Invalid Domain Name! Length of Domain Name shoule not more than 63");
+	document.tcpip.domainName.focus();
+	return false;
+  }
+
+  for(var i=0; i<str.length; i++){
+  	if( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			(str.charAt(i) >= 'a' && str.charAt(i) <= 'z') ||
+			(str.charAt(i) >= 'A' && str.charAt(i) <= 'Z') ||
+			str.charAt(i) == '-')
+			continue;
+	alert("Invalid Domain Name! Please enter characters in A(a)~Z(z) or 0-9 or - without spacing.");
+	document.tcpip.domainName.focus();
+	return false;
+  	}
+
+  if((str.charAt(0) >='0' && str.charAt(0) <= '9') ||
+  	str.charAt(0)	== '-' ||
+  	str.charAt(str.length - 1) == '-'){
+  	alert("Invalid Domain Name! Domain name should a letter, end with a letter or digit");
+	document.tcpip.domainName.focus();
+	return false;
+  }
+  return true;*/
+}
+
+
+function dhcpTblClick(url) {
+	if ( document.tcpip.dhcp.selectedIndex == 1) {
+		openWindow(url, 'DHCPTbl', 700, 400);
+	}
+}
+function staticdhcpChange(index)
+{
+	var dF = document.tcpip;
+	 if ( index == 1 && dF.dhcp.selectedIndex==1 )
+		enableButton(dF.elements["staticdhcpTbl"]);
+	else
+		disableButton(dF.elements["staticdhcpTbl"]);
+}
+function staticdhcpTblClick(url) {
+	if ( document.tcpip.dhcp.selectedIndex == 1) {
+		//openWindow(url, 'StaticDHCPTbl',820, 500 );
+		document.location.href = url;
+	}
+}
+</SCRIPT>
+</head>
+
+<body onload="checkMode();">
+<blockquote>
+<h2>로컬 랜 설정</h2>
+
+<form action=/boafrm/formTcpipSetup method=POST name="tcpip">
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+  <tr><font size=2>
+    로컬 호스트의 접속을 위한 설정 페이지입니다.<br>
+    특정 호스트에 이미 정해진 IP를 할당해줄 수 있으며 DHCP를 이용하여 자동으로 IP를 할당해줄 수도 있습니다
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+
+  <tr>
+      <td width="30%"><font size=2><b>IP 주소:</b></td>
+      <td width="70%"><input type="text" name="lan_ip" size="15" maxlength="15" value=<% getInfo("ip-rom"); %> onChange="lan_ipaddr_change();"></td>
+  </tr>
+
+  <tr>
+      <td width="30%"><font size=2><b>서브넷 마스크:</b></td>
+      <td width="70%"><input type="text" name="lan_mask" size="15" maxlength="15" value="<% getInfo("mask-rom"); %>" onChange="lan_ipaddr_change();"></td>
+  </tr>
+
+<!--  <tr>
+      <td width="30%"><font size=2><b>Default Gateway:</b></td>
+      <td width="70%"><input type="text" name="lan_gateway" size="15" maxlength="15" value="<% getInfo("gateway-rom"); %>"></td>
+  </tr>-->
+
+  <tr>
+      <td width="30%"><font size=2><b>DHCP 사용:</b></td>
+      <td width="70%"><select size="1" name="dhcp" onChange="dhcpChange(document.tcpip.dhcp.selectedIndex)">
+       <SCRIPT>
+       	var choice;
+       choice =<% getIndex("dhcp");%>
+       	if ( choice == 0 ) {
+       		document.write("\
+       			<option selected value=\"0\">Disabled</option>\
+       			<option value=\"2\">Server</option>" );
+       	} else if ( choice == 2 ) {
+       		document.write("\
+       			<option value=\"0\">Disabled</option>\
+       			<option selected value=\"2\">Server</option>" );
+       	}
+       	</SCRIPT>
+	   </select>
+<script language="javascript">
+document.getElementsByName("dhcp")[0].options[0].innerHTML = "사용안함";
+document.getElementsByName("dhcp")[0].options[1].innerHTML = "사용";
+</script>
+     </td>
+  </tr>
+
+  <tr>
+      <td width="30%"><font size=2><b>IP 할당 범위:</b></td>
+      <td width="70%"><input type="text" name="dhcpRangeStart" size="15" maxlength="15" value="<% getInfo("dhcpRangeStart"); %>">
+      <font face="Arial" size="5">-</font> <input type="text" name="dhcpRangeEnd" size="15" maxlength="15" value="<% getInfo("dhcpRangeEnd"); %>">&nbsp;
+        <input type="button" value="접속 리스트" name="dhcpClientTbl" onClick="dhcpTblClick('/skb_dhcptbl.htm')" >
+      </td>
+  </tr>
+
+  <tr>
+      <td width="30%"><font size=2><b>IP 대여시간:</b></td>
+      <td width="70%"><input type="text" name="dhcpLeaseTime" style="text-align:center;" size="7" maxlength="4" value="<% getInfo("dhcpLeaseTime"); %>"> <font size=2> 초</td>
+  </tr>
+<tr>
+      <td width="30%"><font size=2><b>고정 IP할당:</b></td>
+      <td width="70%">
+				<input type="button" value="설정" name="staticdhcpTbl" onClick="staticdhcpTblClick('/skb_tcpip_staticdhcp.htm')" >
+      </td>
+  </tr>
+
+<!--  <tr>
+      <td width="30%"><font size=2><b>Domain Name:</b></td>
+      <td width="70%"><input type="text" name="domainName" size="15" maxlength="30" value="<% getInfo("domainName"); %>"></td>
+  </tr>-->
+
+  <tr>
+      <td width="30%"><font size=2><b>자가 루프 진단:</b></td>
+      <td width="70%"><select size="1" name="stp">
+      <SCRIPT>
+      	if(<% getIndex("stp"); %>)
+      		document.write("\
+				<option value=\"0\" >Disabled</option>\
+				<option selected value=\"1\" selected>Enabled</option>");
+      	else
+			document.write("\
+				<option selected value=\"0\" selected>Disabled</option>\
+				<option value=\"1\" >Enabled</option>");
+
+
+   	  </SCRIPT>
+	    </select>
+<script language="javascript">
+document.getElementsByName("stp")[0].options[0].innerHTML = "사용안함";
+document.getElementsByName("stp")[0].options[1].innerHTML = "사용";
+</script>
+      </td>
+  </tr>
+
+<!--  <tr>
+      <td width="30%"><font size=2><b>Clone MAC Address:</b></td>
+      <td width="70%"><input type="text" name="lan_macAddr" size="15" maxlength="12" value="<% getInfo("bridgeMac"); %>"></td>
+  </tr>-->
+
+<tr id="lan_opt82">
+<td colspan="2">
+<FIELDSET  style="BORDER-RIGHT: #000000 1px solid; PADDING-RIGHT: 10px; BORDER-TOP: #000000 1px solid; PADDING-LEFT: 10px; PADDING-BOTTOM: 5px; BORDER-LEFT: #000000 1px solid; WIDTH: 500px; PADDING-TOP: 0px; BORDER-BOTTOM: #000000 1px solid; "><LEGEND><b>DHCP 옵션</b></LEGEND>
+<table border=0 width="550" cellspacing=4 cellpadding=0>
+	<tr>
+		<td width="100%" colspan="2"><font size=2>
+		<b><input type="checkbox" name="option82" value="ON" <% getInfo("OPTION82"); %> >&nbsp;&nbsp;Option82 사용</b></td>
+	</tr>
+</table>
+</FIELDSET>
+</td></tr>
+
+ <!-- <SCRIPT>
+  	initialDhcp = document.tcpip.dhcp.selectedIndex;
+	dhcpChange(initialDhcp);
+	//staticdhcpChange(document.tcpip.static_dhcp.selectedIndex)
+  </SCRIPT>-->
+  </table>
+  <br>
+      <input type="hidden" name="lan_gateway" value="0.0.0.0">
+      <input type="button" value="저장" name="save" onClick="return saveChanges(this.form)">&nbsp;&nbsp;
+      <input type="reset" value="취소" name="reset" onClick="resetClick()">
+      <input type="hidden" value="/skb_tcpiplan.htm" name="submit-url">
+ </form>
+</blockquote>
+</body>
+
+</html>

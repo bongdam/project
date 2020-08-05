@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>yexecv-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>yexecv(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>yexecv - 지정한 파일을 추가적 인자를 전달하며 실행</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+int yexecv(char *const <a href="#">argv[]</a>, char *<a href="#">path</a>, int <a href="#">timeout</a>, int *<a href="#">ppid</a>);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 자식 프로세스를 <a href="#">fork(2)</a>한 후 <a href="#">argv[0]</a> 에 지정된 파일을 실행한다. <a href="#">argv[]</a>배열의 마지막은 반드시 NULL을 원소로 해야한다. <a href="#">timeout</a> 또는 <a href="#">ppid</a> 인자에 따른 동작에 유의하여야 한다.
+<dl>
+	<dt><a href="#">argv[]</a></dt>
+	<dd>null-terminated된 문자열 포인터 배열로 첫번째 요소는 실행 파일의 이름이다.</dd>
+	<dt><a href="#">path</a></dt>
+	<dd>NULL이면 표준 입출력은 부모로 부터 상속된다. 또는 <b>Redirection</b> 지시자('&gt;')와 파일명의 조합으로 전달할 수 있다.</dd>
+	<dt><a href="#">timeout</a></dt>
+	<dd><b>초(sec)</b>단위로 대기 시간을 전달한다. <b>0</b>이면 실행 파일이 종료 때 까지 기다린다.</dd>
+	<dt><a href="#">ppid</a></dt>
+	<dd>NULL이 아닐 때 실행된 자식 프로세스의 ID을 가져올 수 있다. <ins>단 <a href="#">waitpid(2)</a> 하지 않고 바로 리턴한다.</ins></dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>실행 파일의 종료 코드를 리턴한다. 또는 errno 일 수 있다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>./a.out
+</b>Hello World!
+Press ^D to exit: killed by signal 14
+4       4       1       7
+sh: ntpclient: command not found
+</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> &lt;string.h&gt;
+<span style="color:Blue;">#include</span> &lt;sys/types.h&gt;
+<span style="color:Blue;">#include</span> &lt;sys/wait.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">#define</span> yeval(cmd, args...) ({ \
+    <span style="color:Blue;">char</span> *argv[] = { cmd , ## args, NULL }; \
+    yexecv(argv, <span style="color:#A31515;">"&gt;/dev/console"</span>, 0, NULL); \
+})
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+    {
+        <span style="color:Blue;">char</span> *argv[] = { <span style="color:#A31515;">"echo"</span>, <span style="color:#A31515;">"-e"</span>, <span style="color:#A31515;">"Hello World!"</span>, NULL };
+        yexecv(argv, NULL, 0, NULL);
+    }
+    {
+        <span style="color:Blue;">char</span> *argv[] = { <span style="color:#A31515;">"cat"</span>, NULL };
+        <span style="color:Blue;">int</span> status;
+        printf(<span style="color:#A31515;">"Press ^D to exit: "</span>);
+        status = yexecv(argv, NULL, 5, NULL);
+        <span style="color:Blue;">if</span> (status &gt; 0)
+            printf(<span style="color:#A31515;">"killed by signal %d\n"</span>, status);
+        <span style="color:Blue;">else</span>
+            printf(<span style="color:#A31515;">"exited with %d status\n"</span>, status);
+    }
+    {
+        <span style="color:Blue;">char</span> *argv[] = { <span style="color:#A31515;">"cat"</span>, <span style="color:#A31515;">"/proc/sys/kernel/printk"</span>, NULL };
+        <span style="color:Blue;">int</span> child = 0;
+        <span style="color:Blue;">int</span> status;
+
+        yexecv(argv, NULL, 0, &amp;child);
+        <span style="color:Blue;">if</span> (child &gt; 0)
+            waitpid(child, &amp;status, 0);
+    }
+
+    yeval(<span style="color:#A31515;">"sh"</span>, <span style="color:#A31515;">"-c"</span>, <span style="color:#A31515;">"ntpclient &amp;"</span>);
+
+    <span style="color:Blue;">return</span> 0;
+}</pre>
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+<p><a href="yexecl-man.html">yexecl</a>(3)</p>
+</body>
+</html>

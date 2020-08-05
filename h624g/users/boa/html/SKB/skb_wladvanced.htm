@@ -1,0 +1,692 @@
+<html>
+<!-- Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. -->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Wireless Advanced Setting</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<% language=javascript %>
+
+<SCRIPT>
+
+var band2G5GSupport=<% getIndex("Band2G5GSupport"); %> ;
+var mode2x2=<% getIndex("wlan_mode_2x2");%>;
+var wlan_idx= <% getIndex("wlan_idx"); %>;
+var enabled1X=<% getIndex("enable1X");%>;
+
+var wlan_mode = <% getIndex("wlanMode");%>;
+function validateNum(str)
+{
+  for (var i=0; i<str.length; i++) {
+   	if ( !(str.charAt(i) >='0' && str.charAt(i) <= '9')) {
+		alert("값이 올바르지 않습니다. 숫자를 입력해야 합니다. (0-9)");
+		return false;
+  	}
+  }
+  return true;
+}
+
+function saveChanges()
+{
+  if ( validateNum(document.advanceSetup.fragThreshold.value) == 0 ) {
+  	document.advanceSetup.fragThreshold.focus();
+	return false;
+  }
+  num = parseInt(document.advanceSetup.fragThreshold.value);
+  if (document.advanceSetup.fragThreshold.value == "" || num < 256 || num > 2346) {
+  	alert('Fragment Threshold의 값이 올바르지 않습니다. 256에서 2346 사이의 숫자를 입력해야 합니다.');
+  	document.advanceSetup.fragThreshold.focus();
+	return false;
+  }
+
+  if ( validateNum(document.advanceSetup.rtsThreshold.value) == 0 ) {
+  	document.advanceSetup.rtsThreshold.focus();
+	return false;
+  }
+  num = parseInt(document.advanceSetup.rtsThreshold.value);
+  if (document.advanceSetup.rtsThreshold.value=="" || num > 2347) {
+  	alert('RTS Threshold의 값이 올바르지 않습니다. 0에서 2347 사이의 숫자를 입력해야 합니다.');
+  	document.advanceSetup.rtsThreshold.focus();
+	return false;
+  }
+
+  if ( validateNum(document.advanceSetup.beaconInterval.value) == 0 ) {
+  	document.advanceSetup.beaconInterval.focus();
+	return false;
+  }
+  num = parseInt(document.advanceSetup.beaconInterval.value);
+  if (document.advanceSetup.beaconInterval.value=="" || num < 20 || num > 1024) {
+  	alert('Beacon Interval의 값이 올바르지 않습니다. 20에서 1024 사이의 숫자를 입력해야 합니다.');
+  	document.advanceSetup.beaconInterval.focus();
+	return false;
+  }
+
+/*if (document.advanceSetup.elements["cca_mode"][0].checked == true) {
+  	document.advanceSetup.x_wlan_cca_mode.value = 0;
+  } else {
+  	var cca = document.advanceSetup.elements["cca_menual"];
+  	document.advanceSetup.x_wlan_cca_mode.value = cca.options[cca.selectedIndex].value;
+  }*/
+
+  if (parseInt(<% getIndex("isAdmin"); %>, 10) == 0) {
+	num = parseInt(document.advanceSetup.x_bs_rssi_th.value);
+	if (document.advanceSetup.x_bs_rssi_th.value =="" || (num < 0 || num > 100) || !IsDigit(document.advanceSetup.x_bs_rssi_th.value)) {
+	  	alert('HandOver RSSI Threshold의 값이 올바르지 않습니다. 0에서 100 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.x_bs_rssi_th.focus();
+		return false;
+	  }
+
+    num = parseInt(document.advanceSetup.x_bs_tcp_pps_check_time.value);
+	if (document.advanceSetup.x_bs_tcp_pps_check_time =="" || (num < 0 || num > 100) || !IsDigit(document.advanceSetup.x_bs_tcp_pps_check_time.value)) {
+	  	alert('HandOver 패킷 감시 시간의 값이 올바르지 않습니다. 0에서 100 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.x_bs_tcp_pps_check_time.focus();
+		return false;
+	  }
+
+    num = parseInt(document.advanceSetup.x_bs_tcp_pkts_threshold.value);
+	if (document.advanceSetup.x_bs_tcp_pkts_threshold =="" || (num <= 0 || num > 100) || !IsDigit(document.advanceSetup.x_bs_tcp_pkts_threshold.value)) {
+	  	alert('HandOver 초당 패킷 수 입력 값이 바르지 않습니다. 1에서 100 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.x_bs_tcp_pkts_threshold.focus();
+		return false;
+	  }
+
+	  num = parseInt(document.advanceSetup.rssiThresh0.value);
+	  if (document.advanceSetup.rssiThresh0.value =="" || ((num != 0)&&(num < 20 || num > 80)) || !IsDigit(document.advanceSetup.rssiThresh0.value)) {
+	  	alert('RSSI Threshold의 값이 올바르지 않습니다. 0(제한없음) 아니면 20에서 80 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.rssiThresh0.focus();
+		return false;
+	  }
+	  num = parseInt(document.advanceSetup.rssiThresh2.value);
+	  if (document.advanceSetup.rssiThresh2.value =="" || (num < 20) || (num > 80) || !IsDigit(document.advanceSetup.rssiThresh2.value)) {
+	  	alert('RSSI Threshold의 값이 올바르지 않습니다. 20에서 80 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.rssiThresh2.focus();
+		return false;
+	  }
+	  num = parseInt(document.advanceSetup.rssiThresh3.value);
+	  if (document.advanceSetup.rssiThresh3.value =="" || ((num != 0)&&(num < 20 || num > 80)) || !IsDigit(document.advanceSetup.rssiThresh3.value)) {
+	  	alert('RSSI Threshold의 값이 올바르지 않습니다. 0(제한없음) 아니면 20에서 80 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.rssiThresh3.focus();
+		return false;
+	  }
+  }
+
+	num = parseInt(document.advanceSetup.x_bs_probe_deny_rssi_th.value);
+	if (document.advanceSetup.x_bs_probe_deny_rssi_th =="" || (num < 0 || num > 100) || !IsDigit(document.advanceSetup.x_bs_probe_deny_rssi_th.value)) {
+	  	alert('HandOver RSSI Threshold의 값이 올바르지 않습니다. 0에서 100 사이의 숫자를 입력해야 합니다.');
+	  	document.advanceSetup.x_bs_probe_deny_rssi_th.focus();
+		return false;
+	  }
+/*  num = parseInt(document.advanceSetup.rssiThresh4.value);
+  if (document.advanceSetup.rssiThresh4.value =="" || ((num != 0)&&(num < 20 || num > 80)) ) {
+  	alert('RSSI Threshold의 값이 올바르지 않습니다. 0(제한없음) 아니면 20에서 80 사이의 숫자를 입력해야 합니다.');
+  	document.advanceSetup.rssiThresh4.focus();
+	return false;
+  }
+*/
+/*
+  num = parseInt(document.advanceSetup.RFPower.value);
+  if (document.advanceSetup.RFPower.value =="" || ((num != 0)&&(num < 10 || num > 100)) ) {
+	  alert('무선 출력 세기의 값이 올바르지 않습니다. 10에서 100 사이의 숫자를 입력해야 합니다.');
+	  document.advanceSetup.RFPower.focus();
+	  return false;
+  }
+*/
+  if (enabled1X != 1 && document.advanceSetup.elements["hs2"][0].checked == true) {
+  	alert('Set Security Type to 802.1x before turn on HS2 Daemon');
+	resetForm();
+	return false;
+  }
+
+  return true;
+}
+
+/*
+function checkTurboState()
+{
+	var txRate= <% getIndex("rateAdaptiveEnabled"); %>;
+
+	if (txRate == 1)
+		enableRadioGroup(document.advanceSetup.turbo);
+	else
+		disableRadioGroup(document.advanceSetup.turbo);
+}
+*/
+
+function wlan_adv_switch()
+{
+	var wlanband = <% getIndex("band"); %>;
+	var isAdmin = <% getIndex("isAdmin"); %>;
+
+	if (wlanband < 9)
+		wlanband = "0";
+	else
+		wlanband = "";
+
+	var checkid_aggregation;
+ 	var checkid_shortgi;
+ 	var wlan_xTxR="<% getInfo("wlan_xTxR"); %>";
+	var i;
+ 	/*var ldpc_support = "<% getInfo("wlan_ldpc_support"); %>";*/
+
+ 	checkid_aggregation=document.getElementById("Aggregation");
+ 	checkid_shortgi=document.getElementById("ShortGi");
+ 	/*if(wlanband == "0"){
+ 	//	checkid_aggregation.style.display = "none";
+ 	//	checkid_shortgi.style.display = "none";
+ 	//}else{
+ 	//	checkid_aggregation.style.display = "";
+ 	//	checkid_shortgi.style.display = "";
+ 	//}
+ 	//var agg_value = <% getIndex("aggregation"); %>;
+ 	document.advanceSetup.elements["aggregation"].selectedIndex=agg_value;*/
+
+ 	if(wlan_xTxR == "1*1")
+ 	{
+ 		document.advanceSetup.tx_stbc[0].checked= false;
+ 		document.advanceSetup.tx_stbc[1].checked= true;
+ 		document.advanceSetup.tx_stbc[0].disabled =true;
+		document.advanceSetup.tx_stbc[1].disabled =true;
+ 	}
+ 	else if(wlan_xTxR == "0*0")
+ 	{
+ 		document.getElementById("stbctransmit").style.display = "none";
+ 		document.getElementById("coexist").style.display = "none";
+ 	}
+
+	if(band2G5GSupport == 2) //2:5g
+ 	{
+ 		//document.getElementById("preambleType").style.display = "none";
+ 		if (parseInt(<% getIndex("isAdmin"); %>, 10) == 0) {
+ 		document.getElementById("handover_rssi_th").style.display = "";
+ 		document.getElementById("handover_pps_checking_time").style.display = "";
+ 		document.getElementById("handover_pkts_threshold").style.display = "";
+ 		} else {
+ 			document.getElementById("handover_rssi_th").style.display = "none";
+ 			document.getElementById("handover_pps_checking_time").style.display = "none";
+     		document.getElementById("handover_pkts_threshold").style.display = "none";
+ 		}
+ 		document.getElementById("coexist").style.display = "none";
+ 	}
+ 	else
+ 	{
+ 		document.getElementById("handover_rssi_th").style.display = "none";
+ 		document.getElementById("handover_pps_checking_time").style.display = "none";
+ 		document.getElementById("handover_pkts_threshold").style.display = "none";
+ 		//document.getElementById("preambleType").style.display = "";
+ 		document.getElementById("coexist").style.display = "";
+ 	}
+	//### add by sen_liu 2011.3.29 TX Beamforming added to mib in 92D
+	if(mode2x2)
+	{
+ 		document.getElementById("tx_beamforming").style.display = "";
+	}
+	else
+	{
+		document.getElementById("tx_beamforming").style.display = "none";
+	}
+	//### end
+
+	//if(ldpc_support == 1)
+	//{
+ 	//	document.getElementById("ldpctransmit").style.display = "";
+	//}
+	//else
+	//{
+	//	document.getElementById("ldpctransmit").style.display = "none";
+	//}
+	document.advanceSetup.elements["x_bs_rssi_th"].value = "<% getInfo("x_bs_rssi_th"); %>";
+	document.advanceSetup.elements["x_bs_probe_deny_rssi_th"].value = "<% getInfo("x_bs_probe_deny_rssi_th"); %>";
+	document.advanceSetup.elements["x_bs_tcp_pps_check_time"].value = "<% getInfo("x_bs_tcp_pps_check_time"); %>";
+	document.advanceSetup.elements["x_bs_tcp_pkts_threshold"].value = "<% getInfo("x_bs_tcp_pkts_threshold"); %>";
+
+/*	if (parseInt("<% getInfo("x_wlan_cca_mode"); %>", 10) == 0) {
+		document.advanceSetup.elements["cca_mode"][0].checked = true;
+	} else {
+		document.advanceSetup.elements["cca_mode"][1].checked = true;
+
+		for (i=0; i<document.advanceSetup.elements["cca_menual"].options.length; i++) {
+			if(form.document.advanceSetup.elements["cca_menual"].options[i].value == "<% getInfo("x_wlan_cca_mode"); %>")
+			{
+				document.advanceSetup.elements["cca_menual"].selectedIndex = i;
+				break;
+			}
+		}
+	}*/
+
+	if (<% getIndex("preamble"); %> == 0)
+		document.advanceSetup.elements["preamble"][0].checked = true;
+	else
+		document.advanceSetup.elements["preamble"][1].checked = true;
+	if(<% getIndex("iappDisabled"); %> == -2)
+		document.getElementById("showIAPP").style.display = "none";
+	else
+		document.getElementById("showIAPP").style.display = "";
+
+	if (<% getIndex("iappDisabled"); %> == 0)
+		document.advanceSetup.elements["iapp"][0].checked = true;
+	else
+		document.advanceSetup.elements["iapp"][1].checked = true;
+
+
+	if(<% getIndex("hs2Enabled"); %> == -2)
+		document.getElementById("showHS2").style.display = "none";
+	else
+		document.getElementById("showHS2").style.display = "";
+
+	if (<% getIndex("hs2Enabled"); %> == 1)
+		document.advanceSetup.elements["hs2"][0].checked = true;
+	else
+		document.advanceSetup.elements["hs2"][1].checked = true;
+
+
+	if (<% getIndex("protectionDisabled"); %> == 0)
+		document.advanceSetup.elements["11g_protection"][0].checked = true;
+	else
+		document.advanceSetup.elements["11g_protection"][1].checked = true;
+
+	if (<% getIndex("aggregation"); %> != 0)
+		document.advanceSetup.elements["aggregation"][0].checked = true;
+	else
+		document.advanceSetup.elements["aggregation"][1].checked = true;
+
+	if (<% getIndex("shortGIEnabled"); %> == 1)
+		document.advanceSetup.elements["shortGI0"][0].checked = true;
+	else
+		document.advanceSetup.elements["shortGI0"][1].checked = true;
+
+	if (<% getIndex("block_relay"); %> == 1)
+		document.advanceSetup.elements["block_relay"][0].checked = true;
+	else
+		document.advanceSetup.elements["block_relay"][1].checked = true;
+
+	if (<% getIndex("tx_stbc"); %> == 1)
+		document.advanceSetup.elements["tx_stbc"][0].checked = true;
+	else
+		document.advanceSetup.elements["tx_stbc"][1].checked = true;
+
+	//if(ldpc_support == 1)
+	//{
+		if (<% getIndex("tx_ldpc"); %> == 1)
+			document.advanceSetup.elements["tx_ldpc"][0].checked = true;
+		else
+			document.advanceSetup.elements["tx_ldpc"][1].checked = true;
+	//}
+
+	if (<% getIndex("coexist"); %> == 1)
+		document.advanceSetup.elements["coexist_"][0].checked = true;
+	else
+		document.advanceSetup.elements["coexist_"][1].checked = true;
+
+	if (<% getIndex("tx_beamforming"); %> == 1)
+		document.advanceSetup.elements["beamforming_"][0].checked = true;
+	else
+		document.advanceSetup.elements["beamforming_"][1].checked = true;
+	if (<% getIndex("mc2u_disable"); %> == 0)
+		document.advanceSetup.elements["mc2u_"][0].checked = true;
+	else
+		document.advanceSetup.elements["mc2u_"][1].checked = true;
+	onclick_mc2u();
+
+	document.advanceSetup.elements["RFPower"][<% getIndex("RFPower"); %>].checked = true;
+
+	if (wlan_idx == 0) {
+		if (<% getIndex("tdls_prohibited"); %> == 1)
+			document.advanceSetup.elements["tdls_prohibited_"][0].checked = true;
+		else
+			document.advanceSetup.elements["tdls_prohibited_"][1].checked = true;
+
+		if (<% getIndex("tdls_cs_prohibited"); %> == 1)
+			document.advanceSetup.elements["tdls_cs_prohibited_"][0].checked = true;
+		else
+			document.advanceSetup.elements["tdls_cs_prohibited_"][1].checked = true;
+
+		if (<% getIndex("dsf_enable"); %> == 1)
+			document.advanceSetup.elements["dsf_enable_"][0].checked = true;
+		else
+			document.advanceSetup.elements["dsf_enable_"][1].checked = true;
+	}
+
+	if (isAdmin == 0) {
+		document.getElementById("rssi_threshold").style.display = "";
+		document.getElementById("rssi_threshold0").style.display = "";
+		document.getElementById("rssi_threshold1").style.display = "";
+		document.getElementById("rssi_threshold2").style.display = "";
+	} else {
+		document.getElementById("rssi_threshold").style.display = "none";
+		document.getElementById("rssi_threshold0").style.display = "none";
+		document.getElementById("rssi_threshold1").style.display = "none";
+		document.getElementById("rssi_threshold2").style.display = "none";
+	}
+
+	if(wlan_idx)
+		document.advanceSetup.Wlanintf.options[0].selected = true;
+	else
+		document.advanceSetup.Wlanintf.options[1].selected = true;
+}
+
+function onClick_func(enable)
+{
+	if(enable)
+		enableRadioGroup(document.advanceSetup.sideBand0);
+	else
+		disableRadioGroup(document.advanceSetup.sideBand0);
+
+}
+function onclick_mc2u()
+{
+	if(document.advanceSetup.elements["mc2u_"][0].checked == true)
+		get_by_id("mlcsttxrate").style.display = "none";
+	else
+		get_by_id("mlcsttxrate").style.display = "";
+}
+function resetForm()
+{
+	location=location;
+}
+
+function page_change(selectObj)
+{
+	if (selectObj.value==1)
+		location.href='boafrm/formWlanRedirect?redirect-url=skb_wladvanced.htm&wlan_id=1';
+	else
+		location.href='boafrm/formWlanRedirect?redirect-url=skb_wladvanced.htm&wlan_id=0';
+}
+</SCRIPT>
+<blockquote>
+<body onload="wlan_adv_switch();">
+<h2>
+<script type="text/javascript">
+var wlan_num =  <% getIndex("wlan_num"); %>;
+if (wlan_num > 1) {
+	var wlan_idx_ = <% getIndex("wlan_idx"); %> + 1;
+	if(wlan_idx_==1)
+		document.write("무선 고급 설정 5G </p>");
+	else
+		document.write("무선 고급 설정 2.4G</p>");
+}
+else
+	document.write("Wireless Advanced Settings</p>");
+</script>
+</h2>
+
+<form action=/boafrm/formAdvanceSetup method=POST name="advanceSetup">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+  <tr><font size="2">
+  무선 인터넷을 좀 더 전문적으로 사용하기 위한 설정으로, 충분한 지식을 가진 고급 유저를 위한 페이지 입니다.
+  </font></tr>
+  <tr><hr size="1" noshade align=top></tr>
+  <tr>
+  	<td width="30%"><font size="2"><b>무선:</b></font></td>
+    	<td width="70%">
+    		<select name="Wlanintf" id="Wlanintf" onChange="page_change(this)">
+    			<option value=1>2.4 GHz</option>
+    			<option value=0>5 GHz</option>
+    		</select>
+    	</td>
+   </tr>
+    <tr>
+      <td width="30%"><font size="2"><b>Fragment Threshold:</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="fragThreshold" size="10" maxlength="4" value=<% getInfo("fragThreshold"); %>>(256-2346)</font></td>
+    </tr>
+    <tr>
+      <td width="30%"><font size="2"><b>RTS Threshold:</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="rtsThreshold" size="10" maxlength="4" value=<% getInfo("rtsThreshold"); %>>(0-2347)</font></td>
+    </tr>
+    <tr>
+      <td width="30%"><font size="2"><b>Beacon Interval:</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="beaconInterval" size="10" maxlength="4" value=<% getInfo("beaconInterval"); %>> (20-1024 ms)</font></td>
+    </tr>
+
+	<!--tr>
+      <td width="30%"><font size="2"><b>CCA 설정:</b></font></td>
+      <td width="70%"><font size="2">
+      	<input type="radio" name="cca_mode" value="0">자동 &nbsp;&nbsp;
+		<input type="radio" name="cca_mode" value="1">수동 &nbsp;&nbsp;
+      	<select name="cca_menual" id="cca_menual" >
+      		<option value="0x01">0x01</option>
+      		<option value="0x02">0x02</option>
+      		<option value="0x03">0x03</option>
+      	</select>
+      	<input type="hiddne" name="x_wlan_cca_mode" value="">
+      </td>
+    </tr-->
+
+    <tr id="preambleType" style="display:">
+      <td width="30%"><font size="2"><b>Preamble Type:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="preamble" value="long">Long Preamble&nbsp;&nbsp;
+      <input type="radio" name="preamble" value="short">Short Preamble</font></td>
+    </tr>
+
+    <tr id="showIAPP" style="display:">
+      <td width="30%"><font size="2"><b>IAPP:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="iapp" value="yes">Enabled&nbsp;&nbsp;
+      <input type="radio" name="iapp" value="no">Disabled</font></td>
+    </tr>
+    <tr id="showHS2" style="display:">
+      <td width="30%"><font size="2"><b>HS2:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="hs2" value="yes">Enabled&nbsp;&nbsp;
+      <input type="radio" name="hs2" value="no">Disabled</font></td>
+    </tr>
+    <tr>
+      <td width="30%"><font size="2"><b>Protection:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="11g_protection" value="yes">Enabled&nbsp;&nbsp;
+      <input type="radio" name="11g_protection" value="no">Disabled</font></td>
+    </tr>
+
+
+   <tr id="Aggregation" style="display:">
+      <td width="30%"><font size="2"><b>Aggregation:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="aggregation" value="enable">Enabled&nbsp;&nbsp;
+      <input type="radio" name="aggregation" value="disable">Disabled</font></td>
+   </tr>
+
+    <tr id="ShortGi" style="display:">
+      <td width="30%"><font size="2"><b>Short GI:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="shortGI0" value="on">Enabled&nbsp;&nbsp;
+      <input type="radio" name="shortGI0" value="off">Disabled</font></td>
+    </tr>
+    <tr id="blockrelay" style="display:">
+      <td width="30%"><font size="2"><b>WLAN Partition:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="block_relay" value="enable">Enabled&nbsp;&nbsp;
+      <input type="radio" name="block_relay" value="disable">Disabled</font></td>
+    </tr>
+
+     <tr id="stbctransmit" style="display:">
+      <td width="30%"><font size="2"><b>STBC:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="tx_stbc" value="enable">Enabled&nbsp;&nbsp;
+      <input type="radio" name="tx_stbc" value="disable">Disabled</font></td>
+    </tr>
+
+	<tr id="ldpctransmit" style="display:">
+      <td width="30%"><font size="2"><b>LDPC:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="tx_ldpc" value="enable">Enabled&nbsp;&nbsp;
+      <input type="radio" name="tx_ldpc" value="disable">Disabled</font></td>
+    </tr>
+
+     <tr id="coexist" style="display:">
+      <td width="30%"><font size="2"><b>20/40MHz Coexist:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="coexist_" value="enable">Enabled&nbsp;&nbsp;
+      <input type="radio" name="coexist_" value="disable">Disabled</font></td>
+    </tr>
+    <tr id="tx_beamforming" style="display:">
+      <td width="30%"><font size="2"><b>TX Beamforming:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="beamforming_" value="enable">Enabled&nbsp;&nbsp;
+      <input type="radio" name="beamforming_" value="disable">Disabled</font></td>
+    </tr>
+     <tr id="mc2u_disable" style="display:">
+      <td width="30%"><font size="2"><b>Multicast to Unicast:</b></font></td>
+      <td width="70%"><font size="2">
+      <input type="radio" name="mc2u_" value="enable" onclick="onclick_mc2u()" >Enabled&nbsp;&nbsp;
+      <input type="radio" name="mc2u_" value="disable" onclick="onclick_mc2u()" >Disabled</font></td>
+    </tr>
+    <SCRIPT>
+    	if(wlan_idx == 0)
+    	{
+    		document.write("<tr id=\"tdls_prohibited\" style=\"display:\">\
+				<td width=\"30%\"><font size=\"2\"><b>TDLS Prohibited:</b></font></td>\
+				<td width=\"70%\"><font size=\"2\">\
+					<input type=\"radio\" name=\"tdls_prohibited_\" value=\"enable\">Enabled&nbsp;&nbsp;\
+					<input type=\"radio\" name=\"tdls_prohibited_\" value=\"disable\">Disabled</font></td>\
+				</tr>");
+			document.write("<tr id=\"tdls_cs_prohibited\" style=\"display:\">\
+				<td width=\"30%\"><font size=\"2\"><b>TDLS Channel Switch Prohibited</b></font></td>\
+				<td width=\"70%\"><font size=\"2\">\
+					<input type=\"radio\" name=\"tdls_cs_prohibited_\" value=\"enable\">Enabled&nbsp;&nbsp;\
+					<input type=\"radio\" name=\"tdls_cs_prohibited_\" value=\"disable\">Disabled</font></td>\
+				</tr>");
+			document.write("<tr id=\"dsf_enable\" style=\"display:\">\
+				<td width=\"30%\"><font size=\"2\"><b>DFS ENABLE:</b></font></td>\
+				<td width=\"70%\"><font size=\"2\">\
+					<input type=\"radio\" name=\"dsf_enable_\" value=\"enable\">Enabled&nbsp;&nbsp;\
+					<input type=\"radio\" name=\"dsf_enable_\" value=\"disable\">Disabled</font></td>\
+				</tr>");
+    	}
+    </SCRIPT>
+    <tr id="mlcsttxrate" style="display:">
+      <td width="26%"><font size="2"><b>Multicast Rate:</b></font></td>
+      <td width="74%"><font size="2"><select size="1" name="mlcstrate" onChange="">
+	 <SCRIPT>
+	var band   = <% getIndex("band"); %>;
+	var auto   = <% getIndex("rateAdaptiveEnabled"); %>;
+	var txrate = <% getIndex("lowestMlcstRate"); %>;
+	var rf_num = <% getIndex("rf_used"); %>;
+
+	var rate_mask = [15,1,1,1,1,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,8,8,8,8,8,8,8,8];
+	var rate_name=["Auto","1M","2M","5.5M","11M","6M","9M","12M","18M","24M","36M","48M","54M", "MCS0", "MCS1",
+		"MCS2", "MCS3", "MCS4", "MCS5", "MCS6", "MCS7", "MCS8", "MCS9", "MCS10", "MCS11", "MCS12", "MCS13", "MCS14", "MCS15"];
+	var vht_rate_name=["NSS1-MCS0","NSS1-MCS1","NSS1-MCS2","NSS1-MCS3","NSS1-MCS4",
+		"NSS1-MCS5","NSS1-MCS6","NSS1-MCS7","NSS1-MCS8","NSS1-MCS9",
+		"NSS2-MCS0","NSS2-MCS1","NSS2-MCS2","NSS2-MCS3","NSS2-MCS4",
+		"NSS2-MCS5","NSS2-MCS6","NSS2-MCS7","NSS2-MCS8","NSS2-MCS9"];
+	var mask=0;
+	var defidx=0;
+	var idx, i, rate;
+	var vht_num;
+
+	if (band & 1)
+		mask |= 1;
+	if ((band&2) || (band&4))
+		mask |= 2;
+	if (band & 8) {
+		if (rf_num == 2)
+			mask |= 12;
+		else
+			mask |= 4;
+	}
+document.write('<option value="' + 0 + '">' + rate_name[0] + '\n');
+	for (idx=1, i=1; i<=28; i++) {
+		if (rate_mask[i] & mask) {
+				rate = (1 << (i-1));
+		 if(txrate == 0)
+            defidx = 0;
+		 else if (txrate == rate)
+				defidx = idx;
+			document.write('<option value="' + i + '">' + rate_name[i] + '\n');
+			idx++;
+		}
+	}
+	if(band & 64){
+		if(rf_num==1)
+			vht_num=9;
+		else
+			vht_num=19;
+		for (idx=30, i=0; i<=vht_num; i++) {
+
+				rate = ((1 << 31) + i);
+
+				if (txrate == rate)
+				{
+					if(vht_num == 19)
+					defidx = idx-5;
+					else
+						defidx = idx-5-8;
+				}
+				document.write('<option value="' + (i+30) + '">' + vht_rate_name[i] + '\n');
+				idx++;
+		}
+	}
+	document.advanceSetup.elements["mlcstrate"].selectedIndex=defidx;
+	</SCRIPT>
+	</select></font>
+	</td>
+  </tr>
+
+	<!--tr id="RFPOWER" style="display:">
+		<td width="30%"><font size="2"><b>무선 출력 세기:</b></font></td>
+		<td width="70%"><font size="2"><input type="text" name="RFPower" size="5" maxlength="3" value=<% getInfo("RFPower"); %>> (10-100 %)</font></td>
+	</tr-->
+
+	<tr id="rssi_threshold" style="display:">
+		<td width="30%"><font size="2" color="blue"><b>[ RSSI 접속 제한 ]</b></font></td>
+		<td width="70%"></td>
+	</tr>
+		<tr id="rssi_threshold0" style="display:">
+		<td width="30%"><font size="2"><b>AP-0:<br><font size="1">(Main)</font></b></font></td>
+		<td width="70%"><font size="2"><input type="text" name="rssiThresh0" size="5" maxlength="2" value=<% getInfo("wlan_rssi_threshold"); %>> (0:제한없음, 20-80)</font></td>
+	</tr>
+	<tr id="rssi_threshold1" style="display:">
+		<td width="30%"><font size="2"><b>AP-1:<br><font size="1">(T wifi home)</font></b></font></td>
+		<td width="70%"><font size="2"><input type="text" name="rssiThresh2" size="5" maxlength="2" value=<% getInfo("wlan_va1_rssi_threshold"); %>> (20-80)</font></td>
+	</tr>
+	<tr id="rssi_threshold2" style="display:">
+		<td width="30%"><font size="2"><b>AP-2:<br><font size="1">(anyway)</font></b></font></td>
+		<td width="70%"><font size="2"><input type="text" name="rssiThresh3" size="5" maxlength="2" value=<% getInfo("wlan_va2_rssi_threshold"); %>> (0:제한없음, 20-80)</font></td>
+	</tr>
+	<tr id="handover_rssi_th" style="display:">
+      <td width="30%"><font size="2"><b>HandOver RSSI 접속제한:</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="x_bs_rssi_th" size="5" maxlength="3" value="">  (0-100)</td>
+    </tr>
+    <tr id="handover_rssi_th" style="display:">
+      <td width="30%"><font size="2"><b>HandOver 중 5G RSSI 접속제한:</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="x_bs_probe_deny_rssi_th" size="5" maxlength="3" value="">  (0-100)</td>
+    </tr>
+    <tr id="handover_pps_checking_time" style="display:">
+      <td width="30%"><font size="2"><b>HandOver 패킷 감시 시간(초):</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="x_bs_tcp_pps_check_time" size="5" maxlength="3" value="">  (0-100)</td>
+    </tr>
+    <tr id="handover_pkts_threshold" style="display:">
+      <td width="30%"><font size="2"><b>HandOver 초당 발생 패킷 수:</b></font></td>
+      <td width="70%"><font size="2"><input type="text" name="x_bs_tcp_pkts_threshold" size="5" maxlength="3" value="">  (1-100)</td>
+    </tr>
+
+
+	<!--tr id="rssi_threshold3" style="display:">
+		<td width="30%"><font size="2"><b>AP-3:<br><font size="1">(SK_WLAN_VAP3)</font></b></font></td>
+		<td width="70%"><font size="2"><input type="text" name="rssiThresh4" size="5" maxlength="2" value=<% getInfo("wlan_va3_rssi_threshold"); %>> (0:제한없음, 20-80)</font></td>
+	</tr-->
+
+	<tr>
+		<td width="30%"><font size="2"><b>RF Output Power:</b></font></td>
+		<td width="70%"><font size="2">
+		<input type="radio" name="RFPower" value="0">100%&nbsp;&nbsp;
+		<input type="radio" name="RFPower" value="1">70%&nbsp;&nbsp;
+		<input type="radio" name="RFPower" value="2">50%&nbsp;&nbsp;
+		<input type="radio" name="RFPower" value="3">35%&nbsp;&nbsp;
+		<input type="radio" name="RFPower" value="4">15%</font></td>
+	</tr>
+	  </table>
+	  <p>
+  <input type="submit" value=" 적용 " name="save" onClick="return saveChanges()">&nbsp;&nbsp;
+  <input type="reset" value=" 취소 " name="reset" onClick="resetForm();">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/skb_wladvanced.htm" name="submit-url">
+  </p>
+</form>
+</blockquote>
+</body>
+
+</html>
+

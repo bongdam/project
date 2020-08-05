@@ -1,0 +1,119 @@
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Active Wireless Client MAC Address Table</title>
+<% getInfo("include_css"); %>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script language='javascript'>
+
+function macReload()
+{
+  var code = "";
+
+  code = 'location.assign("skb_wlmactbl.htm")';
+  eval(code);
+}
+
+function macInput(macSelectValue)
+{
+  document.forms[0].macValue.value = macSelectValue;
+}
+
+function macSelect()
+{
+
+  with ( document.forms[0] ) {
+
+  if (macValue.value==""){
+    alert('MAC 주소가 없습니다!');
+	return false;
+  }
+
+  str = document.forms[0].macValue.value;
+  var tmp = "";
+
+  if ( str.length != 12 && str.length != 17) {
+	  alert("MAC 주소가 올바르지 않습니다. 16진수 12개 또는 콜론(:)을 포함한 17개의 16진수를 입력하십시오. ");
+	  macValue.focus();
+	  return false;
+  }
+
+  for (var i=0; i<str.length; i++) {
+	  if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+				(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+				(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') ||
+				(str.charAt(i) == ':')){
+	    if(str.charAt(i) != ':')
+	      tmp += str.charAt(i);
+	    continue;
+	  }
+	    alert("MAC 주소가 올바르지 않습니다. 16진수를 입력하십시오. ( 0-9 또는 a-f 또는 : ) ");
+	    macValue.focus();
+	    return false;
+  }
+
+  if (window.opener.document.forms[0].page.value == "skb_wlactrl.htm" ) {
+	 obj = window.opener.document.getElementsByName('mac');
+	 obj[0].value = macValue.value;
+  }
+  else if (window.opener.document.forms[0].page.value == "skb_wlsecurity_disclient.htm" ) {
+	 obj = window.opener.document.getElementsByName('disc_sta_mac');
+	 obj[0].value = macValue.value;
+  }
+
+  } // with
+  window.close();
+}
+
+</script>
+</head>
+
+<body>
+<blockquote>
+<b><font size=3 face="arial" color="#3c7A95">Active Wireless Client MAC Address Table</font></b>
+
+<table border=0 width="480" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form name="formWirelessTbl">
+<table width="580" border='0' cellspacing="1" cellpadding="2">
+<tr align="center" class="tbl_head">
+	<td width="80"><b>MAC 주소</b></td>
+	<td width="60"><b>모드</b></td>
+	<td width="60"><b>송신<br>kByte</b></td>
+	<td width="60"><b>수신<br>kByte</b></td>
+	<td width="60"><b>전송률<br>(Mbps)</b></td>
+	<td width="60"><b>남은<br>시간</b></td>
+	<td width="80"><b>경과<br>시간</b></td>
+	<td width="60"><b>선택</b></td></tr>
+<% wirelessClientList("wlMacSelect"); %>
+<% wirelessClientList("wlMacSelect", "1"); %>
+<% wirelessClientList("wlMacSelect", "2"); %>
+<% wirelessClientList("wlMacSelect", "3"); %>
+<% wirelessClientList("wlMacSelect", "4"); %>
+</table>
+
+<table width="580" border="0" cellspacing="1" cellpadding="2" >
+<tr align="center" class="tbl_head"><td width="50%"><b>사용할 MAC 주소</b></td>
+<tr align=center><td><font size=2><input type='text' size=30 maxlength=17 name='macValue' value=''></td></tr>
+
+<tr><td align="center">
+<input type="hidden" value="/skb_wlmactbl.htm" name="submit-url">
+  <p><input type="button" value=" 선택 " name="select" onClick="macSelect()">&nbsp;&nbsp;
+  <input type="button" value="다시 보기" name="refresh" onClick="macReload()">&nbsp;&nbsp;
+  <input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();"></p>
+</td></tr>
+</table>
+</form>
+</blockquote>
+</body>
+
+</html>

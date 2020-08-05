@@ -1,0 +1,409 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>ISIS Setup</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<script>
+
+function deleteClick()
+{
+  if ( !confirm('Do you really want to delete the selected entry?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+function deleteAllClick()
+{
+   if ( !confirm('Do you really want to delete the all entries?') ) {
+	return false;
+  }
+  else
+	return true;
+}
+
+
+
+
+function isissetClick()
+{
+   var t1; 	
+   var first_ip;
+   var route_meteric;
+
+
+
+    if (document.isisset.isis_on.checked) {
+ 	if(document.isisset.processid.value=="")
+	{
+		alert('please scan the process id');
+  		return false;
+ 	}
+	t1 = parseInt(document.isisset.processid.value);
+	 if((document.isisset.processid.value!="")&&((t1 > 65535 ) || (t1 < 1))){
+  		alert('Invalid process id value! The range of cost is 1 ~ 65535.');
+  	return false;
+  	}
+	 if(document.isisset.net.value=="")
+	{
+		alert('please scan the net ');
+  		return false;
+ 	}
+    }
+
+   return true;
+
+
+}
+
+function disablenetDelButton()
+{
+	disableButton(document.netsetup.deletenetAuthentication);
+	disableButton(document.netsetup.deleteallnetAuthentication);
+}
+
+
+function disableifDelButton()
+{
+	disableButton(document.interfacesetup.deleteif);
+	disableButton(document.interfacesetup.deleteallif);
+}
+
+function isis_on_update()
+{
+ if (document.isisset.isis_on.checked) {
+ 	enableTextField(document.isisset.processid);
+	enableTextField(document.isisset.net);
+	enableButton(document.isisset.showdebug);
+  }
+  else {
+ 
+	disableTextField(document.isisset.processid);
+	disableTextField(document.isisset.net);
+	disableButton(document.isisset.showdebug);
+  
+  }
+
+}
+
+function addinterfaceClick()
+{
+	var t1; 
+	
+	t1 = parseInt(document.interfacesetup.metric.value);
+	 if((document.interfacesetup.metric.value!="")&&((t1 > 63 ) || (t1 < 1))){
+  		alert('Invalid metric value! The range of cost is 1 ~ 63.');
+  	return false;
+  	}
+
+	 if(document.interfacesetup.if_authentication_type.value==1)
+	 	 if(document.interfacesetup.interface_key.value=="")
+	 	 {
+	 		 alert('please scan the key');
+  			return false;
+	 	 }
+	 
+	  return true;
+  	
+}
+function addnetClick()
+{
+	 if(document.netsetup.net_key.value==""){
+  		return false;
+  	}
+	 
+	  return true;
+}
+
+function debug_update()
+{
+ if (document.isisset.isis_debug.checked) {
+	enableButton(document.isisset.showdebug);
+  }
+  else {
+ 
+	disableButton(document.isisset.showdebug);
+  
+  }
+
+}
+
+function StaticRouteTblClick(url) {
+		openWindow(url, 'isisdebug',1000, 800 );
+}
+function isis_LoadSetting()
+{
+	var dF=document.isisset;
+	var isis_enabled=<%getIndex("isis_on");%>;
+	var isis_debug=<%getIndex("isis_debug");%>;
+	var process_id=<%getIndex("process_id");%>;
+	//String  net=<%getIndex("isis_net");%>;
+	var isislevel=<%getIndex("isis_level");%>;
+	
+	if(isis_enabled==1)	
+	{
+		dF.isis_on.checked=true;
+		enableTextField(document.isisset.processid);
+		enableTextField(document.isisset.net);
+		enableButton(document.isisset.showdebug);
+		if(process_id)
+			document.isisset.processid.value=process_id;
+		//strcpy(document.isisset.net.value,net);
+		//document.isisset.net.value=net;
+		document.isisset.level_type.value=isislevel;
+	
+			
+	}
+	else
+	{
+	
+		dF.isis_on.checked=false;
+		disableTextField(document.isisset.processid);
+		disableTextField(document.isisset.net);
+		disableButton(document.isisset.showdebug);
+		
+	}
+	if(isis_debug==1)
+	{
+		dF.isis_debug.checked=true;
+		enableButton(document.isisset.showdebug);
+	}
+
+	else
+	{
+		dF.isis_debug.checked=false;
+		disableButton(document.isisset.showdebug);
+		
+		
+	}
+	if ( <% getIndex("isisnetworkNum"); %> == 0 )
+		disablenetDelButton();
+	if ( <% getIndex("isisinterfaceNum"); %> == 0 )
+		disableifDelButton();
+
+}
+</script>
+</head>
+<body onload="isis_LoadSetting();">
+<blockquote>
+
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<h2><font color="#0000FF">ISIS Routing Setup</font></h2>
+
+
+<tr><td colspan= 2><font size=2>
+ This page is used to setup isis routing.
+</font></td></tr>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+
+
+<form action=/boafrm/formisisroute method=POST name="isisset">
+<tr><td><font size=2><b>ISIS SETUP</b></font></td></tr>
+	<tr>
+		<td><font size=2>ISIS:</font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="isis_on" value="ON" onClick="isis_on_update()">&nbsp;&nbsp;Enable </b>
+   	
+
+		</font></td>
+		
+	</tr>
+
+	<tr>
+       <td width="30%"><font size=2>Process ID(1~65535):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="processid" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+    <tr>
+       <td width="30%"><font size=2>Net:</td>
+       <td width="100%"><font size=2>
+        <input type="text" name="net" size="18" maxlength="60" value="<% getIndex("isis_net"); %>">
+     
+      </td>
+   
+    </tr>
+
+<tr>
+		<td width="30%"><font size=2>Level type:</td>
+		<td>
+			<select name="level_type">
+			 <option value="0">Both</option>
+ 			
+			<option value="1">Level 1</option>
+			<option value="2">Level 2</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td><font size=2>ISIS DEBUG:</font></td>
+		<td><font size=2>
+	
+   	<input type="checkbox" name="isis_debug" value="ON" onClick="debug_update()">&nbsp;&nbsp;Enable </b><br>
+
+		</font></td>
+		<input type="button" value="Show debug info" name="showdebug" onClick="StaticRouteTblClick('/isisdebug.htm')">
+	</tr>
+	
+
+<tr>
+	<br><td><input type="submit" value="Apply Changes" name="isisset" onClick="return isissetClick()"></td>
+</tr>
+<tr>
+	<td colspan= 2><font size=2>
+ [After modify the config,must restart the isis]
+</font></td>
+<td><input type="submit" value="restart" name="restart" ></td>
+</tr>
+<input type="hidden" value="/isisroute.htm" name="submit-url">
+  </table>      
+</form>
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b> NET Authentication SETUP</b></font></td></tr>
+<form action=/boafrm/formisisroute method=POST name="netsetup">
+
+
+
+
+
+<tr>
+		<td width="30%"><font size=2>Net Authentication type:</td>
+		<td>
+			<select name="net_authentication">
+			 <option value="0">None</option>
+ 			
+			<option value="1">Level 1</option>
+			<option value="2">Level 2</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+       <td width="30%"><font size=2>Key(1~16 byte):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="net_key" size="18" maxlength="16" value="">
+     
+      </td>
+   
+    </tr>
+
+
+
+
+   <tr><td colspan=2>
+     <p><input type="submit" value="Add" name="addnet" onClick="return addnetClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+
+<table border="0" width=500>
+  <tr><font size=2>ISIS  Net  Authentication table:</font></tr>
+  <% netAuthenticationList(); %>
+  </table>
+<input type="submit" value="Delete Selected" name="deletenetAuthentication" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallnetAuthentication" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/isisroute.htm" name="submit-url">
+</form>
+  
+
+
+<table border="0" width=500>
+
+<tr><td colspan=2><hr size=1 noshade align=top></td></tr>
+<tr><td><font size=2><b> INTERFACE SETUP</b></font></td></tr>
+<form action=/boafrm/formisisroute method=POST name="interfacesetup">
+
+    <tr>
+		<td width="30%"><font size=2>Interface:</td>
+		<td>
+			<select name="isis_if">
+			<% interfaceList(); %>
+			</select>
+		</td>
+	</tr>
+
+<tr>
+		<td width="30%"><font size=2>Level type:</td>
+		<td>
+			<select name="level_type">
+			 <option value="0">Both</option>
+ 			
+			<option value="1">Level 1</option>
+			<option value="2">Level 2</option>
+			</select>
+		</td>
+	</tr>
+
+
+
+
+<tr>
+
+       <td width="30%"><font size=2>Metric(1~63):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="metric" size="18" maxlength="15" value="">
+     
+      </td>
+   
+    </tr>
+
+<tr>
+		<td width="30%"><font size=2>Authentication type:</td>
+		<td>
+			<select name="if_authentication_type">
+			 <option value="0">None</option>
+ 			<option value="1">Simple password</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+       <td width="30%"><font size=2>Key(1~16 byte):</td>
+       <td width="70%"><font size=2>
+        <input type="text" name="interface_key" size="18" maxlength="16" value="">
+     
+      </td>
+   
+    </tr>
+
+   <tr><td colspan=2>
+     <p><input type="submit" value="Interface setup" name="addinterface" onClick="return addinterfaceClick()">&nbsp;&nbsp;        
+     </p>
+	
+     </td></tr>
+
+</table>
+
+<table border="0" width=500>
+  <tr><font size=2>Interface  Table:</font></tr>
+  <% isisinterfaceList(); %>
+  </table>
+<input type="submit" value="Delete Selected" name="deleteif" onClick="return deleteClick()">&nbsp;&nbsp;
+  <input type="submit" value="Delete All" name="deleteallif" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+  <input type="hidden" value="/isisroute.htm" name="submit-url">
+</form>
+ <script>
+	if ( <% getIndex("isisnetworkNum"); %> == 0 )
+		disablenetDelButton();
+	if ( <% getIndex("isisinterfaceNum"); %> == 0 )
+		disableifDelButton();
+ </script>
+
+  
+
+	</blockquote>
+</body>
+
+</html>
+

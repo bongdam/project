@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>ybuildargv-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>ybuildargv(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>ybuildargv - Command-Line Argument Parser</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+char **ybuildargv(char *<a href="#">sp</a>, int *<a href="#">argcp</a>);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 아래 규칙에 따라 <a href="#">sp</a>문자열을 인자로 구분하여 그 인자들의 배열 포인터를 리턴한다.
+<ul>
+	<li>인자는 공백 즉 white space로 구분한다.</li>
+</ul>
+<ul>
+	<li>double quote(")로 둘러 싸인 문자열은 공백이 있더라도 단일 인자로 처리된다.</li>
+</ul>
+<ul>
+	<li>double quote(")는 backslash을 앞에 붙여(\") literal한 문자로 인식할 수 있다.</li>
+</ul>
+<dl>
+	<dt><a href="#">sp</a></dt>
+	<dd>Command-line 문자열을 가리키는 포인터 변수이다.</dd>
+	<dt><a href="#">argcp</a></dt>
+	<dd>NULL이 아니면 구분된 인자(토큰)의 갯수을 리턴한다.</dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>구분된 인자를 가리키는 포인터를 요소로 하는 배열을 리턴한다. <ins>이 배열 포인터를 더 이상 참조하지 않을 때 free로 메모리 해제를 해야 한다.</ins></p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>./a.out "1 2 3 4 " " "
+</b>a b c d:        |a|b|c|d|
+a "b c" d:      |a|b c|d|
+a \"b c d:      |a|"b|c|d|
+a b"c d"d e:    |a|bc dd|e|</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> &lt;stdlib.h&gt;
+<span style="color:Blue;">#include</span> &lt;string.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+    <span style="color:Blue;">char</span> **argv;
+    <span style="color:Blue;">char</span> buffer[256];
+    <span style="color:Blue;">int</span> i;
+    <span style="color:Blue;">const</span> <span style="color:Blue;">char</span> **p;
+    <span style="color:Blue;">const</span> <span style="color:Blue;">char</span> *sample[] = {
+        <span style="color:#A31515;">"a b c d"</span>,              <span style="color:Green;">// a b c d</span>
+        <span style="color:#A31515;">"a \"b c\" d"</span>,          <span style="color:Green;">// a "b c" d</span>
+        <span style="color:#A31515;">"a \\\"b c d"</span>,          <span style="color:Green;">// a \"b c d</span>
+        <span style="color:#A31515;">"a b\"c d\"d e"</span>,        <span style="color:Green;">// a b"c d"d e</span>
+        NULL
+    };
+
+    <span style="color:Blue;">for</span> (p = sample; *p; p++) {
+        strcpy(buffer, *p);
+        printf(<span style="color:#A31515;">"%s:\t"</span>, buffer);
+        argv = ybuildargv(buffer, NULL);
+        <span style="color:Blue;">if</span> (argv) {
+            <span style="color:Blue;">for</span> (i = 0; argv[i]; i++)
+                printf(<span style="color:#A31515;">"|%s%s"</span>, argv[i], argv[i + 1] ? <span style="color:#A31515;">""</span> : <span style="color:#A31515;">"|\n"</span>);
+            <b>free(argv);</b>
+        }
+    }
+
+    <span style="color:Blue;">return</span> 0;
+}</pre>
+
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+</body>
+</html>

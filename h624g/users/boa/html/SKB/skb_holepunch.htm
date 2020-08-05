@@ -1,0 +1,153 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>홀펀치 설정</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var hole_server_flag = 0;
+var hole_port_flag = 0;
+
+function click_field(selectObj) {
+	if( (selectObj == "holepunch_server") && (hole_server_flag == 0) ){
+		document.holepunch.holepunch_server.value  = "";
+		hole_server_flag = 1;
+	} else if( (selectObj == "holepunch_port") && (hole_port_flag == 0) ){
+		document.holepunch.holepunch_port.value = "";
+		hole_port_flag = 1;
+	}
+}
+
+function presskey_field(selectObj) {
+	if( (selectObj == "holepunch_port") && (hole_port_flag == 0) ){
+		hole_port_flag = 1;
+	}
+}
+
+function update() {
+	var server = document.getElementById('cserver');
+	var ports = document.getElementById('cport');
+
+	if(document.holepunch.holepunch_enabled.checked == true) {
+		server.disabled = false;
+		ports.disabled = false;
+	} else {
+		server.disabled = true;
+		ports.disabled = true;
+	}
+}
+
+function holepunchCheck() {
+	var holepunchEnabled = "<% getInfo("x_holepunch_enabled"); %>";
+
+	if(holepunchEnabled.indexOf("1",0)>-1)
+		document.holepunch.holepunch_enabled.checked = true;
+	else
+		document.holepunch.holepunch_enabled.checked = false;
+}
+
+function init() {
+
+	document.holepunch.holepunch_server.value = "*************************";
+	document.holepunch.holepunch_port.value = "*****";
+
+	holepunchCheck();
+	update();
+}
+
+function resetClick()
+{
+	document.location.reload();
+}
+
+function valid_check(formholepunch) {
+	var hole_url = formholepunch.holepunch_server.value;
+	var hole_port = formholepunch.holepunch_port.value;
+	var i;
+	if(hole_url =="") {
+		alert("Control Server 가 비어있습니다. 주소를 입력해 주세요");
+		return false;
+	}
+
+	if(hole_port =="") {
+		alert("Control Port 가 비어있습니다. 주소를 입력해 주세요");
+		return false;
+	}
+
+	if (hole_port_flag == 1) {
+		if (i != hole_port.length) {
+			if(!IsDigit(hole_port)) {
+				alert("Control Port 에는 숫자만 입력가능합니다.");
+				return false;
+			}
+		}
+	}
+
+	if(parseInt(hole_port) < 1 ||  parseInt(hole_port) > 65535) {
+		alert("포트 번호가 올바르지 않습니다! 1에서 65535 사이의 숫자를 입력해야 합니다.");
+		return false;
+	}
+
+	alert("설정되었습니다.");
+	formholepunch.submit();
+}
+
+</script>
+</head>
+<body onload="init();">
+<script language="javascript">
+var curLoginUser = <% getIndex("isAdmin"); %>;
+if (curLoginUser == 1)
+	history.back();
+</script>
+<blockquote>
+<h2>Holepunch 설정</h2>
+
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+Holepunch 설정 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form action=/boafrm/formHolepunchSet method=POST name="holepunch">
+<br>
+<FIELDSET style="BORDER-RIGHT: #000000 1px solid; PADDING-RIGHT: 10px; BORDER-TOP: #000000 1px solid; PADDING-LEFT: 10px; PADDING-BOTTOM: 5px; BORDER-LEFT: #000000 1px solid; WIDTH: 480px; PADDING-TOP: 0px; BORDER-BOTTOM: #000000 1px solid; "><LEGEND>holepunch 서비스</LEGEND>
+	<table border="0" width=540>
+		<tr>
+			<td width="100%"><font size=2>
+		<b><input type="checkbox" name="holepunch_enabled" value="ON" onClick="update();">&nbsp;holepunch 사용</b></font></td>
+		</tr>
+
+		<tr>
+			<td width="100%"><font size=2>
+			<b>&nbsp;&nbsp;Control Server : </b>
+			&nbsp;&nbsp;<input type="text" id="cserver" name="holepunch_server" value=""  size="45" maxlength="127" onclick="click_field('holepunch_server')"></font></td>
+		</tr>
+
+		<tr>
+			<td width="100%"><font size=2>
+			<b>&nbsp;&nbsp;Control Port : </b>
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="text" id="cport" name="holepunch_port" value=""  size="5" maxlength="5" onclick="click_field('holepunch_port')" onkeypress="presskey_field('holepunch_port');"></font></td>
+		</tr>
+	</table>
+</FIELDSET>
+
+<table>
+	<tr>
+	<td>
+		<br>&nbsp;&nbsp;<input type="button" value="적용" name="save" onclick="valid_check(this.form);">
+		&nbsp;&nbsp;<input type='reset' name='reset' value='취소' onClick="resetClick()">
+	</td>
+	</tr>
+</table>
+<input type="hidden" value="/skb_holepunch.htm" name="submit-url">
+</form>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,238 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>EasyMesh Interface Setup </title>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<SCRIPT>
+var wlan_num =<% getIndex("show_wlan_num"); %> ;
+
+var wlan1Disabled = 0, wlan2Disabled = 0;
+var role=<% getIndex("multi_ap_controller"); %> ;
+
+function loadInfo()
+{
+
+	wlan1Disabled = <% getIndex("interface_info_query_00"); %>;
+	wlan2Disabled = <% getIndex("interface_info_query_10"); %>;
+
+
+	//load role from mib and set radio button accordingly
+	if (role == 0) {
+		document.getElementById("role_disabled").checked = true;
+	} else if (role == 1) {
+		document.getElementById("role_controller").checked = true;
+		document.getElementById("wsc_trigger").innerHTML   = '<td width="30%"><font size=2><b>WPS Trigger:</b></td><td width="70%"><font size=2><input type="submit" value="Start PBC" name="start_wsc" onClick=""></td>';
+	} else if (role == 2) {
+		document.getElementById("role_agent").checked = true;
+		document.getElementById("wsc_trigger").innerHTML   = '<td width="30%"><font size=2><b>WPS Trigger:</b></td><td width="70%"><font size=2><input type="submit" value="Start PBC" name="start_wsc" onClick=""></td>';
+	}
+
+	//save role into prev_role
+	if (role == 0) {
+		document.getElementById("role_prev").value = "disabled";
+	} else if (role == 1) {
+		document.getElementById("role_prev").value = "controller";
+	} else if (role == 2) {
+		document.getElementById("role_prev").value = "agent";
+	}
+
+}
+
+
+function resetClick()
+{
+	location.reload(true);
+}
+
+
+
+function saveChanges()
+{
+	if (!document.getElementById("role_disabled").checked) {
+		if ("" == document.getElementById("device_name_text").value) {
+			alert("Device Name cannot be empty.");
+			return false;
+		}
+	}
+
+	var dot11kvDisabled = <% getIndex("is_dot11kv_disabled"); %>;
+	if (dot11kvDisabled && (!document.getElementById("role_disabled").checked)) {
+		if(!confirm("11k or/and 11v are not enabled in some interface(s), click OK to enable and continue")){
+			return false;
+		}
+		document.getElementById("needEnable11kv").value = "1";
+	}
+
+	var securitySettingWrong = <% getIndex("is_security_setting_wrong"); %>;
+	if (securitySettingWrong && (role == 1)) {
+		alert("Something wrong with your security settings.\nPlease be aware that EasyMesh only supports WPA2 with PSK.\nPlease ensure security type is WPA2 and password is not null.");
+		return false;
+	}
+
+	if (<% getIndex("needPopupBackhaul"); %> && (role == 1)) {
+		if(!confirm("Alert: VAP1 for Wlan1 and/or Wlan2 will be auto-managed. \nClick OK to continue.")){
+			return false;
+		}
+	}
+
+    return true;
+}
+
+function isControllerOnChange(){
+	if (document.getElementById("role_controller").checked == true) {
+		role = 1;
+	} else if (document.getElementById("role_agent").checked == true){
+		role = 2;
+	} else {
+		role = 0;
+	}
+}
+
+
+
+</SCRIPT>
+</head>
+
+<body onload="loadInfo();">
+<blockquote>
+<h2>EasyMesh General Settings</h2>
+
+<form action=/boafrm/formMultiAP method=POST name="MultiAP">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+  <tr><font size=2>
+    This page is used to configure the parameters for EasyMesh feature of your Access Point.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+
+  <!-- <tr>
+	<td width="100%" colspan=2><font size=2><b>
+	 <input type="checkbox" name="" value="ON" ONCLICK="">&nbsp;&nbsp;Disable EasyMesh</b>
+	</td>
+	</tr> -->
+
+	<tr id="device_name">
+		<td width="30%"><font size=2><b>Device Name:</b></td>
+		<td width="70%">
+			<input type="text" id="device_name_text" name="device_name_text" value="<% getInfo("device_name_query"); %>">
+		</td>
+	</tr>
+
+	<tr id="is_controller">
+		<td width="30%"><font size=2><b>Role:</b></td>
+		<td width="70%"><font size=2>
+		<input type="radio" id="role_controller" name="role" value="controller" onclick="isControllerOnChange()">Controller&nbsp;&nbsp;
+		<input type="radio" id="role_agent" name="role" value="agent" onclick="isControllerOnChange()">Agent&nbsp;&nbsp;
+		<input type="radio" id="role_disabled" name="role" value="disabled" onclick="isControllerOnChange()">Disabled</td>
+	</tr>
+	<tr id="wsc_trigger">
+
+	</tr>
+
+
+  	<!-- <tr>
+		<td width="100%" colspan=2><font size=2><b>Network Topology:</b></td>
+		<td width="100%" colspan=2><font size=2><b>Neighbor Table:</b></td>
+	</tr> -->
+
+  </table>
+
+
+	<!-- <table width="400" border="0&quot;">
+			<tbody><tr>
+			  <td width="100%" colspan="2" class="tbl_title">Parent Node</td>
+			</tr>
+			<tr bgcolor="#DDDDDD">
+			  <td width="40%"><font size="2"><b>Agent1</b></font></td>
+			  <td width="60%"><font size="2">1a2b3c4d5e7f</font></td>
+			</tr>
+
+			<tr>
+			<td width="100%" colspan="2" class="tbl_title">Child Node</td>
+			</tr>
+			<tr bgcolor="#DDDDDD">
+			<td width="40%"><font size="2"><b>Agent3</b></font></td>
+			<td width="60%"><font size="2">2a2b3c4d5e7f</font></td>
+			</tr>
+			<tr bgcolor="#EEEEEE">
+			<td width="40%"><font size="2"><b>Agent4</b></font></td>
+			<td width="60%"><font size="2">3a2b3c4d5e7f</font></td>
+			</tr>
+			<tr bgcolor="#DDDDDD">
+			<td width="40%"><font size="2"><b>Agent5</b></font></td>
+			<td width="60%"><font size="2">3a2b3c4d5e7f
+			</font></td>
+			</tr>
+
+
+
+
+		  </tbody></table> -->
+
+
+<br>
+	<table style="display:none;" id="staticIpTable" border="0" width=640>
+		<% dhcpRsvdIp_List();%>
+	</table>
+<% getInfo("apply_prompt_comment_start");%>
+      <input type="submit" value="Apply Changes" name="save" onClick="return saveChanges()">&nbsp;&nbsp;
+      <input type="reset" value="Reset" name="reset" onClick="resetClick()">
+<% getInfo("apply_prompt_comment_end");%>
+<% getInfo("apply_direct_comment_start");%>
+      <input type="submit" value="Save" name="save" onClick="return saveChanges()">&nbsp;&nbsp;
+      <input type="submit" value="Save & Apply" name="save_apply" onClick="return saveChanges()">&nbsp;&nbsp;
+      <input type="reset" value="Reset" name="reset" onClick="resetClick()">
+<% getInfo("apply_direct_comment_end");%>
+
+
+<!-- <div id="syntaxplugin" class="syntaxplugin" style="border: 1px dashed #bbb; border-radius: 5px !important; overflow: auto; max-height: 30em;">
+		<ul class="alternate" type="square">
+				<li> Controller - 1a2b3c4d5e6f - <input type="button" value="Show Details" onClick="abc()">
+				<ul class="alternate" type="square">
+					<li>AgentLivingRoom : 1a2b3c4d5e7f</li>
+					<li>AgentBedroom1 : 1a2b3c4d5e8f
+					<ul class="alternate" type="square">
+						<li>AgentBedroom2 : 2a2b3c4d5e6f
+						<ul class="alternate" type="square">
+							<li>Agent4 : 3a2b3c4d5e6f</li>
+							<li>Agent5 : 4a2b3c4d5e6f</li>
+							<li>Agent6 : 5a2b3c4d5e6f</li>
+						</ul>
+						</li>
+						<li>Agent7 : 1a3b3c4d5e6f
+						<ul class="alternate" type="square">
+							<li>Agent8 : 7a2b3c4d5e6f</li>
+							<li>Agent9 : 8a2b3c4d5e6f</li>
+							<li>Agent10 : 9a2b3c4d5e6f</li>
+						</ul>
+						</li>
+						<li>Agent11 : 0a2b3c4d5e6f
+						<ul class="alternate" type="square">
+							<li>Agent12 : 4a2b3c3d5e6f</li>
+							<li>Agent13 : 3a2b3c8d5e6f</li>
+							<li>Agent14 : 2a2b3c1d5e6f</li>
+							<li>Agent15 : 1a2b3c4d5e2f</li>
+						</ul>
+						</li>
+					</ul>
+					</li>
+					<li>Agent16 : 2a2b3c4d5e6f</li>
+					<li>Agent17 : 5a2b3c4d5e6f</li>
+				</ul>
+				</li>
+			</ul>
+</div> -->
+
+	  <input type="hidden" value="/multi_ap_setting_general.htm" name="submit-url">
+	  <input type="hidden" value="0" name="needEnable11kv" id="needEnable11kv">
+	  <input type="hidden" value="<% getIndex("needPopupBackhaul"); %>" name="needPopupBackhaul">
+	  <input type="hidden" value="" name="role_prev" id="role_prev">
+
+ </form>
+</blockquote>
+</body>
+
+</html>

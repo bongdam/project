@@ -1,0 +1,87 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>Password configuration</title>
+<% getInfo("include_css"); %>
+<% language=javascript %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<SCRIPT>
+
+function includeSpace(str)
+{
+  for (var i=0; i<str.length; i++) {
+  	if ( str.charAt(i) == ' ' ) {
+	  return true;
+	}
+  }
+  return false;
+}
+
+function saveChanges()
+{
+	//alert("saveChanges!");
+	return true;
+}
+
+function updateState(form)
+{
+	if(form.enabled.checked){
+		//alert("enable!");
+	}
+	else{
+		//alert("disable!");
+	}
+}
+function init()
+{
+
+	var bt_repeater_config_Enabled = <%getIndex("bt_repeater_config_Enabled");%>;
+
+	if(bt_repeater_config_Enabled) 
+		BTRepeater.enable.checked = true;
+	else
+		BTRepeater.enable.checked = false;
+}
+</SCRIPT>
+</head>
+
+<body onload="init();">
+<blockquote>
+<h2><script>dw(bluetooth_header)</script></h2>
+
+<form action=/boafrm/formBTRepeaterSetup method=POST name="BTRepeater">
+ <table border="0" cellspacing="4" width="500">
+  <tr><font size=2>
+ 	<script>dw(bt_repeater_config)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+
+	<tr><td colspan="2"><font size=2><b>
+		<input type="checkbox" name="enable" value="ON" ONCLICK=updateState(document.BTRepeater)>&nbsp;&nbsp;<script>dw(bt_repeater_config_enable)</script>
+		</b><br></td>
+	</tr>
+  </table>
+  
+ <input type="hidden" value="/bluetoothRepeaterConfig.htm" name="submit-url">
+ <% getInfo("apply_prompt_comment_start");%> 
+  <p><input type="submit" value="Apply Changes" name="save" onClick="return saveChanges()">&nbsp;&nbsp;
+  <script>document.BTRepeater.save.value = password_apply;</script>
+	<input type="reset" value="  Reset  " name="reset"></p>
+	<script>document.BTRepeater.reset.value = password_reset;</script>
+<% getInfo("apply_prompt_comment_end");%>
+<% getInfo("apply_direct_comment_start");%>
+ <p><input type="submit" value="Save" name="save" onClick="return saveChanges()">&nbsp;&nbsp;
+ 	<script>document.BTRepeater.save.value = password_save;</script>
+    <input type="submit" value="Save & Apply" name="save_apply" onClick="return saveChanges()">&nbsp;&nbsp;
+    <script>document.BTRepeater.save_apply.value = password_save_apply;</script>
+    <input type="reset" value="  Reset  " name="reset"></p>
+    <script>document.BTRepeater.reset.value = password_reset;</script>
+<% getInfo("apply_direct_comment_end");%>
+</form>
+<blockquote>
+</body>
+</html>
+
+

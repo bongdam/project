@@ -1,0 +1,105 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>Time Zone Setting</title>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+
+<script>
+function updateState()
+{
+	if(document.urlRedirect.redirectEnabled.checked){
+		enableTextField(document.urlRedirect.redirectUrl);	
+	}		
+	else{
+		disableTextField(document.urlRedirect.redirectUrl);
+	}	
+}
+
+function load_init()
+{
+	var redirectEnabled = <%getIndex("RedirectEnabled");%>;
+	if(redirectEnabled == 1){
+		document.urlRedirect.redirectEnabled.checked = true;
+		enableTextField(document.urlRedirect.redirectUrl);		
+	}	
+	else{
+		document.urlRedirect.redirectEnabled.checked = false;
+		disableTextField(document.urlRedirect.redirectUrl);
+	}
+}
+
+function save()
+{
+	if(document.urlRedirect.redirectEnabled.checked){
+		var str = document.urlRedirect.redirectUrl.value;
+		if(str == ""){
+			alert("Redirect URL can't be empty");
+			document.urlRedirect.redirectUrl.focus();
+			return false ;
+		}
+
+		for (var i=0; i<str.length; i++) {
+     		if ( str.charAt(i) == ';')
+			{
+     			alert("Error character: \";\"");
+				return false;
+     		}
+		}
+	}
+	return true;
+}
+
+</script>
+</head>
+
+<body onload="load_init();">
+<blockquote>
+<h2>URL HTTP Redirect Setting</h2>
+
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+	URL Redirect is a service, that force redirecting to the certain URL when Lan client first time access the internet. 
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formHttpRedirect method=POST name="urlRedirect">
+<table border="0" width=600>
+	<tr>
+		<td colspan="2"><font size=2><b>
+		<input type="checkbox" name="redirectEnabled" value="ON" onclick=updateState()>&nbsp;&nbsp;Enable URL Redirect </b><br>
+	   </td>
+	</tr>
+	
+	<tr ><td height=10> </td> </tr>
+	
+	<tr><td width="20%"><font size=2> <b>Redirected URL: </b> </font></td>
+	    <td width="100%">
+ 			<font size=2><input type="text" name="redirectUrl" size="20" maxlength="128" value=<% getIndex("redirectURL"); %>></font>
+	    </td>
+	</tr>	
+</table>
+
+  <p>
+  <input type="hidden" value="/url_redirect.htm" name="submit-url">
+<% getInfo("apply_prompt_comment_start");%>
+  <input type="submit" value="Apply Change" name="apply" onClick="return save()">
+&nbsp;&nbsp;
+  <input type="reset" value="Reset" name="set" >
+<% getInfo("apply_prompt_comment_end");%>
+<% getInfo("apply_direct_comment_start");%>
+  <input type="submit" value="Save" name="save" onClick="return save()">
+&nbsp;&nbsp;
+  <input type="submit" value="Save & Apply" name="save_apply" onClick="return save()">
+&nbsp;&nbsp;
+  <input type="reset" value="Reset" name="set" >
+<% getInfo("apply_direct_comment_end");%>
+</form>
+</blockquote>
+</font>
+</body>
+
+</html>

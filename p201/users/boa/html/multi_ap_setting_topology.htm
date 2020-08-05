@@ -1,0 +1,131 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>EasyMesh Interface Setup </title>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<SCRIPT>
+var wlan_num =<% getIndex("show_wlan_num"); %> ;
+
+var wlan1Disabled = 0, wlan2Disabled = 0;
+var role=<% getIndex("multi_ap_controller"); %> ;
+
+
+function showDetailOnClick(count) {
+	openWindow('/multi_ap_popup_device_details.htm?count='+count, 'showDeviceDetail', 700, 500);
+}
+
+var htmlString = "";
+var device_counter = 0;
+
+function print_device_json(object_json) {
+	device_counter++;
+	htmlString += '<li>';
+	htmlString += object_json.device_name + ' | ' + object_json.mac_address + ' | ' + object_json.ip_addr + ' | <input type="button" value="Show Details" onClick="showDetailOnClick(' + device_counter.toString() + ')">';
+	if (0 != object_json["child_devices"].length) {
+		htmlString += '<ul class="alternate" type="square">';
+		for (child_device in object_json["child_devices"]) {
+			print_device_json(object_json["child_devices"][child_device]);
+		}
+		htmlString += '</ul>';
+	}
+	htmlString += '</li>';
+}
+
+function loadInfo()
+{
+
+	var string_json = '<% getInfo("topology_json_string"); %>';
+	var object_json = JSON.parse(string_json);
+
+	print_device_json(object_json);
+	document.getElementById("topology_insertion").innerHTML = htmlString;
+
+	setInterval(function(){ location.reload(true); }, 10000);
+}
+
+
+function resetClick()
+{
+	location.reload(true);
+}
+
+
+
+function saveChanges()
+{
+	// var dot11kvDisabled = <% getIndex("is_dot11kv_disabled"); %>;
+	// if (dot11kvDisabled && (!document.getElementById("role_disabled").checked)) {
+	// 	if(!confirm("11k or/and 11v are not enabled in some interface(s), click OK to enable and continue")){
+	// 		return false;
+	// 	}
+	// 	document.getElementById("needEnable11kv").value = "1";
+	// }
+
+	// var securitySettingWrong = <% getIndex("is_security_setting_wrong"); %>;
+	// if (securitySettingWrong && (role == 1)) {
+	// 	alert("Something wrong with your security settings.\nPlease be aware that EasyMesh only supports WPA2 with PSK.\nPlease ensure security type is WPA2 and password is not null.");
+	// 	return false;
+	// }
+
+	// if (<% getIndex("needPopupBackhaul"); %> && (role == 1)) {
+	// 	if(!confirm("Alert: VAP1 for Wlan1 and/or Wlan2 will be auto-managed. \nClick OK to continue.")){
+	// 		return false;
+	// 	}
+	// }
+
+    return true;
+}
+
+
+</SCRIPT>
+</head>
+
+<body onload="loadInfo();">
+<blockquote>
+<h2>EasyMesh Network Topology</h2>
+
+<form action=/boafrm/formMultiAP method=POST name="MultiAP">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+  <tr><font size=2>
+    This page displays the topology of EasyMesh network
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+
+  <!-- <tr>
+	<td width="100%" colspan=2><font size=2><b>
+	 <input type="checkbox" name="" value="ON" ONCLICK="">&nbsp;&nbsp;Disable EasyMesh</b>
+	</td>
+	</tr> -->
+
+  	<tr>
+		<td width="100%" colspan=2><font size=2><b>Network Topology:</b></td>
+	</tr>
+
+  </table>
+
+
+<div id="syntaxplugin" class="syntaxplugin" style="border: 1px dashed #bbb; border-radius: 5px !important; overflow: auto; max-height: 30em;">
+	<ul id="topology_insertion" class="alternate" type="square">
+
+		</ul>
+</div>
+
+
+
+<br>
+
+
+
+
+
+	<input type="button" value="Refresh" onclick="location.reload(true);">
+
+ </form>
+</blockquote>
+</body>
+
+</html>

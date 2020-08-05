@@ -1,0 +1,90 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function addClick()
+{
+	document.formPassthru.save_apply.disabled = true;
+	document.formPassthru.submit();
+	return true;
+}
+
+function Load_Setting()
+{
+	if ( <% getIndex("VPNPassThruL2TP"); %> )
+		document.formPassthru.l2tp_passthru_enabled.selectedIndex = 1;
+
+	if ( <% getIndex("VPNPassThruPPTP"); %> )
+		document.formPassthru.pptp_passthru_enabled.selectedIndex = 1;
+
+	if ( <% getIndex("VPNPassThruIPsec"); %> )
+		document.formPassthru.ipsec_passthru_enabled.selectedIndex = 1;
+}
+</script>
+</head>
+
+<body onload="Load_Setting();">
+<blockquote>
+<h2><script>dw(passthru_header)</script></h2>
+<table border=0 width="500" cellspacing=4 cellpadding=0 >
+	<tr>
+		<td><font size=2><script>dw(passthru_explain)</script></font></td>
+	</tr>
+	<tr>
+		<td><hr size=1 noshade align=top></td>
+	</tr>
+</table>
+
+<form action=/boafrm/formPassthru method=POST name="formPassthru">
+<input type="hidden" value="/vpn_passthrue.htm" name="submit-url">
+<input type="hidden" value="1" name="addVpnPassThruFlag">
+<table border=0 width="500" cellspacing=0 cellpadding=0 >
+	<tr height="25">
+		<td width="40%"><font size=2><b><script>dw(passthru_l2tp)</script></b></font></td>
+		<td width="60%">
+			<select name="l2tp_passthru_enabled" id="l2tp_passthru_enabled" >
+				<option value='OFF'><script>dw(passthru_disable)</script></option>
+				<option value='ON'><script>dw(passthru_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr height="25">
+		<td width="40%"><font size=2><b><script>dw(passthru_pptp)</script></b></font></td>
+		<td width="60%">
+			<select name="pptp_passthru_enabled" id="pptp_passthru_enabled" >
+				<option value='OFF'><script>dw(passthru_disable)</script></option>
+				<option value='ON'><script>dw(passthru_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr height="25">
+		<td width="40%"><font size=2><b><script>dw(passthru_ipsec)</script></b></font></td>
+		<td width="60%">
+			<select name="ipsec_passthru_enabled" id="ipsec_passthru_enabled" >
+				<option value='OFF'><script>dw(passthru_disable)</script></option>
+				<option value='ON'><script>dw(passthru_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+</table>
+<br>
+
+<table border=0 width="500" cellspacing=0 cellpadding=0 >
+	<tr>
+		<td>
+			<input type="button" value="Save & Apply" name="save_apply" onClick="return addClick()">
+			<script>document.formPassthru.save_apply.value = passthru_apply;</script>
+		</td>
+	</tr>
+</table>
+</form>
+<br>
+</blockquote>
+</body>
+</html>

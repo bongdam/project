@@ -1,0 +1,151 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>Time Zone Setting</title>
+<% getInfo("include_css"); %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+</head>
+<script>
+
+function disableButton (button,val) {
+  if (document.all || document.getElementById)
+    button.disabled = val;
+  else if (button) {
+    button.oldOnClick = button.onclick;
+    button.onclick = null;
+    button.oldValue = button.value;
+    button.value = 'DISABLED';
+  }
+}
+
+function disableOpenvpnButton(val)
+{
+	disableButton(document.openvpn.openvpnMode, val);
+	disableButton(document.openvpn.openvpnPort, val);
+	disableButton(document.openvpn.authenticationType, val);
+}
+
+function updateState()
+{
+	if(document.openvpn.openvpnEnabled.checked)
+		disableOpenvpnButton(false);
+	else
+		disableOpenvpnButton(true);
+}
+
+function openvpn_saveChanges()
+{
+	form = document.openvpn ;
+	if(form.openvpnEnabled.checked){
+		if(form.openvpnPort.value == ""){
+			alert(openvpn_port_empty);
+			form.openvpnPort.focus();
+			return false ;
+		}		
+	}
+	return true;
+}
+
+function init()
+{
+	var cf = document.openvpn;
+	var EnableOpenvpn = <%getInfo("openvpnEnabled");%>;
+
+    	if(EnableOpenvpn == 1) 
+        	cf.openvpnEnabled.checked = true;
+        else
+        	cf.openvpnEnabled.checked = false;
+	cf.openvpnMode.selectedIndex = <%getInfo("openvpnMode");%>;
+	cf.authenticationType.selectedIndex = <%getInfo("authenticationType");%>;
+	updateState();
+}
+
+
+
+function saveClick(url)
+{
+  var form=document.saveOpenvpnClientConfig;
+  
+  form.submit(); 
+}
+
+
+</script>
+
+<body onload="init();">
+<blockquote>
+<h2><script>dw(openvpn_header)</script></h2>
+
+
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+   <script>dw(openvpn_header_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formOpenvpn method=POST name="openvpn">
+<table border="0" width=600>
+
+	<tr><td colspan="2"><font size=2><b>
+		<input type="checkbox" name="openvpnEnabled" 
+		value="ON" ONCLICK=updateState()>&nbsp;&nbsp;<script>dw(openvpn_enable)</script></b><br>
+	    </td>
+	</tr>
+	<tr ><td height=10> </td> </tr>
+	<tr>
+	<td width ="20%">
+	<font size=2> <b><script>dw(openvpn_mode)</script></b> </font>
+	</td>
+	<td width ="85%">
+		<select name="openvpnMode">
+			<option value=0 ><script>dw(openvpn_server)</script></option>
+			<!--
+			<option value=1 >p2p </option>
+			-->
+		</select>
+	</td>
+	</tr>
+	
+	<tr><td width="20%"><font size=2> <b><script>dw(openvpn_port)</script></b> </font></td>
+	    <td width="85%">
+ 			<font size=2><input type="text" name="openvpnPort" size="20" maxlength="50" value=<% getInfo("openvpnPortNumber"); %>></font>
+	    </td>
+	</tr>	
+	<tr>
+	<td width ="20%">
+	<font size=2> <b><script>dw(openvpn_type)</script></b> </font>
+	</td>
+	<td width ="85%">
+		<select name="authenticationType">
+			<option value=0 ><script>dw(openvpn_username_password)</script></option>
+			<option value=1 ><script>dw(openvpn_certification)</script></option>
+			<option value=2 ><script>dw(openvpn_username_password_certification)</script></option>
+		</select>
+	</td>
+	</tr>
+</table>
+  <p>
+  <input type="hidden" value="/openvpn.htm" name="submit-url">
+  <input type="submit" value="Apply Change" name="apply" onClick="return openvpn_saveChanges()">
+  <script>document.openvpn.apply.value = openvpn_apply;</script>
+&nbsp;&nbsp;
+  <input type="reset" value="Reset" name="set" >
+  <script>document.openvpn.set.value = openvpn_reset;</script>
+</form>
+
+<form action=/boafrm/formSaveOpenvpnClientConfig method=POST name="saveOpenvpnClientConfig">
+  <tr>
+    <td width="32%"><font size=2><b><script>dw(openvpn_save_config)</script></b></td>
+    <td width="30%"><font size=2>
+        <p><input type="submit" value="Save..." name="saveOpenvpnClientConfig" onclick="return saveClick('/client.ovpn')"></p>
+        <script>document.saveOpenvpnClientConfig.saveOpenvpnClientConfig.value = openvpn_save;</script>
+   </tr>
+  </form>
+  
+</blockquote>
+</font>
+</body>
+
+</html>

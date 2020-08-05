@@ -1,0 +1,90 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>System Diagnostic</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script>
+function diagTypeClick()
+{
+	var fm = document.formDiagnostic;
+	if(fm.diag_type[1].checked == true)
+	{
+		fm.wlan_diag_type.disabled = false;
+	}
+	else
+	{
+		fm.wlan_diag_type.disabled = true;
+	}
+}
+function init()
+{
+	var fm = document.formDiagnostic;
+	fm.diag_type[0].checked = true;
+	fm.wlan_diag_type.disabled = true;
+}
+</script>
+
+</head>
+<body onload="init();">
+<blockquote>
+<h2><script>dw(diagnostic_hearder)</script></h2>
+
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+  <script>dw(diagnostic_hearder_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formDiagnostic method=POST name="formDiagnostic">
+<table border="0" width=500>
+	<tr>
+		<td width ="40%" valign="top">
+		<input type="radio" value="0" name="diag_type" onClick="diagTypeClick()" ></input>
+		<font size=2> <b><script>dw(diagnostic_status_overview)</script></b> </font>
+		</td>
+		<td width ="60%">
+			<font size=2><script>dw(diagnostic_current_status)</script></font>
+		</td>
+	</tr>
+	<td colspan="2" height="10"></tr>
+	<tr>
+		<td width ="40%" valign="top">
+		<input type="radio" value="1" name="diag_type" onClick="diagTypeClick()" ></input>
+		<font size=2> <b><script>dw(diagnostic_wireless_related)</script></b> </font>
+		</td>
+		<td width ="60%">
+			<font size=2><script>dw(diagnostic_wlan_diagnostic)</script></font>
+		</td>
+	</tr>
+	<tr>
+		<td width ="40%" valign="top">
+		<font size=2> <b>&nbsp;&nbsp;<script>dw(diagnostic_phenomenon)</script></b> </font>
+		</td>
+		<td width ="60%">
+			<select size="1" name="wlan_diag_type">
+			<option value="1"><script>dw(diagnostic_scan)</script></option>
+			<option value="2"><script>dw(diagnostic_connect)</script></option>
+			<option value="3"><script>dw(diagnostic_throughput)</script></option>
+			</select>
+		</td>
+	</tr>
+
+</table>
+<script>
+	diagClick();
+</script>
+  <input type="hidden" value="/diagnostic.htm" name="submit-url">
+  <input type="submit" value="Analyze" name="sys_diagnostic" onClick="return true" />
+  <script>document.formDiagnostic.sys_diagnostic.value = diagnostic_analyze;</script>
+&nbsp;&nbsp;
+</form>
+</blockquote>
+</font>
+</body>
+
+</html>
+

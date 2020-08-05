@@ -1,0 +1,105 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>yvasprintf-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>yvasprintf(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>yvasprintf - 메모리 할당된 버퍼에 형식화된 문자열 출력</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+char *yvasprintf(char *<a href="#">buf</a>, size_t <a href="#">buflen</a>, const char *<a href="#">fmt</a>, va_list <a href="#">ap</a>);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 표준 라이브러리 함수인 <b>vasprintf</b>와 유사 하다. 인자로 전달된 <a href="#">buf</a>의 크기(<a href="#">buflen</a>)가 형식화된 문자열을 담기에 충분하면 메모리 할당은 발생하지 않는다. 하지만 버퍼크기가 작다면 새로운 메모리가 할당된 후 형식화된 문자열이 인쇄된다. 이 함수를 사용할 때는 리턴값의 <b>free</b> 여부를 Caller가 판단하여야 한다. 즉 인자로 전달된
+<a href="#">buf</a>와 다른 포인터가 리턴될 때는 해당 포인터를 <ins>더 이상 참조되지 않는 시점에 <b>free</b> 해 줘야 한다</ins>.
+<dl>
+	<dt><a href="#">buf</a></dt>
+	<dd>호출자가 인자로 전달하는 버퍼 메모리 포인터이다. 유효한 버퍼 포인터이어야 한다.</dd>
+	<dt><a href="#">buflen</a></dt>
+	<dd>전달되는 버퍼 메모리 포인터의 크기이다.</dd>
+	<dt><a href="#">fmt</a></dt>
+	<dd>형식화된(Formatted)문자열로 변환 지시어('%')를 포함하거나 안할 수 있다. 표준 라이브러리의 형식화된 문자열 출력 함수들의 변환 기준과 같다.</dd>
+	<dt><a href="#">ap</a></dt>
+	<dd>va_list 형식의 변수이다. va_arg 매크로에 의해 사용된다.</dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>버퍼크기가 충분할 때는 인자로 전달된 <a href="#">buf</a> 문자열 변수를 그대로 리턴한다. 그렇지 않으면 <a href="#">새로 할당된 메모리 버퍼의 포인터</a>가 리턴된다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+<p>인자로 전달된 <i>buf</i> 문자열 변수의 NULL 체크를 수행하지 않는다.</p>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>다음 예제는 항상 시간과 함께 형식화된 문자열을 STDERR로 출력하는 코드이다.</p>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> &lt;stdlib.h&gt;
+<span style="color:Blue;">#include</span> &lt;string.h&gt;
+<span style="color:Blue;">#include</span> &lt;time.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">int</span> LOG(<span style="color:Blue;">const</span> <span style="color:Blue;">char</span> *fmt, ...)
+{
+    <span style="color:Blue;">char</span> tmp[80];
+    <span style="color:Blue;">char</span> *p;
+    time_t now;
+    struct tm *ptm;
+    va_list ap;
+    <span style="color:Blue;">int</span> nwritten = -1;
+
+    va_start(ap, fmt);
+    p = yvasprintf(tmp, <span style="color:Blue;">sizeof</span>(tmp), fmt, ap);
+    va_end(ap);
+
+    <span style="color:Blue;">if</span> (p != NULL) {
+        time(&amp;now);
+        ptm = localtime(&amp;now);
+        nwritten = fprintf(stderr, <span style="color:#A31515;">"%02d:%02d:%02d : %s"</span>,
+                           ptm-&gt;tm_hour, ptm-&gt;tm_min, ptm-&gt;tm_sec, p);
+        <span style="color:Green;">/* 스택 변수 tmp와 다르다면 새롭게 할당된 버퍼 포인터이므로 할당 해제를 해야 한다. */</span>
+        <b><span style="color:Blue;">if</span> (p != tmp)</b>
+            <b>free(p);</b>
+    }
+
+    <span style="color:Blue;">return</span> nwritten;
+}
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">void</span>)
+{
+	LOG(<span style="color:#A31515;">"%s(%d) Ytool Library Example for yvasprintf\n"</span>, __func__, __LINE__);
+	<span style="color:Blue;">return</span> 0;
+}
+
+출력은 다음과 같다.
+
+11:41:05 : main(34) Ytool Library Example for yvasprintf</pre>
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+<p><a href="yexecl-man.html">yexecl</a>(3), <a href="yfecho-man.html">yfecho</a>(3)</p>
+</body>
+</html>

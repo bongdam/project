@@ -1,0 +1,26 @@
+diff --git a/gsoap/Makefile.in b/gsoap/Makefile.in
+index 15543fc..35af7a1 100644
+--- a/gsoap/Makefile.in
++++ b/gsoap/Makefile.in
+@@ -101,7 +101,7 @@ install_sh = @install_sh@
+ platform = @platform@
+ AUTOMAKE_OPTIONS = foreign 1.4
+ 
+-SUBDIRS = src wsdl @SAMPLE_DIRS@
++SUBDIRS = src @SAMPLE_DIRS@
+ CLEANFILES = soapcpp2 wsdl2h stdsoap2_cpp.cpp stdsoap2_ck.c stdsoap2_ck_cpp.cpp stdsoap2_ssl.c stdsoap2_ssl_cpp.cpp
+ 
+ AM_CXXFLAGS = $(SOAPCPP2_DEBUG) -D$(platform)
+diff --git a/gsoap/stdsoap2.cpp b/gsoap/stdsoap2.cpp
+index 3c6a917..dfbc417 100644
+--- a/gsoap/stdsoap2.cpp
++++ b/gsoap/stdsoap2.cpp
+@@ -4159,7 +4159,7 @@ again:
+           { X509_EXTENSION *ext = X509_get_ext(peer, i);
+             const char *ext_str = OBJ_nid2sn(OBJ_obj2nid(X509_EXTENSION_get_object(ext)));
+             if (ext_str && !strcmp(ext_str, "subjectAltName"))
+-            { X509V3_EXT_METHOD *meth = X509V3_EXT_get(ext);
++            { const X509V3_EXT_METHOD *meth = X509V3_EXT_get(ext);
+               void *ext_data;
+ #if (OPENSSL_VERSION_NUMBER >= 0x0090800fL)
+               const unsigned char *data;

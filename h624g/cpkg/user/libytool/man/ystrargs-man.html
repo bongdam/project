@@ -1,0 +1,103 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>ystrargs-메뉴얼</title>
+<style>
+	.fixed_font {
+		font-family: Consolas, "Courier New", Courier, monospace;
+		font-size: small;
+	 }
+</style>
+</head>
+
+<body>
+<!-- Name Section -->
+<h1>ystrargs(3) - ytool man page</h1>
+<h2>Name</h2>
+<p>ystrargs - 문자열을 구분자로 추출하여 고정 배열에 채움</p>
+
+<!-- Synopsis Section -->
+<h2>Synopsis</h2>
+<pre>#include "<a href="#">libytool.h</a>"
+
+int ystrargs(char *<a href="#">line</a>, char *<a href="#">ag[]</a>, unsigned <a href="#">agsz</a>, const char *<a href="#">delim</a>, int <a href="#">empty</a>);</pre>
+
+<!-- Description Section -->
+<h2>Description</h2>
+<p>이 함수는 <a href="#">line</a>에 전달된 문자열을 <a href="#">delim</a>에서 지정하는 문자집합에 포한된 문자로 구분된 Token들을 <a href="#">ag[]</a> 배열에 순차적으로 위치 시킨다. <a href="#">ag[]</a> 배열이 구분된 큰 수 보다 부족하면 <a href="#">agsz</a>수 만큼만 채워진다. 하지만 충분하다면 나머지 배열요소는 NULL로 채워진다. 또한 이 함수는 각 토큰의 앞(Leading)과 뒤(Trailing)의 공백을 자동으로 제거한다.
+<dl>
+	<dt><a href="#">line</a></dt>
+	<dd>문자열 포인터이다.</dd>
+	<dt><a href="#">ag</a></dt>
+	<dd>구분된 토큰(Token)의 선두 주소를 담을 배열이다.</dd>
+	<dt><a href="#">agsz</a></dt>
+	<dd>배열의 크기이며 바이트 단위가 아니라 <i>char *</i>형의 크기 단위이다.</dd>
+	<dt><a href="#">delim</a></dt>
+	<dd>Delimiting 문자열 집합이다.</dd>
+	<dt><a href="#">empty</a></dt>
+	<dd><b>Zero</b>길이의 토큰(Token)을 배열 요소에 추가할 지를 결정하는 인자이다. TRUE이면 Zero길이 토큰도 추가한다.</dd>
+</dl>
+</p>
+
+<!-- Return Value Section -->
+<h2>Return Value</h2>
+<p>실제로 추출된 Token으로 배열에 요소로 추가된 갯수를 리턴한다.</p>
+
+<!-- Notes Section -->
+<h2>Notes</h2>
+
+<!-- Bugs Section -->
+<h2>Bugs</h2>
+
+<!-- Examples Section -->
+<h2>Example</h2>
+<p>아래 프로그램의 실행 결과는 다음과 같다.</p>
+<dl>
+<dd>
+<pre>
+$ <b>./a.out "1 2 3 4 " " "
+</b>|1|2|3|4
+$ <b>./a.out ",1,2,3,4" "," 1
+</b>|_|1|2|3|4
+$ <b>./a.out ",,tcp:udp,192.168.123.2:21" ",:" 1
+</b>|_|_|tcp|udp|192.168.123.2|21
+$ <b>./a.out "00:08:52:fe:ca:82" ":" 1
+</b>|00|08|52|fe|ca|82
+</pre>
+</dd>
+</dl>
+
+<h3><b>Program source</b></h3>
+<pre class="fixed_font"><span style="color:Blue;">#include</span> &lt;stdio.h&gt;
+<span style="color:Blue;">#include</span> &lt;string.h&gt;
+<span style="color:Blue;">#include</span> &lt;stdlib.h&gt;
+<span style="color:Blue;">#include</span> <span style="color:#A31515;">"../libytool.h"</span>
+
+<span style="color:Blue;">int</span> main(<span style="color:Blue;">int</span> argc, <span style="color:Blue;">char</span> **argv)
+{
+    <span style="color:Blue;">char</span> *p;
+    <span style="color:Blue;">int</span> i, ac, empty = 0;
+    <span style="color:Blue;">char</span> *ag[40];
+    <span style="color:Blue;">const</span> <span style="color:Blue;">char</span> *BLANK = <span style="color:#A31515;">"_"</span>;
+
+    <span style="color:Blue;">if</span> (argc &lt; 3)
+        <span style="color:Blue;">return</span> 0;
+    <span style="color:Blue;">if</span> (argc &gt; 3)
+        empty = atoi(argv[3]);
+
+    p = strdup(argv[1]);
+    ac = ystrargs(p, ag, 40, argv[2], empty);
+    <span style="color:Blue;">for</span> (i = 0; i &lt; ac; i++)
+        printf(<span style="color:#A31515;">"|%s%s"</span>, ystrlen_zero(ag[i]) ? BLANK : ag[i], ((i + 1) &lt; ac) ? <span style="color:#A31515;">""</span> : <span style="color:#A31515;">"\n"</span>);
+    free(p);
+    <span style="color:Blue;">return</span> 0;
+}</pre>
+<!-- See Also Section -->
+<h2>See Also</h2>
+
+<!-- Referenced By Section -->
+<h2>Referenced By</h2>
+</body>
+</html>

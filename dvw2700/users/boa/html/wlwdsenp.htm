@@ -1,0 +1,192 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<title>WDS 보안 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<link rel='STYLESHEET' type='text/css' href='style.css'>
+<SCRIPT>
+var defPskLen=new Array()
+var defPskFormat=new Array();
+var wlan_idx= <% getIndex("wlan_idx"); %>;
+
+function clear_pskkey(form)
+{
+	form.elements["pskValue"+wlan_idx].value = "";
+}
+
+function setWpaKeyLen(form)
+{
+	if (form.elements["encrypt"+wlan_idx].value == 3 || form.elements["encrypt"+wlan_idx].value == 4) {
+		if ( form.elements["pskFormat"+wlan_idx].selectedIndex == 0) {
+			form.elements["pskValue"+wlan_idx].maxLength = 63;
+			form.elements["pskValue"+wlan_idx].value = "************";
+		} else {
+			form.elements["pskValue"+wlan_idx].maxLength = 64;
+			form.elements["pskValue"+wlan_idx].value = "************";
+		}
+	}
+}
+
+function disableWEP(form)
+{
+//	disableTextField(form.elements["format"+wlan_idx]);
+//	disableTextField(form.elements["wepKey"+wlan_idx]);
+}
+
+function disableWPA(form)
+{
+	disableTextField(form.elements["pskFormat"+wlan_idx]);
+	disableTextField(form.elements["pskValue"+wlan_idx]);
+}
+
+function enableWEP(form)
+{
+//	enableTextField(form.elements["format"+wlan_idx]);
+//	enableTextField(form.elements["wepKey"+wlan_idx]);
+}
+
+function enableWPA(form)
+{
+	enableTextField(form.elements["pskFormat"+wlan_idx]);
+	enableTextField(form.elements["pskValue"+wlan_idx]);
+}
+
+function updateEncryptState(form)
+{
+	if (form.elements["encrypt"+wlan_idx].value == 0) {
+		disableWEP(form);
+		disableWPA(form);
+	}
+
+	if (form.elements["encrypt"+wlan_idx].value == 3 || form.elements["encrypt"+wlan_idx].value == 4) {
+		setWpaKeyLen(document.formWdsEncrypt);
+ 		disableWEP(form);
+		enableWPA(form);
+	}
+}
+
+function saveChanges(form)
+{
+	if (form.elements["encrypt"+wlan_idx].value == 0)
+		return true;
+	else {
+		if (form.elements["pskValue"+wlan_idx].value == "************") {
+			return true;
+		}
+		return check_wpa_psk(form,wlan_idx );
+	}
+}
+
+function Load_Setting()
+{
+	var cf = document.formWdsEncrypt;
+	var wdsEncrypt = <% getIndex("wdsEncrypt"); %>;
+
+	if (cf.elements["encrypt"+wlan_idx].options[3] && cf.elements["encrypt"+wlan_idx].options[3].text == "WPA (TKIP)") {
+		cf.elements["encrypt"+wlan_idx].selectedIndex = wdsEncrypt;
+	}
+	else {
+		if (wdsEncrypt == 4) // 4:WPA2 (AES)
+		{
+			for(i=0;i<cf.elements["encrypt"+wlan_idx].length;i++)
+			{
+				if(cf.elements["encrypt"+wlan_idx].options[i].text == "WPA2 (AES)")
+					cf.elements["encrypt"+wlan_idx].selectedIndex = i;
+			}
+
+		}
+		else
+			cf.elements["encrypt"+wlan_idx].selectedIndex = wdsEncrypt;
+	}
+
+	if ( <% getIndex("wdsPskFormat"); %> == 0 ){
+		cf.elements["pskValue"+wlan_idx].maxLength = "63";
+		cf.elements["pskFormat"+wlan_idx].selectedIndex = 0;
+	}
+	else{
+		cf.elements["pskValue"+wlan_idx].maxLength = "64";
+		cf.elements["pskFormat"+wlan_idx].selectedIndex = 1;
+	}
+	updateEncryptState(cf);
+}
+
+function resetForm()
+{
+	location=location;
+}
+
+</SCRIPT>
+</head>
+
+<body onload="mouse_r_click();Load_Setting();">
+<blockquote>
+<h2>
+<script type="text/javascript">
+var wlan_num =  <% getIndex("wlan_num"); %>;
+if (wlan_num > 1) {
+	var wlan_idx_ = <% getIndex("wlan_idx"); %> + 1;
+	if (wlan_idx_ == 1) {
+		document.write("WDS 보안 설정 - 5G");
+	} else {
+		document.write("WDS 보안 설정 - 2.4G");
+	}
+} else
+	document.write("WDS 보안 설정");
+</script>
+</h2>
+
+<form action=/boafrm/formWdsEncrypt method=POST name="formWdsEncrypt">
+<table border=0 width="500" cellspacing=4>
+	<tr>
+		<font size=2>보안 설정이 되어있는 AP와의 WDS 구성을 위한 페이지 입니다.</font>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+
+	<tr>
+		<td width="30%"><font size=2><b>암호화 :</b></font></td>
+		<td width="70%"><font size=2><b>
+			<select size="1" name="encrypt<% getIndex("wlan_idx"); %>" onChange="updateEncryptState(document.formWdsEncrypt)">
+				<option value="0">None</option>
+				<option value="4">WPA2 (AES)</option>
+			</select></b></font>
+		</td>
+	</tr>
+
+	<tr>
+		<td><font size="2"><b>Key 형식:</b></font></td>
+		<td><font size="2">
+			<select size="1" name="pskFormat<% getIndex("wlan_idx"); %>" onChange="pskFormatChange(document.formWdsEncrypt, <% getIndex("wlan_idx"); %>)">
+				<option value="0">Passphrase</option>
+				<option value="1">Hex (64 characters)</option>
+			</select></font>
+		</td>
+	</tr>
+
+	<tr>
+		<td><font size="2"><b>Pre-Shared Key:</b></font></td>
+		<td><font size="2"><input type="password" name="pskValue<% getIndex("wlan_idx"); %>" size="32"  maxlength="63" onclick="clear_pskkey(document.formWdsEncrypt)"></font></td>
+	</tr>
+
+	<script type="text/javascript">
+		form = document.formWdsEncrypt;
+		updateEncryptState(document.formWdsEncrypt);
+		defPskLen[wlan_idx] = form.elements["pskValue"+wlan_idx].value.length;
+		defPskFormat[wlan_idx] = form.elements["pskFormat"+wlan_idx].selectedIndex;
+	</script>
+
+	<tr>
+		<td colspan=2 width="100%"><br>
+			<input type="hidden" value="/wlwdsenp.htm" name="submit-url">
+			<input type="submit" value="적용" name="save" onClick="return saveChanges(document.formWdsEncrypt)">&nbsp;&nbsp;
+			<!--<input type="button" value="Close" name="close" OnClick=window.close()>&nbsp;&nbsp;-->
+			<input type="reset" value="취소" name="reset" onClick="resetForm();">
+		</td>
+	</tr>
+</table>
+</form>
+
+</blockquote>
+</body>
+</html>

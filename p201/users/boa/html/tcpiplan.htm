@@ -1,0 +1,265 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<% language=javascript %>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+var initialDhcp = "<% getInfo("dhcplanServer"); %>";
+var dhcp = 1;
+var disabled_dhcp = 0;
+var leaseTime = "<% getInfo("dhcpLeaseTime"); %>";
+
+function lan_ipaddr_change()
+{
+	var lan_ipaddr, lan_netaddr, lan_netmask, dhcp_start, dhcp_end;
+
+	if (checkIPMask(document.tcpip.lan_mask) == false)
+		return;
+
+	lan_ipaddr = inet_aton(document.tcpip.lan_ip.value);
+	lan_netmask = inet_aton(document.tcpip.lan_mask.value);
+	lan_netaddr = lan_ipaddr;
+	lan_netaddr &= lan_netmask;
+
+	dhcp_start = 0x1;
+	dhcp_start |= lan_netaddr;
+
+	dhcp_end = 0xfffffffe;
+	dhcp_end &= ~lan_netmask;
+	dhcp_end |= lan_netaddr;
+
+	if (lan_ipaddr >= dhcp_start && lan_ipaddr <= dhcp_end) {
+	   if ((lan_ipaddr - dhcp_start) > (dhcp_start - lan_ipaddr)) {
+		   dhcp_end = lan_ipaddr - 0x1;
+		   dhcp_end &= ~lan_netmask;
+		   dhcp_end |= lan_netaddr;
+	   } else {
+		   dhcp_start = lan_ipaddr + 0x1;
+		   dhcp_start &= ~lan_netmask;
+		   dhcp_start |= lan_netaddr;
+	   }
+	}
+
+	document.tcpip.dhcpRangeStart.value = inet_ntoa(dhcp_start);
+	document.tcpip.dhcpRangeEnd.value = inet_ntoa(dhcp_end);
+}
+
+function checkMode()
+{
+	document.tcpip.dhcpLeaseTime.value = leaseTime;
+
+	if (initialDhcp == "2") {
+		document.tcpip.dhcp.selectedIndex = 1;
+		dhcpChange(dhcp);
+	} else {
+		document.tcpip.dhcp.selectedIndex = 0;
+		dhcpChange(disabled_dhcp);
+	}
+}
+
+function dhcpChange(index)
+{
+	var dF = document.tcpip;
+
+	if (index == 0) {
+		disableTextField(document.tcpip.lan_ip);
+		disableTextField(document.tcpip.lan_mask);
+		disableTextField(document.tcpip.dhcpRangeStart);
+		disableTextField(document.tcpip.dhcpRangeEnd);
+		document.tcpip.dhcpLeaseTime.disabled = true;
+	} else {
+		enableTextField(document.tcpip.lan_ip);
+		enableTextField(document.tcpip.lan_mask);
+		enableTextField(document.tcpip.dhcpRangeStart);
+		enableTextField(document.tcpip.dhcpRangeEnd);
+		document.tcpip.dhcpLeaseTime.disabled = false;
+	}
+}
+
+function dhcp_range_check(start, end)
+{
+	var dhcp_start, dhcp_end;
+	var diff;
+
+	dhcp_start = inet_aton(start);
+	dhcp_end = inet_aton(end);
+
+	diff = dhcp_end - dhcp_start;
+
+	if (diff <= 0 || diff > 255)
+		return false;
+
+	return true;
+}
+
+function checkClientRange(start,end)
+{
+	start_d = getDigit(start,4);
+	start_d += getDigit(start,3)*256;
+	start_d += getDigit(start,2)*256;
+	start_d += getDigit(start,1)*256;
+
+	end_d = getDigit(end,4);
+	end_d += getDigit(end,3)*256;
+	end_d += getDigit(end,2)*256;
+	end_d += getDigit(end,1)*256;
+
+	if ( start_d < end_d )
+		return true;
+
+	return false;
+}
+
+function saveChanges()
+{
+	var lan_netaddr, lan_netmask, dhcp_start, dhcp_end, lan_ipaddr;
+
+	if (document.tcpip.dhcp.selectedIndex == 1) {
+		if (isReservedIpAddress(document.tcpip.lan_ip.value) == true)
+		{
+			alert(tcpip_reservedip_alert);
+			return false;
+		}
+
+		if (checkIPMask(document.tcpip.lan_mask) == false)
+			return false;
+
+		if (checkHostIPValid(document.tcpip.lan_ip,document.tcpip.lan_mask,tcpip_check_ip_msg) == false)
+			return false;
+
+		if (checkHostIPValid(document.tcpip.dhcpRangeStart,document.tcpip.lan_mask,tcpip_lan_start_ip) == false)
+			return false;
+
+		if (!checkSubnet(document.tcpip.lan_ip.value,document.tcpip.lan_mask.value,document.tcpip.dhcpRangeStart.value)) {
+			alert(tcpip_lan_start_ip + tcpip_lan_ip_alert);
+			document.tcpip.dhcpRangeStart.value = document.tcpip.dhcpRangeStart.defaultValue;
+			document.tcpip.dhcpRangeStart.focus();
+			return false;
+		}
+
+		if (checkHostIPValid(document.tcpip.dhcpRangeEnd,document.tcpip.lan_mask,tcpip_lan_end_ip) == false)
+			return false;
+
+		if (!checkSubnet(document.tcpip.lan_ip.value,document.tcpip.lan_mask.value,document.tcpip.dhcpRangeEnd.value)) {
+			alert(tcpip_lan_end_ip + tcpip_lan_ip_alert);
+			document.tcpip.dhcpRangeEnd.value = document.tcpip.dhcpRangeEnd.defaultValue;
+			document.tcpip.dhcpRangeEnd.focus();
+			return false;
+		}
+
+		if (!checkClientRange(document.tcpip.dhcpRangeStart.value,document.tcpip.dhcpRangeEnd.value)) {
+			alert(tcpip_lan_invalid_rang);
+			document.tcpip.dhcpRangeStart.focus();
+			return false;
+		}
+
+		if (!dhcp_range_check(document.tcpip.dhcpRangeStart.value, document.tcpip.dhcpRangeEnd.value)) {
+			alert(tcpip_lan_invalid_rang);
+			document.tcpip.dhcpRangeStart.focus();
+			return false;
+		}
+
+		if (!checkFieldDigitRange(document.tcpip.dhcpLeaseTime, 60, 86400, tcpip_lan_invalid_dhcp_lease_time))
+			return false;
+
+		lan_ipaddr = inet_aton(document.tcpip.lan_ip.value);
+		lan_netaddr = inet_aton(document.tcpip.lan_ip.value);
+		lan_netmask = inet_aton(document.tcpip.lan_mask.value);
+		lan_netaddr &= lan_netmask;
+		dhcp_start = inet_aton(document.tcpip.dhcpRangeStart.value);
+		dhcp_end = inet_aton(document.tcpip.dhcpRangeEnd.value);
+
+		if ( (lan_ipaddr & ~lan_netmask) == 255 ) {
+			alert(tcpip_dhcp_alert1);
+			return false;
+		}
+
+		if ( (dhcp_end & ~lan_netmask) == 255 ) {
+			alert(tcpip_lan_end_ip);
+			return false;
+		}
+
+   		if (dhcp_start == lan_ipaddr) {
+			alert(tcpip_lan_start_ip);
+   			return false;
+   		}
+
+   		if (dhcp_end == lan_ipaddr ) {
+			alert(tcpip_lan_end_ip);
+   			return false;
+   		}
+	}
+
+	return true;
+}
+
+</script>
+</head>
+
+<body onload="checkMode();">
+<blockquote>
+<h2><script>dw(tcpip_lan_header)</script></h2>
+<form action=/boafrm/formTcpipSetup method=POST name="tcpip">
+<table border=0 width="550" cellspacing=4 cellpadding=0>
+	<tr><font size=2>
+		<script>dw(tcpip_lan_explain)</script>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<table border=0 width="550" cellspacing=4 cellpadding=0>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(tcpip_lan_ip)</script></b></td>
+		<td width="60%"><input type="text" name="lan_ip" size="15" maxlength="15" value="<% getInfo("ip-rom"); %>" onChange="lan_ipaddr_change();"></td>
+	</tr>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(tcpip_lan_mask)</script></b></td>
+		<td width="60%"><input type="text" name="lan_mask" size="15" maxlength="15" value="<% getInfo("mask-rom"); %>" onChange="lan_ipaddr_change();" readonly></td>
+	</tr>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(tcpip_lan_dhcp)</script></b></td>
+		<td width="60%"><font size=2>
+			<select size="1" name="dhcp" onChange="dhcpChange(document.tcpip.dhcp.selectedIndex)">
+ 				<option value="0"><script>dw(tcpip_lan_dhcp_disabled)</script></option>
+				<option value="2"><script>dw(tcpip_lan_dhcp_server)</script></option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(tcpip_lan_dhcp_start)</script></b></td>
+		<td width="60%">
+			<input type="text" name="dhcpRangeStart" size="12" maxlength="15" value="<% getInfo("dhcpRangeStart"); %>">
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(tcpip_lan_dhcp_end)</script></b></td>
+		<td width="60%">
+			<input type="text" name="dhcpRangeEnd" size="12" maxlength="15" value="<% getInfo("dhcpRangeEnd"); %>">&nbsp;
+		</td>
+	</tr>
+	<tr>
+		<td width="40%"><font size=2><b><script>dw(tcpip_lan_dhcp_time)</script></b></td>
+		<td width="60%">
+			<select id="dhcpLeaseTime" name="dhcpLeaseTime">
+ 				<option value="86400"><script>dw(tcpip_lan_lease_1day)</script></option>
+				<option value="7200"><script>dw(tcpip_lan_lease_2hour)</script></option>
+				<option value="3600"><script>dw(tcpip_lan_lease_1hour)</script></option>
+				<option value="900"><script>dw(tcpip_lan_lease_15min)</script></option>
+				<option value="300"><script>dw(tcpip_lan_lease_5min)</script></option>
+			</select>
+		</td>
+	</tr>
+</table>
+<br>
+	<input type="submit" value="Save & Apply" name="save_apply" onClick="return saveChanges()" >
+	<script>document.tcpip.save_apply.value = tcpip_apply;</script>
+</form>
+</blockquote>
+</body>
+
+</html>

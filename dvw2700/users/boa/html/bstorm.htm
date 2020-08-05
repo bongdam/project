@@ -1,0 +1,109 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+<title>브로드캐스트 스톰 제어</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<link rel='STYLESHEET' type='text/css' href='style.css'>
+<script>
+
+function updateState()
+{
+  if (document.formBroadcastStormCtrl.broadcast_storm_ctrl_enable.checked) {
+ 	enableTextField(document.formBroadcastStormCtrl.rate);
+ 	enableTextField(document.formBroadcastStormCtrl.port0_enable);
+ 	enableTextField(document.formBroadcastStormCtrl.port1_enable);
+ 	enableTextField(document.formBroadcastStormCtrl.port2_enable);
+ 	enableTextField(document.formBroadcastStormCtrl.port3_enable);
+ 	enableTextField(document.formBroadcastStormCtrl.port4_enable);
+  }
+  else {
+ 	disableTextField(document.formBroadcastStormCtrl.rate);
+ 	disableTextField(document.formBroadcastStormCtrl.port0_enable);
+ 	disableTextField(document.formBroadcastStormCtrl.port1_enable);
+ 	disableTextField(document.formBroadcastStormCtrl.port2_enable);
+ 	disableTextField(document.formBroadcastStormCtrl.port3_enable);
+ 	disableTextField(document.formBroadcastStormCtrl.port4_enable);
+  }
+}
+
+function saveChanges()
+{
+	if (!document.formBroadcastStormCtrl.broadcast_storm_ctrl_enable.checked) {
+		document.formBroadcastStormCtrl.apply1.disabled=true;
+		document.formBroadcastStormCtrl.submit();
+		return true;
+	}
+	if ( isNaN(document.formBroadcastStormCtrl.rate.value) ==true || document.formBroadcastStormCtrl.rate.value < 1 || document.formBroadcastStormCtrl.rate.value > 50 ) {
+		alert("전송률 설정은 숫자(1~50)범위로 설정해 주세요..");
+		return false;
+	}
+	document.formBroadcastStormCtrl.apply1.disabled=true;
+
+	document.formBroadcastStormCtrl.reset1.disabled=true;
+	document.formBroadcastStormCtrl.submit();
+	//return true;
+}
+
+function LoadSetting()
+{
+	var bstorm_enabled = "<% getInfo("BROADCASTSTORM_CTRL_ENABLE");  %>";
+	var rate_bps =  "<% getInfo("BROADCASTSTORM_CTRL_PERCENT"); %>";
+
+	if (bstorm_enabled == "1")
+		document.formBroadcastStormCtrl.broadcast_storm_ctrl_enable.checked = true;
+	else
+		document.formBroadcastStormCtrl.broadcast_storm_ctrl_enable.checked = false;
+	if (rate_bps == "0")
+		rate_bps = 1;
+
+	document.formBroadcastStormCtrl.rate.value = rate_bps;
+	document.formBroadcastStormCtrl.port0_enable.checked = <% getInfo("BSTORM_CTRL_PORT_STATUS", "wan"); %>;
+	document.formBroadcastStormCtrl.port1_enable.checked = <% getInfo("BSTORM_CTRL_PORT_STATUS", "lan1"); %>;
+	document.formBroadcastStormCtrl.port2_enable.checked = <% getInfo("BSTORM_CTRL_PORT_STATUS", "lan2"); %>;
+	document.formBroadcastStormCtrl.port3_enable.checked = <% getInfo("BSTORM_CTRL_PORT_STATUS", "lan3"); %>;
+	document.formBroadcastStormCtrl.port4_enable.checked = <% getInfo("BSTORM_CTRL_PORT_STATUS", "lan4"); %>;
+
+	updateState();
+}
+
+</script>
+</head>
+
+<body onLoad="LoadSetting(); mouse_r_click();">
+<blockquote>
+<h2>브로드캐스트 스톰 제어</h2>
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+	<tr>
+		<font size=2>브로드캐스트 스톰에 대한 설정을 할 수 있는 페이지입니다.</font>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formBroadcastStormCtrl method=POST name="formBroadcastStormCtrl">
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+  <tr><td><font size=2><b>
+<input type="checkbox" name="broadcast_storm_ctrl_enable" value="ON"  ONCLICK=updateState();>&nbsp;&nbsp;브로드캐스트 스톰 제어 사용</b></td></tr>
+<tr><td><font size=2><b>&nbsp;&nbsp;&nbsp;&nbsp;전송률: </b><input type="text" name="rate" value="" size="3" maxlength="3">퍼센트(1 ~ 50%) </td></tr>
+<tr><td><font size=2><b>&nbsp;&nbsp;&nbsp;&nbsp;</b>
+<input type="checkbox" name="port0_enable" value="ON" > WAN </b><br></td></tr>
+<tr><td><font size=2><b>&nbsp;&nbsp;&nbsp;&nbsp;</b>
+<input type="checkbox" name="port1_enable" value="ON" > LAN1 </b><br></td></tr>
+<tr><td><font size=2><b>&nbsp;&nbsp;&nbsp;&nbsp;</b>
+<input type="checkbox" name="port2_enable" value="ON"> LAN2 </b><br></td></tr>
+<tr><td><font size=2><b>&nbsp;&nbsp;&nbsp;&nbsp;</b>
+<input type="checkbox" name="port3_enable" value="ON"> LAN3 </b><br></td></tr>
+<tr><td><font size=2><b>&nbsp;&nbsp;&nbsp;&nbsp;</b>
+<input type="checkbox" name="port4_enable" value="ON"> LAN4 </b><br></td></tr>
+</table>
+  <br>
+  <input type="button" value="적용" name="apply1" onClick="return saveChanges()">&nbsp;&nbsp;
+  <input type="hidden" value="적용" name="apply" >
+  <input type="button" value="취소" name="reset1" onClick="LoadSetting()" >
+  <input type="hidden" value="취소" name="reset">
+  <input type="hidden" value="/bstorm.htm" name="submit-url">
+</form>
+
+</blockquote>
+</body>
+</html>

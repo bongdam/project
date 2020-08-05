@@ -1,0 +1,9 @@
+#
+# [$MIB_REVISION]
+# name1=value1
+# name2=value2
+#
+
+[2]
+HW_WLAN0_REG_DOMAIN=6
+HW_WLAN1_REG_DOMAIN=6

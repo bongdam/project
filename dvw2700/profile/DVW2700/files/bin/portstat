@@ -1,0 +1,12 @@
+#!/bin/sh
+case "$1" in
+	[0-4])
+		cat /proc/rtl865x/asicCounter | head -n $(($1 * 12 + 12)) | tail -n 11
+		;;
+	C)
+		cat /proc/rtl865x/asicCounter | tail -n 13
+		;;
+	*)
+		cat /proc/rtl865x/asicCounter
+		;;
+esac

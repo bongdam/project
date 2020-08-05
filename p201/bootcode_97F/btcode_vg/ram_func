@@ -1,0 +1,23 @@
+SECTIONS
+{
+    load_data_from_storage = 0xbfd0ecd0;
+    vsprintf = 0xbfd00a60;
+    dprintf = 0xbfd00ce8;
+    udelay = 0xbfd00e6c;
+    memset = 0xbfd00f20;
+    memcpy = 0xbfd00f44;
+    dram_normal_patterns = 0xbfd0c2ec;
+    dram_addr_rot = 0xbfd0cf54;
+    dram_byte_access = 0xbfd0ccf0;
+    dram_half_word_access = 0xbfd0ca9c;
+    dram_walking_of_1 = 0xbfd0c864;
+    dram_walking_of_0 = 0xbfd0c628;
+    dram_com_addr_rot = 0xbfd0c37c;
+    memcpy_test = 0xbfd0d1f4;
+    f_mount = 0xbfd118cc;
+    f_close = 0xbfd11958;
+    f_open = 0xbfd127a8;
+    f_read = 0xbfd11f9c;
+    check_image_header = 0xbfd0f5b8;
+    globalDebugLevel = 0xbfe00f04;
+}

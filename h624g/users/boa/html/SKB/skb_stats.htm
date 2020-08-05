@@ -1,0 +1,421 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>Statisitcs</title>
+<script type="text/javascript" src="skb_util_gw.js"></script>
+<% getInfo("include_css"); %>
+</head>
+<body>
+<blockquote>
+<h2>트래픽 통계</h2>
+
+<table border=0 width="500" cellpadding=0>
+  <tr><font size=2>
+ 유무선 네트워크에 관한 데이터 송수신량을 보여주는 페이지 입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formStats method=POST name="formStats">
+<table border="1" width="600" align='center'>
+<script>
+	var wlan_num = <% getIndex("wlan_num"); %>;
+	var wlanMode = <% getIndex("wlanMode"); %>;
+	var ssid_drv=new Array();
+  	var tx_pkt_num =new Array();
+  	var rx_pkt_num =new Array();
+  	var rp_enabled=new Array();
+	var rp_tx_pkt_num;
+  	var rp_rx_pkt_num;
+	var mssid_num=<%getIndex("wlan_mssid_num");%>;
+	var mssid_disable=new Array();
+	var mssid_tx_pkt_num=new Array();
+	var mssid_rx_pkt_num=new Array();
+	var wlanDisabled=new Array();
+	var opMode="<% getInfo("opMode"); %>"*1;
+	var vlanOnOff = "<% getInfo("vlanOnOff"); %>"*1;
+	var isPocketRouter="<% getInfo("isPocketRouter"); %>"*1;
+	var w_ssid =new Array();
+	var vap_ssid =new Array();
+	var wname =new Array();
+	var rp_ssid;
+
+	for(i=0; i<wlan_num; i++)
+	{
+		mssid_disable[i] = new Array(mssid_num);
+		mssid_tx_pkt_num[i] = new Array(mssid_num);
+		mssid_rx_pkt_num[i] = new Array(mssid_num);
+		vap_ssid[i] = new Array(mssid_num);
+	}
+
+	if (wlan_num > 0)
+	{
+		<%getInfo("wlan0-status");%>
+		ssid_drv[0] = '<%getInfo("ssid_drv");%>';
+		tx_pkt_num[0] = get_data_size_converter(<%get_wlan_traffic("wlan0", "tx_only_data_bytes");%>);
+		rx_pkt_num[0] = get_data_size_converter(<%get_wlan_traffic("wlan0", "rx_only_data_bytes");%>);
+		rp_enabled[0] = <%getIndex("isRepeaterEnabled");%>;
+		wlanDisabled[0] = <%getIndex("wlanDisabled");%>;
+		if (mssid_num > 0) {
+			mssid_disable[0][0] = <%getVirtualIndex("wlanDisabled", "1");%>;
+			mssid_tx_pkt_num[0][0] = get_data_size_converter(<%get_wlan_traffic("wlan0-va0", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][0] = get_data_size_converter(<%get_wlan_traffic("wlan0-va0", "rx_only_data_bytes");%>);
+			vap_ssid[0][0] = "<%getVirtualInfo("ssid", "1");%>";
+		}
+		if (mssid_num > 1) {
+			mssid_disable[0][1] = <%getVirtualIndex("wlanDisabled", "2");%>;
+			mssid_tx_pkt_num[0][1] = get_data_size_converter(<%get_wlan_traffic("wlan0-va1", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][1] = get_data_size_converter(<%get_wlan_traffic("wlan0-va1", "rx_only_data_bytes");%>);
+			vap_ssid[0][1] = "<%getVirtualInfo("ssid", "2");%>";
+		}
+		if (mssid_num > 2) {
+			mssid_disable[0][2] = <%getVirtualIndex("wlanDisabled", "3");%>;
+			mssid_tx_pkt_num[0][2] = get_data_size_converter(<%get_wlan_traffic("wlan0-va2", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][2] = get_data_size_converter(<%get_wlan_traffic("wlan0-va2", "rx_only_data_bytes");%>);
+			vap_ssid[0][2] = "<%getVirtualInfo("ssid", "3");%>";
+		}
+		if (mssid_num > 3) {
+			mssid_disable[0][3] = <%getVirtualIndex("wlanDisabled", "4");%>;
+			mssid_tx_pkt_num[0][3] = get_data_size_converter(<%get_wlan_traffic("wlan0-va3", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][3] = get_data_size_converter(<%get_wlan_traffic("wlan0-va3", "rx_only_data_bytes");%>);
+			vap_ssid[0][3] = "<%getVirtualInfo("ssid", "4");%>";
+		}
+/*
+		if (mssid_num > 4) {
+			mssid_disable[0][4] = <%getVirtualIndex("wlanDisabled", "5");%>;
+			mssid_tx_pkt_num[0][4] = get_data_size_converter(<%get_wlan_traffic("wlan0-va4", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va4", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][4] = get_data_size_converter(<%get_wlan_traffic("wlan0-va4", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va4", "rx_only_data_bytes");%>);
+
+		if (mssid_num > 5) {
+			mssid_disable[0][5] = <%getVirtualIndex("wlanDisabled", "6");%>;
+			mssid_tx_pkt_num[0][5] = get_data_size_converter(<%get_wlan_traffic("wlan0-va5", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va5", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][5] = get_data_size_converter(<%get_wlan_traffic("wlan0-va5", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va5", "rx_only_data_bytes");%>);
+		}
+		if (mssid_num > 6) {
+			mssid_disable[0][6] = <%getVirtualIndex("wlanDisabled", "7");;
+			mssid_tx_pkt_num[0][6] = get_data_size_converter(<%get_wlan_traffic("wlan0-va6", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va6", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][6] = get_data_size_converter(<%get_wlan_traffic("wlan0-va6", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va6", "rx_only_data_bytes");%>);
+		}
+		if (mssid_num > 7) {
+			mssid_disable[0][7] = <%getVirtualIndex("wlanDisabled", "8");;
+			mssid_tx_pkt_num[0][7] = get_data_size_converter(<%get_wlan_traffic("wlan0-va7", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va7", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[0][7] = get_data_size_converter(<%get_wlan_traffic("wlan0-va7", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan0-va7", "rx_only_data_bytes");%>);
+		}
+*/
+	} /*if (wlan_num > 0)*/
+
+	if (wlan_num > 1)
+	{
+		<%getInfo("wlan1-status");%>
+		ssid_drv[1] = '<%getInfo("ssid_drv");%>';
+		tx_pkt_num[1] = get_data_size_converter(<%get_wlan_traffic("wlan1", "tx_only_data_bytes");%>);
+		rx_pkt_num[1] = get_data_size_converter(<%get_wlan_traffic("wlan1", "rx_only_data_bytes");%>);
+		rp_enabled[1] = <%getIndex("isRepeaterEnabled");%>;
+		wlanDisabled[1] = <%getIndex("wlanDisabled");%>;
+		if (mssid_num > 0) {
+			mssid_disable[1][0] = <%getVirtualIndex("wlanDisabled", "1");%>;
+			mssid_tx_pkt_num[1][0] = get_data_size_converter(<%get_wlan_traffic("wlan1-va0", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][0] = get_data_size_converter(<%get_wlan_traffic("wlan1-va0", "rx_only_data_bytes");%>);
+			vap_ssid[1][0] = "<%getVirtualInfo("ssid", "1");%>";
+		}
+		if (mssid_num > 1) {
+			mssid_disable[1][1] = <%getVirtualIndex("wlanDisabled", "2");%>;
+			mssid_tx_pkt_num[1][1] = get_data_size_converter(<%get_wlan_traffic("wlan1-va1", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][1] = get_data_size_converter(<%get_wlan_traffic("wlan1-va1", "rx_only_data_bytes");%>);
+			vap_ssid[1][1] = "<%getVirtualInfo("ssid", "2");%>";
+		}
+		if (mssid_num > 2) {
+			mssid_disable[1][2] = <%getVirtualIndex("wlanDisabled", "3");%>;
+			mssid_tx_pkt_num[1][2] = get_data_size_converter(<%get_wlan_traffic("wlan1-va2", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][2] = get_data_size_converter(<%get_wlan_traffic("wlan1-va2", "rx_only_data_bytes");%>);
+			vap_ssid[1][2] = "<%getVirtualInfo("ssid", "3");%>";
+		}
+		if (mssid_num > 3) {
+			mssid_disable[1][3] = <%getVirtualIndex("wlanDisabled", "4");%>;
+			mssid_tx_pkt_num[1][3] = get_data_size_converter(<%get_wlan_traffic("wlan1-va3", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][3] = get_data_size_converter(<%get_wlan_traffic("wlan1-va3", "rx_only_data_bytes");%>);
+			vap_ssid[1][3] = "<%getVirtualInfo("ssid", "4");%>";
+		}
+/*
+		if (mssid_num > 4) {
+			mssid_disable[1][4] = <%getVirtualIndex("wlanDisabled", "5");%>;
+			mssid_tx_pkt_num[1][4] = get_data_size_converter(<%get_wlan_traffic("wlan1-va4", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va4", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][4] = get_data_size_converter(<%get_wlan_traffic("wlan1-va4", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va4", "rx_only_data_bytes");%>);
+		}
+		if (mssid_num > 5) {
+			mssid_disable[1][5] = <%getVirtualIndex("wlanDisabled", "6");%>;
+			mssid_tx_pkt_num[1][5] = get_data_size_converter(<%get_wlan_traffic("wlan1-va5", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va5", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][5] = get_data_size_converter(<%get_wlan_traffic("wlan1-va5", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va5", "rx_only_data_bytes");%>);
+		}
+		if (mssid_num > 6) {
+			mssid_disable[1][6] = <%getVirtualIndex("wlanDisabled", "7");%>;
+			mssid_tx_pkt_num[1][6] = get_data_size_converter(<%get_wlan_traffic("wlan1-va6", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va6", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][6] = get_data_size_converter(<%get_wlan_traffic("wlan1-va6", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va7", "rx_only_data_bytes");%>);
+		}
+		if (mssid_num > 7) {
+			mssid_disable[1][7] = <%getVirtualIndex("wlanDisabled", "8");%>;
+			mssid_tx_pkt_num[1][7] = get_data_size_converter(<%get_wlan_traffic("wlan1-va7", "tx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va7", "tx_only_data_bytes");%>);
+			mssid_rx_pkt_num[1][7] = get_data_size_converter(<%get_wlan_traffic("wlan1-va7", "rx_only_data_bytes_high");%>, <%get_wlan_traffic("wlan1-va7", "rx_only_data_bytes");%>);
+		}
+*/
+	} /*if (wlan_num > 1)*/
+
+	var x, cnt = 0;
+
+  	for(i=0 ;i < wlan_num ; i++){
+		cnt = 0;
+		if (!wlanDisabled[i]) {
+			if(ssid_drv[i]!=""){
+				cnt++;
+				for(x = 1; x < 3; x++) {
+					if (!mssid_disable[i][x]) {
+						cnt++;
+					}
+				}
+				if (i == 0 && !mssid_disable[0][3]) {
+					cnt++;
+				}
+				if (i == 1 && !mssid_disable[1][3]) {
+					cnt++;
+				}
+				document.write(' <tr>\
+					<td align=center valign=middle width="30%" rowspan="'+(2*cnt)+'"><font size=2><b>');
+				if (wlan_num > 1) {
+					if (i == 0) {
+						w_ssid[i] = "무선 랜 5G";
+						document.write("무선 랜 5G<br>");
+					} else if (i == 1) {
+						w_ssid[i] = "무선 랜 2.4G";
+						document.write("무선 랜 2.4G<br>");
+					}
+					document.write("</b></td>");
+					document.write('<td align=center valign=middle rowspan=2><font size=2><b>' + ssid_drv[i] + '</td>');
+				}else{
+					document.write("무선 LAN");
+					document.write("</b></td>");
+				}
+
+				document.write('<td align=center valign=middle width="20%"><font size=2>보낸 데이터</td>\
+					<td align=center valign=middle width="40%"><font size=2>' + tx_pkt_num[i] +'</td>\
+					</tr>\
+			  		<tr>\
+			    		<td align=center valign=middle width="20%"><font size=2>받은 데이터</td>\
+			    		<td align=center valign=middle width="40%"><font size=2>' + rx_pkt_num[i] + '</td>\
+			  		</tr>');
+			} else {
+				mssid_num=0;
+			}
+
+			if (wlanMode==0 || wlanMode==3 ) {
+				for (idx=1; idx<3; idx++) {
+					if (!mssid_disable[i][idx]) {
+						document.write(' <tr>\
+						<td align=center valign=middle width="30%" rowspan="2"><font size=2><b>'+ vap_ssid[i][idx] +'</b></td>\
+						<td align=center valign=middle width="20%"><font size=2>보낸 데이터</td>\
+						<td align=center valign=middle width="40%"><font size=2>' + mssid_tx_pkt_num[i][idx] +'</td>\
+						</tr>\
+						<tr>\
+						<td align=center valign=middle width="20%"><font size=2>받은 데이터</td>\
+						<td align=center valign=middle width="40%"><font size=2>' + mssid_rx_pkt_num[i][idx] + '</td>\
+						</tr>');
+					}
+
+				}
+			}
+			if(!mssid_disable[0][3] && i == 0){
+				document.write(' <tr>\
+							<td align=center valign=middle width="30%" rowspan="2"><font size=2><b>'+ vap_ssid[0][3] +'</b></td>\
+						   <td align=center valign=middle width="20%"><font size=2>보낸 데이터</td>\
+						   <td align=center valign=middle width="40%"><font size=2>' + mssid_tx_pkt_num[0][3] +'</td>\
+						   </tr>\
+						   <tr>\
+						   <td align=center valign=middle width="20%"><font size=2>받은 데이터</td>\
+						   <td align=center valign=middle width="40%"><font size=2>' + mssid_rx_pkt_num[0][3] + '</td>\
+						   </tr>');
+			}
+
+			if(!mssid_disable[1][3] && i == 1){
+				document.write(' <tr>\
+							<td align=center valign=middle width="30%" rowspan="2"><font size=2><b>'+ vap_ssid[1][3] +'</b></td>\
+						   <td align=center valign=middle width="20%"><font size=2>보낸 데이터</td>\
+						   <td align=center valign=middle width="40%"><font size=2>' + mssid_tx_pkt_num[1][3] +'</td>\
+						   </tr>\
+						   <tr>\
+						   <td align=center valign=middle width="20%"><font size=2>받은 데이터</td>\
+						   <td align=center valign=middle width="40%"><font size=2>' + mssid_rx_pkt_num[1][3] + '</td>\
+						   </tr>');
+			}
+
+			if (rp_enabled[i])
+			{
+				document.write(' <tr>\
+					<td align=center valign=middle width="30%" rowspan="2"><font size=2><b>');
+				if (wlan_num > 1) {
+					if (i == 0) {
+						document.write("무선 리피터 랜 5G");
+						rp_ssid = "<%getInfo("REPEATER_SSID1");%>";
+						rp_tx_pkt_num = get_data_size_converter(<%get_wlan_traffic("wlan0-vxd", "tx_only_data_bytes");%>);
+						rp_rx_pkt_num = get_data_size_converter(<%get_wlan_traffic("wlan0-vxd", "rx_only_data_bytes");%>);
+					} else if (i == 1) {
+						document.write("무선 리피터 랜 2.4G");
+						rp_ssid = "<%getInfo("REPEATER_SSID2");%>";
+						rp_tx_pkt_num = get_data_size_converter(<%get_wlan_traffic("wlan1-vxd", "tx_only_data_bytes");%>);
+						rp_rx_pkt_num = get_data_size_converter(<%get_wlan_traffic("wlan1-vxd", "rx_only_data_bytes");%>);
+
+					}
+				}
+				else
+					document.write("무선 리피터 랜");
+				document.write("</b></td>");
+				document.write('<td align=center valign=middle width="30%" rowspan="2"><font size=2><b>' + rp_ssid + '</td>');
+
+				document.write('<td align=center valign=middle width="20%"><font size=2>보낸 데이터</td>\
+					<td align=center valign=middle width="40%"><font size=2>' + rp_tx_pkt_num +'</td>\
+					</tr>\
+					<tr>\
+					<td align=center valign=middle width="20%"><font size=2>받은 데이터</td>\
+					<td align=center valign=middle width="40%"><font size=2>' + rp_rx_pkt_num + '</td>\
+					</tr>');
+			}
+		}
+	 }
+
+	function drawLanStatistics()
+	{
+
+		if(isPocketRouter == 1 && "<% getInfo("vlanOnOff"); %>"*1 == 1)
+			return;
+		else if(isPocketRouter == 1 && opMode == 0)
+			return;
+
+		if( "<% getInfo("rtlMultiLanDev"); %>"*1 ==0 && "<% getInfo("vlanOnOff"); %>"*1 == 0)
+		{
+			var lanTx=get_data_size_converter(<% getInfo("lanTxDataBytes"); %>);
+			var lanRx=get_data_size_converter(<% getInfo("lanRxDataBytes"); %>);
+
+			document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜</b></td>");
+			document.write("<td align=center valign=middle width='20%'><font size=2>보낸 데이터</td>");
+			document.write("<td align=center valign=middle width='40%'><font size=2>"+lanTx+"</td></tr>");
+			document.write("<tr><td align=center valign=middle width='20%'><font size=2>받은 데이터</td>");
+			document.write("<td align=center valign=middle width='40%'><font size=2>"+lanRx+"</td></tr>");
+		}
+		else
+    	{
+    		var lan1Tx = get_data_size_converter(<% getInfo("lanTxDataBytes"); %>);
+			var lan1Rx = get_data_size_converter(<% getInfo("lanRxDataBytes"); %>);
+			var lan2Tx = get_data_size_converter(<% getInfo("lan2TxDataBytes"); %>);
+			var lan2Rx = get_data_size_converter(<% getInfo("lan2RxDataBytes"); %>);
+			var lan3Tx = get_data_size_converter(<% getInfo("lan3TxDataBytes"); %>);
+			var lan3Rx = get_data_size_converter(<% getInfo("lan3RxDataBytes"); %>);
+			var lan4Tx = get_data_size_converter(<% getInfo("lan4TxDataBytes"); %>);
+			var lan4Rx = get_data_size_converter(<% getInfo("lan4RxDataBytes"); %>);
+
+			document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜 1</b></td>");
+			document.write("<td align=center valign=middle width='20%'><font size=2>보낸 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan1Tx+"</td></tr>");
+	  		document.write("<tr><td align=center valign=middle width='20%'><font size=2>받은 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan1Rx+"</td></tr>");
+
+	    	document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜 2</b></td>");
+	    	document.write("<td align=center valign=middle width='20%'><font size=2>보낸 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan2Tx+"</td></tr>");
+	  		document.write("<tr><td align=center valign=middle width='20%'><font size=2>받은 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan2Rx+"</td></tr>");
+	    	document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜 3</b></td>");
+	    	document.write("<td align=center valign=middle width='20%'><font size=2>보낸 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan3Tx+"</td></tr>");
+	  		document.write("<tr><td align=center valign=middle width='20%'><font size=2>받은 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan3Rx+"</td></tr>");
+
+	    	document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜 4</b></td>");
+	    	document.write("<td align=center valign=middle width='20%'><font size=2>보낸 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan4Tx+"</td></tr>");
+	  		document.write("<tr><td align=center valign=middle width='20%'><font size=2>받은 데이터</td>");
+	    	document.write("<td align=center valign=middle width='40%'><font size=2>"+lan4Rx+"</td></tr>");
+		}
+	}
+
+	function drawWanStatistics()
+	{
+		var wanTx=get_data_size_converter(<% getInfo("wanTxDataBytes"); %>);
+		var wanRx=get_data_size_converter(<% getInfo("wanRxDataBytes"); %>);
+		var isAP = <% getIndex("isPureAP"); %>;
+		var wan_mtp_rx = get_data_size_converter(0,15461936);
+		var wan_mtp_tx = get_data_size_converter(0,860416);
+
+		if(opMode == 1 && vlanOnOff == 0)
+			return;
+
+		if(isPocketRouter == 1 && opMode == 1 && vlanOnOff == 1)
+			document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜</b></td>");
+		else if((opMode == 1 || opMode == 2) && vlanOnOff == 1)
+			document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜 5</b></td>");
+		else if((opMode == 1 || opMode == 2) && vlanOnOff == 0)
+			return;
+		else if(vlanOnOff==1 && isAP == 1)
+			document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>로컬 랜 5</b></td>");
+		else if(vlanOnOff==0 && isAP == 1)
+			return;
+		else if(opMode == 0)
+			document.write("<tr><td align=center valign=middle width='30%' rowspan='2' colspan='2'><font size=2><b>인터넷</b></td>");
+
+		document.write("<td align=center valign=middle width='20%'><font size=2>보낸 데이터</td>");
+		document.write("<td align=center valign=middle width='40%'><font size=2>"+wanTx+"</td></tr>");
+		document.write("<tr><td align=center valign=middle width='20%'><font size=2>받은 데이터</td>");
+		document.write("<td align=center valign=middle width='40%'><font size=2>"+wanRx+"</td></tr>");
+/*		Unnecessary Item
+		document.write("<tr><td align=center valign=middle width='20%'><font size=2>Tx Peak</td>");
+  		document.write("<td align=center valign=middle width='40%'><font size=2>"+wan_mtp_tx+"ps</td></tr>");
+  		document.write("<tr><td align=center valign=middle width='20%'><font size=2>Rx Peak</td>");
+  		document.write("<td align=center valign=middle width='40%'><font size=2>"+wan_mtp_rx+"ps</td></tr>");
+*/
+	}
+
+	function drawWanCRC()
+	{
+		var wan_count  = <% getInfo("crc_lan4"); %>;
+		var lan1_count = <% getInfo("crc_lan0"); %>;
+		var lan2_count = <% getInfo("crc_lan1"); %>;
+		var lan3_count = <% getInfo("crc_lan2"); %>;
+		var lan4_count = <% getInfo("crc_lan3"); %>;
+
+		document.write("<tr><td align=center valign=middle width='30%' rowspan='6' colspan='2'><font size=2><b>CRC 정보</b></td>");
+		document.write("<td width='20%'><font size=2>WAN</td>");
+		document.write("<td width='40%' align='right'><font size=2>"+wan_count+"</td></tr>");
+		document.write("<tr><td width='20%'><font size=2>LAN-1</td>");
+		document.write("<td width='40%' align='right'><font size=2>"+lan1_count+"</td></tr>");
+		document.write("<tr><td width='20%'><font size=2>LAN-2</td>");
+		document.write("<td width='40%' align='right'><font size=2>"+lan2_count+"</td></tr>");
+		document.write("<tr><td width='20%'><font size=2>LAN-3</td>");
+		document.write("<td width='40%' align='right'><font size=2>"+lan3_count+"</td></tr>");
+		document.write("<tr><td width='20%'><font size=2>LAN-4</td>");
+		document.write("<td width='40%' align='right'><font size=2>"+lan4_count+"</td></tr>");
+	}
+</script>
+  <!--
+  <tr>
+   <td width="30%" rowspan="2"><font size=2><b>Ethernet LAN</b></td>
+    <td width="30%"><font size=2><i>Sent Packets</i></td>
+    <td width="20%"><font size=2><% getInfo("lanTxPacketNum"); %></td>
+  </tr>
+  <tr>
+    <td width="30%"><font size=2><i>Received Packets</i></td>
+    <td width="20%"><font size=2><% getInfo("lanRxPacketNum"); %></td>
+  </tr>
+  -->
+  <SCRIPT>drawLanStatistics();</SCRIPT>
+  <SCRIPT>drawWanStatistics();</SCRIPT>
+  <SCRIPT>drawWanCRC();</SCRIPT>
+</table>
+<br>
+
+  <br>
+  <br>
+  <input type="hidden" value="/skb_stats.htm" name="submit-url">
+  <input type="submit" value="새로고침" name="Refresh">
+</form>
+</blockquote>
+</body>
+
+</html>

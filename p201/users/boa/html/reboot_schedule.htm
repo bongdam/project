@@ -1,0 +1,124 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2004. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>P201</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<% getInfo("include_css"); %>
+<script>
+function init()
+{
+	var reboot_enable = <% getIndex("reboot_enable"); %>;
+
+	if (reboot_enable)
+		document.formRebootShd.rebootschdEnable.selectedIndex = 1;
+
+	updateState(document.formRebootShd);
+}
+
+function updateState(form)
+{
+	if (form.rebootschdEnable.selectedIndex == 1) {
+		form.rebootschdWeek.disabled = false;
+		form.rebootschdHour.disabled = false;
+		form.rebootschdMin.disabled = false;
+	} else {
+		form.rebootschdWeek.disabled = true;
+		form.rebootschdHour.disabled = true;
+		form.rebootschdMin.disabled = true;
+	}
+}
+
+function saveChanges(form)
+{
+	form.save_apply.disabled = true;
+	form.submit();
+	return true;
+}
+
+</script>
+</head>
+<body onload="init();">
+<blockquote>
+<h2><script>dw(rebootschd_header)</script></h2>
+<table border=0 width="550" cellspacing=0 cellpadding=0>
+ 	<tr><font size=2><script>dw(rebootschd_explain)</script></tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formRebootShd method=POST name="formRebootShd">
+<table border="0" width=550>
+	<tr height="20">
+		<td width="30%">
+			<font size=2><b><script>dw(rebootschd_onoff)</script></b></font>
+		</td>
+		<td width="70%">
+			<select name="rebootschdEnable" id="rebootschdEnable" onclick="updateState(document.formRebootShd);">
+				<option value='OFF'><script>dw(rebootschd_disable)</script></option>
+				<option value='ON'><script>dw(rebootschd_enable)</script></option>
+			</select>
+		</td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%">
+			<font size=2><b><script>dw(rebootschd_week)</script></b></font>
+		</td>
+		<td width="70%">
+			<select name="rebootschdWeek" id="rebootschdWeek" >
+			<script language="javascript">
+            	var i;
+            	var reboot_week = "<% getInfo("reboot_week"); %>";
+            	for(i = 0; i < reboot_week_array.length; i++) {
+					if (reboot_week_array[i].value == reboot_week)
+						document.write('<option value="',reboot_week_array[i].value,'" selected>',reboot_week_array[i].name,'</option>');
+					else
+						document.write('<option value="',reboot_week_array[i].value,'">',reboot_week_array[i].name,'</option>');
+            	}
+			</script>
+			</select>
+    	</td>
+	</tr>
+
+	<tr height="20">
+		<td width="30%">
+			<font size=2><b><script>dw(rebootschd_time)</script></b></font>
+		</td>
+		<td width="70%">
+			<select name="rebootschdHour" id="rebootschdHour">
+			<script language="javascript">
+            	var i;
+            	var reboot_hour = "<% getInfo("reboot_hour"); %>";
+            	for(i = 0; i < reboot_hour_array.length; i++) {
+					if (reboot_hour_array[i].value == reboot_hour)
+						document.write('<option value="',reboot_hour_array[i].value,'" selected>',reboot_hour_array[i].name,'</option>');
+					else
+						document.write('<option value="',reboot_hour_array[i].value,'">',reboot_hour_array[i].name,'</option>');
+            	}
+			</script>
+			</select>&nbsp;:&nbsp;
+			<select name="rebootschdMin" id="rebootschdMin">
+			<script language="javascript">
+            	var i;
+            	var reboot_min = "<% getInfo("reboot_min"); %>";
+            	for(i = 0; i < reboot_min_array.length; i++) {
+					if (reboot_min_array[i].value == reboot_min)
+						document.write('<option value="',reboot_min_array[i].value,'" selected>',reboot_min_array[i].name,'</option>');
+					else
+						document.write('<option value="',reboot_min_array[i].value,'">',reboot_min_array[i].name,'</option>');
+            	}
+			</script>
+			</select>
+    	</td>
+	</tr>
+</table>
+<p>
+	<input type="button" value="Save & Apply" name="save_apply" onClick="return saveChanges(document.formRebootShd)">
+	<script>document.formRebootShd.save_apply.value = rebootschd_save_apply;</script>
+</p>
+</form>
+</blockquote>
+</body>
+</html>

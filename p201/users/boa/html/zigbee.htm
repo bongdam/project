@@ -1,0 +1,93 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<% getIndex("no-cache"); %>
+<title>ZigBee Management</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<SCRIPT language=Javascript src="<% getInfo("lang");%>"></SCRIPT>
+<script>
+zigbeeFuncChange()
+{
+	var fm = document.zigbeeFuncForm;
+	if(fm.ZigBeeCmd.selectedIndex == 2)
+	{
+		fm.brightness.disabled = false;
+	}
+	else
+	{
+		fm.brightness.disabled = true;
+	}
+}
+function init()
+{
+	var fm = document.zigbeeFuncForm;
+	fm.ZigBeeCmd.selectedIndex = 0;
+	fm.brightness.disabled = false;
+}
+function saveChanges()
+{
+	var fm = document.zigbeeFuncForm;
+	if(fm.ZigBeeCmd.selectedIndex == 2 && fm.brightness.length == 0)
+	{
+		alert(zigbee_brightness_empty);
+		return false;
+	}
+	var brightness = fm.brightness.value;
+}
+</script>
+
+</head>
+
+<body onload="init();">
+<blockquote>
+<h2>
+<script type="text/javascript">
+	document.write(zigbee_header+"</p>");
+</script>
+</h2>
+
+
+<table border=0 width="800" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+ 	<script>dw(zigbee_header_explain)</script>
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+<form action=/boafrm/formZigBee method=POST name="zigbeeList">
+<table border='1' width="580">
+<tr class="tbl_head">
+<td width="60%"><font size=2><b><script>dw(zigbee_address)</script></b></td>
+<td width="20%"><font size=2><b><script>dw(zigbee_status)</script></b></td>
+<td width="20%"><font size=2><b><script>dw(zigbee_brightness)</script></b></td>
+<% zigbee_dev_list(); %>
+</table>
+
+<input type="hidden" value="/zigbee.htm" name="submit-url">
+  <p>
+  <input type="submit" value="Refresh" name="refresh">&nbsp;&nbsp;
+  <script>document.zigbeeList.refresh.value = zigbee_refresh;</script>
+  </p>
+</form>
+
+<form action=/boafrm/formZigBee method=POST name="zigbeeFuncForm">
+  <p>
+  <input type="hidden" value="/zigbee.htm" name="submit-url">
+
+	<select size="1" name="ZigBeeCmd" onChange="zigbeeFuncChange()">
+	<option value="0"><script>dw(zigbee_lightoff)</script></option>
+	<option value="1"><script>dw(zigbee_lighton)</script></option>
+	<option value="2"><script>dw(zigbee_set_brightness)</script></option>
+	<option value="3"><script>dw(zigbee_join)</script></option>
+	</select>
+   	<input type="text" name="brightness" size="12" maxlength="3" onClick="return saveChanges()">
+   <input type="submit" value="Apply" name="zigbee_request">&nbsp;&nbsp;
+   <script>document.zigbeeFuncForm.zigbee_request.value = zigbee_apply;</script>
+  </p>
+</form>
+
+</blockquote>
+</body>
+
+</html>

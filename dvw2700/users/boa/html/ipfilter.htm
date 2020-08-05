@@ -1,0 +1,132 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<meta http-equiv="Pragma" content="no-cache">
+<title>IP 필터링</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<link rel='STYLESHEET' type='text/css' href='style.css'>
+<script>
+var chk_btn=0;
+function addClick()
+{
+	if (chk_btn==1)
+		return false;
+
+	if (document.formFilterAdd.ip.value=="" && document.formFilterAdd.comment.value=="" ){
+		alert('입력된 정보가 없습니다.');
+		return false;
+	}
+
+	if ( checkIpAddr(document.formFilterAdd.ip, 'IP 주소가 올바르지 않습니다') == false )
+  		return false;
+
+	chk_btn++;
+	return true;
+}
+
+
+function deleteClick(i)
+{
+	if (chk_btn==1)
+		return false;
+
+	if ( !confirm('선택한 목록을 삭제하시겠습니까?') )
+		return false;
+	else {
+		document.formFilterAdd.elements["ipdel"].name = "select"+i;
+		chk_btn++;
+		return true;
+	}
+}
+
+function updateState()
+{
+	var is_disable = false;
+	var opmode = <% getIndex("opMode"); %>;
+
+	if (opmode) {
+		alert("허브모드에서는 사용 할 수 없습니다.");
+		is_disable = true;
+	}
+
+	document.formFilterAdd.ip.disabled = is_disable;
+	document.formFilterAdd.protocol.disabled = is_disable;
+	document.formFilterAdd.comment.disabled = is_disable;
+	document.formFilterAdd.addFilterIp.disabled = is_disable;
+
+	var ipFilter_num = <% write(getIndex("ipFilterNum")); %> ;
+	for(i=1 ; i <= ipFilter_num ; i++){
+		get_by_id("deleteSelFilterIp"+i).disabled = is_disable;
+	}
+}
+
+function formFilterAdd()
+{
+	var f = document.formFilterAdd;
+	f.submit();
+}
+
+function modeChange()
+{
+	var f = document.formFilterAdd;
+	f.submit();
+}
+
+function resetForm()
+{
+	document.location.assign("ipfilter.htm");
+}
+</script>
+</head>
+
+<body onload='mouse_r_click();'>
+<blockquote>
+<h2>IP 필터링</h2>
+<table border=0 width="540" cellspacing=4 cellpadding=0>
+	<tr>
+		<font size=2>해당 IP 주소를 사용하는 데이터 패킷의 흐름을 제한할 수 있는 페이지입니다.<br>설정된 IP는 액세스가 불가능합니다.</font>
+	</tr>
+	<tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formFilter method=POST name="formFilterAdd">
+<input type="hidden" name="pageName" value="IPF">
+
+<br>
+<table border="0" width=500>
+	<tr>
+		<font size=2><b>IP 필터링 리스트:</b></font>
+	</tr>
+</table>
+
+<table border="0" width=500>
+	<% ipFilterList(); %>
+	<tr align="center">
+    	<td>
+    		<input type="text" name="ip" size="17" maxlength="15">
+    	</td>
+    	<td>
+    		<select name="protocol">
+    			<option select value="0">TCP+UDP</option>
+    			<option value="1">TCP</option>
+    			<option value="2">UDP</option>
+    		</select>
+    	</td>
+    	<td>
+    		<input type="text" name="comment" size="16" maxlength="20">
+    	</td>
+    	<td>
+    		<input type="submit" value="추가" name="addFilterIp" onClick="return addClick()">
+    	</td>
+    	<script> updateState(); </script>
+  	</tr>
+</table>
+
+<input type="hidden" value="ON" name="ipdel">
+<input type="hidden" value="/ipfilter.htm" name="submit-url">
+
+</form>
+
+</blockquote>
+</body>
+</html>

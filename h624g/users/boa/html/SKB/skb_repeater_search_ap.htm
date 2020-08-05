@@ -1,0 +1,162 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>무선 인터넷 접속 리스트</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+var ap_ssid="";
+var security_method="";
+var wpa="";
+var wpa2="";
+
+function resetForm()
+{
+	var wlan_intf=<% getIndex("wlan_idx"); %>;
+	document.location.href="boafrm/formWlanRedirect?redirect-url=skb_repeater_search_ap.htm&wlan_id="+wlan_intf;
+}
+
+function check_ssid(ssid, methed, wpa_tkip_aes, wpa2_tkip_aes)
+{
+	ap_ssid = ssid;
+	security_method=trim(methed);
+	wpa = trim(wpa_tkip_aes);
+	wpa2 = trim(wpa2_tkip_aes);
+
+	if (security_method != "WPA-PSK/WPA2-PSK" && security_method != "WPA2-PSK" &&
+		security_method != "WPA-PSK" && security_method != "WEP" && security_method != "no") {
+		alert(security_method+" 암호화에서는  Repeater Mode를 설정할 수 없습니다.");
+	}
+}
+
+function select_SSID(){
+
+	if (ap_ssid=="" || security_method=="") {
+		alert("선택된 SSID가 없습니다.");
+		return;
+	}
+	if (security_method != "WPA-PSK/WPA2-PSK" && security_method != "WPA2-PSK" &&
+		security_method != "WPA-PSK" && security_method != "WEP" && security_method != "no") {
+		alert(security_method+" 암호화에서는  Repeater Mode를 설정할 수 없습니다.");
+		return;
+	}
+
+	if (window.opener.document.forms[0].page.value == "/skb_operate_mode.htm" ) {
+		var ssid_obj = window.opener.document.forms[0].repeater_ssid;
+		var method_obj = window.opener.document.forms[0].method;
+		var method_type = trim(security_method);
+		ssid_obj.value = trim(ap_ssid);
+		if (method_type == "WPA-PSK/WPA2-PSK") {
+			method_obj.selectedIndex=0;
+			window.opener.document.forms[0].pskValue.value="";
+			window.opener.document.forms[0].check_pskValue.value="";
+			if (wpa == "aes/tkip" || wpa == "aes") {
+				window.opener.document.forms[0].ciphersuite[0].checked = false;
+				window.opener.document.forms[0].ciphersuite[1].checked = true;
+			} else if (wpa == "aes") {
+				window.opener.document.forms[0].ciphersuite[0].checked = true;
+				window.opener.document.forms[0].ciphersuite[1].checked = false;
+			}
+			if (wpa2 == "aes/tkip" || wpa2 == "aes") {
+				window.opener.document.forms[0].wpa2ciphersuite[0].checked = false;
+				window.opener.document.forms[0].wpa2ciphersuite[1].checked = true;
+			} else if (wpa == "aes") {
+				window.opener.document.forms[0].wpa2ciphersuite[0].checked = true;
+				window.opener.document.forms[0].wpa2ciphersuite[1].checked = false;
+			}
+
+		} else if (method_type == "WPA2-PSK") {
+			method_obj.selectedIndex=1;
+			window.opener.document.forms[0].pskValue.value="";
+			window.opener.document.forms[0].check_pskValue.value="";
+
+			if (wpa2 == "aes/tkip" || wpa2 == "aes") {
+				window.opener.document.forms[0].wpa2ciphersuite[0].checked = false;
+				window.opener.document.forms[0].wpa2ciphersuite[1].checked = true;
+			} else if (wpa == "aes") {
+				window.opener.document.forms[0].wpa2ciphersuite[0].checked = true;
+				window.opener.document.forms[0].wpa2ciphersuite[1].checked = false;
+			}
+		} else if (method_type == "WPA-PSK") {
+			method_obj.selectedIndex=2;
+			window.opener.document.forms[0].pskValue.value="";
+			window.opener.document.forms[0].check_pskValue.value="";
+
+			if (wpa == "aes/tkip" || wpa == "aes") {
+				window.opener.document.forms[0].ciphersuite[0].checked = false;
+				window.opener.document.forms[0].ciphersuite[1].checked = true;
+			} else if (wpa == "aes") {
+				window.opener.document.forms[0].ciphersuite[0].checked = true;
+				window.opener.document.forms[0].ciphersuite[1].checked = false;
+			}
+		} else if (method_type == "WEP") {
+			method_obj.selectedIndex=3;
+			window.opener.document.forms[0].key1.value="";
+			window.opener.document.forms[0].key2.value="";
+			window.opener.document.forms[0].key3.value="";
+			window.opener.document.forms[0].key4.value="";
+			window.opener.document.forms[0].select_key.selectedIndex=0;
+			window.opener.document.forms[0].wep_key.value="";
+			window.opener.document.forms[0].check_wep_key.value="";
+		} else if (method_type == "no") {
+			method_obj.selectedIndex=4;
+		} else {
+			alert(method_type+" 암호화에서는  Repeater Mode를 설정할 수 없습니다.");
+			return;
+		}
+		 window.opener.change_authentication();
+	}
+	window.close();
+}
+
+</script>
+</head>
+
+<body>
+<blockquote>
+<h2>
+<script type="text/javascript">
+
+	var wlan_num = <% getIndex("wlan_idx"); %>;
+
+	var wlan_intf;
+
+	if (wlan_num==1) {
+		wlan_intf="2.4GHz";
+	} else {
+		wlan_intf="5GHz";
+	}
+	document.write("AP 검색 - " + wlan_intf + "</p>");
+
+</script>
+</h2>
+
+<table border=0 width="800" cellspacing=0 cellpadding=0>
+  <tr><font size="2">
+ 주변에 있는 AP들을 검색하여 정보를 보여주는 페이지입니다.
+  </font></tr>
+  <tr><hr size="1" noshade align=top></hr></tr>
+</table>
+<form name="formSearchAP" action="/boafrm/formSearchAP" method="POST">
+
+	<table border="0" width=800>
+		<tr>
+			<td align="right">
+				<input type="button" value="선택" name="select_ap" onclick="select_SSID()">&nbsp;
+				<!--input type="button" value="다시 보기" name="refresh" onclick="resetForm()">&nbsp;-->
+				<input type="button" value=" 닫기 " name="close" onClick="javascript: window.close();"></p>
+			</td>
+		</tr>
+	</table>
+	<table border="0" width=800>
+		<% wlSiteSurveyTbl("search_ap"); %>
+</form>
+</blockquote>
+</body>
+
+</html>

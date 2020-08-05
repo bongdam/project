@@ -1,0 +1,48 @@
+diff --git a/file.h b/file.h
+index b4b5651..8536136 100644
+--- a/file.h
++++ b/file.h
+@@ -50,10 +50,10 @@ struct host
+ #define SENSE_DENY 0
+ 
+ #ifndef DEFAULT_AUTH_FILE
+-#define DEFAULT_AUTH_FILE "/etc/xl2tpd/l2tp-secrets"
++#define DEFAULT_AUTH_FILE "/etc/ppp/chap-secrets"
+ #endif
+ #ifndef DEFAULT_CONFIG_FILE
+-#define DEFAULT_CONFIG_FILE "/etc/xl2tpd/xl2tpd.conf"
++#define DEFAULT_CONFIG_FILE "/etc/ppp/l2tpd.conf"
+ #endif
+ #define ALT_DEFAULT_AUTH_FILE "/etc/l2tpd/l2tp-secrets"
+ #define ALT_DEFAULT_CONFIG_FILE "/etc/l2tp/l2tpd.conf"
+diff --git a/l2tp.h b/l2tp.h
+index 6db727c..d682af9 100644
+--- a/l2tp.h
++++ b/l2tp.h
+@@ -39,7 +39,7 @@ typedef unsigned long long _u64;
+ #include "common.h"
+ #include "ipsecmast.h"
+ 
+-#define CONTROL_PIPE "/var/run/xl2tpd/l2tp-control"
++#define CONTROL_PIPE "/var/run/l2tp-control"
+ #define CONTROL_PIPE_MESSAGE_SIZE 1024
+ 
+ /* Control pip request types */
+@@ -61,7 +61,7 @@ typedef unsigned long long _u64;
+ #define SERVER_VERSION "xl2tpd-1.3.10"
+ #define VENDOR_NAME "xelerance.com"
+ #ifndef PPPD
+-#define PPPD		"/usr/sbin/pppd"
++#define PPPD		"/bin/pppd"
+ #endif
+ #define CALL_PPP_OPTS "defaultroute"
+ #define FIRMWARE_REV	0x0690  /* Revision of our firmware (software, in this case) */
+@@ -111,7 +111,7 @@ struct payload_hdr
+                                    so we can "decompress" the
+                                    payloads and simplify coding */
+ #if 1
+-#define DEFAULT_MAX_RETRIES 5    /* Recommended value from spec */
++#define DEFAULT_MAX_RETRIES 9    /* Recommended value from spec */
+ #else
+ #define DEFAULT_MAX_RETRIES 95   /* give us more time to debug */
+ #endif

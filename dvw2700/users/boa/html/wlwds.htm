@@ -1,0 +1,439 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta http-equiv="Content-Type" content="text/html">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>WDS 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+function addClick()
+{
+	var str = document.formWlWdsAdd.mac.value;
+	var comment_val;
+
+	document.formWlWdsAdd.comment.value = trim(document.formWlWdsAdd.comment.value);
+	comment_val = document.formWlWdsAdd.comment.value;
+
+	document.formWlWdsAdd.addWdsMac1.disabled = true;
+ 	document.formWlWdsAdd.reset.disabled = true;
+	document.formWlWdsAdd.showWep.disabled = true;
+	document.formWlWdsAdd.showAp.disabled = true;
+	document.formWlWdsDel.deleteSelWdsMac1.disabled = true;
+	document.formWlWdsDel.deleteAllWdsMac1.disabled = true;
+	document.formWlWdsDel.reset.disabled = true;
+
+  	if (!document.formWlWdsAdd.wlanWdsEnabled.checked) {
+		document.formWlWdsAdd.submit();
+		return true;
+  	}
+
+	if ( str.length == 0) {
+		document.formWlWdsAdd.submit();
+		return true;
+	}
+
+	if ( str.length < 12) {
+		alert("MAC 주소가 올바르지 않습니다. 16진수 12자리로 입력해 주세요.");
+		document.formWlWdsAdd.mac.focus();
+		document.formWlWdsAdd.addWdsMac1.disabled = false;
+		document.formWlWdsAdd.reset.disabled = false;
+		document.formWlWdsAdd.showWep.disabled = false;
+		document.formWlWdsAdd.showAp.disabled = false;
+		document.formWlWdsDel.deleteSelWdsMac1.disabled = false;
+		document.formWlWdsDel.deleteAllWdsMac1.disabled = false;
+		document.formWlWdsDel.reset.disabled = false;
+		return false;
+ 	}
+
+	for (var i = 0; i < str.length; i++) {
+		if ( (str.charAt(i) >= '0' && str.charAt(i) <= '9') ||
+			(str.charAt(i) >= 'a' && str.charAt(i) <= 'f') ||
+			(str.charAt(i) >= 'A' && str.charAt(i) <= 'F') )
+			continue;
+
+		alert("MAC 주소가 올바르지 않습니다. 16진수로 입력해주세요 (0-9 or a-f).");
+		document.formWlWdsAdd.mac.focus();
+		document.formWlWdsAdd.addWdsMac1.disabled = false;
+		document.formWlWdsAdd.reset.disabled = false;
+		document.formWlWdsAdd.showWep.disabled = false;
+		document.formWlWdsAdd.showAp.disabled = false;
+		document.formWlWdsDel.deleteSelWdsMac1.disabled = false;
+		document.formWlWdsDel.deleteAllWdsMac1.disabled = false;
+		document.formWlWdsDel.reset.disabled = false;
+		return false;
+	}
+
+	if (IsHtmlComment(comment_val)) {
+		alert('Html 주석문을 입력할 수 없습니다.!');
+		document.formWlWdsAdd.comment.value = document.formWlWdsAdd.comment.defaultValue;
+		document.formWlWdsAdd.comment.focus();
+		document.formWlWdsAdd.addWdsMac1.disabled=false;
+		document.formWlWdsAdd.reset.disabled=false;
+		document.formWlWdsAdd.showWep.disabled=false;
+		document.formWlWdsAdd.showAp.disabled=false;
+		document.formWlWdsDel.deleteSelWdsMac1.disabled=false;
+		document.formWlWdsDel.deleteAllWdsMac1.disabled=false;
+		document.formWlWdsDel.reset.disabled=false;
+		return false;
+	}
+
+	document.formWlWdsAdd.submit();
+	return true;
+}
+
+function deleteClick()
+{
+	document.formWlWdsAdd.addWdsMac1.disabled = true;
+	document.formWlWdsAdd.reset.disabled = true;
+	document.formWlWdsAdd.showWep.disabled = true;
+	document.formWlWdsAdd.showAp.disabled = true;
+	document.formWlWdsDel.deleteSelWdsMac1.disabled = true;
+	document.formWlWdsDel.deleteAllWdsMac1.disabled = true;
+	document.formWlWdsDel.deleteAllWdsMac.disabled = true;
+	document.formWlWdsDel.reset.disabled = true;
+
+	if ( !confirm('선택한 목록을 삭제하시겠 습니까?') ) {
+		document.formWlWdsAdd.addWdsMac1.disabled = false;
+		document.formWlWdsAdd.reset.disabled = false;
+		document.formWlWdsAdd.showWep.disabled = false;
+		document.formWlWdsAdd.showAp.disabled = false;
+		document.formWlWdsDel.deleteSelWdsMac1.disabled = false;
+		document.formWlWdsDel.deleteAllWdsMac1.disabled = false;
+		document.formWlWdsDel.deleteAllWdsMac.disabled = false;
+		document.formWlWdsDel.reset.disabled = false;
+		return false;
+	}
+
+	document.formWlWdsDel.submit();
+	return true;
+}
+
+function deleteAllClick()
+{
+	document.formWlWdsAdd.addWdsMac1.disabled = true;
+	document.formWlWdsAdd.reset.disabled = true;
+	document.formWlWdsAdd.showWep.disabled = true;
+	document.formWlWdsAdd.showAp.disabled = true;
+	document.formWlWdsDel.deleteSelWdsMac1.disabled = true;
+	document.formWlWdsDel.deleteAllWdsMac1.disabled = true;
+	document.formWlWdsDel.deleteSelWdsMac.disabled = true;
+	document.formWlWdsDel.reset.disabled = true;
+
+	if ( !confirm('모든 목록을 삭제하시겠습니까?') ) {
+		document.formWlWdsAdd.addWdsMac1.disabled = false;
+		document.formWlWdsAdd.reset.disabled = false;
+		document.formWlWdsAdd.showWep.disabled = false;
+		document.formWlWdsAdd.showAp.disabled = false;
+		document.formWlWdsDel.deleteSelWdsMac1.disabled = false;
+		document.formWlWdsDel.deleteAllWdsMac1.disabled = false;
+		document.formWlWdsDel.deleteSelWdsMac.disabled = false;
+		document.formWlWdsDel.reset.disabled = false;
+		return false;
+	}
+
+	document.formWlWdsDel.submit();
+	return true;
+}
+
+function disableDelButton()
+{
+	disableButton(document.formWlWdsDel.deleteSelWdsMac1);
+	disableButton(document.formWlWdsDel.deleteAllWdsMac1);
+}
+
+function enableWds()
+{
+	enableTextField(document.formWlWdsAdd.mac);
+	enableTextField(document.formWlWdsAdd.comment);
+	enableButton(document.formWlWdsAdd.showWep);
+	enableButton(document.formWlWdsAdd.showAp);
+}
+
+function disableWds()
+{
+	disableTextField(document.formWlWdsAdd.mac);
+	disableTextField(document.formWlWdsAdd.comment);
+	disableButton(document.formWlWdsAdd.showWep);
+	disableButton(document.formWlWdsAdd.showAp);
+}
+
+function updateState()
+{
+	wlanDisabled = <% getIndex("wlanDisabled"); %> ;
+	wlanMode = <% getIndex("wlanMode"); %>;
+	var wdstxrate = document.getElementById("wds_txrate");
+	var wds_txrate = document.formWlWdsAdd.txRate;
+
+	if (wlanDisabled || (wlanMode != 2 && wlanMode != 3)) {
+		disableWds();
+		disableTextField(document.formWlWdsAdd.wlanWdsEnabled);
+		disableButton(document.formWlWdsAdd.reset);
+		disableButton(document.formWlWdsAdd.addWdsMac1);
+		disableButton(document.formWlWdsDel.reset);
+		disableWds();
+		disableDelButton();
+		wds_txrate.disabled = true;
+	} else {
+	  if (document.formWlWdsAdd.wlanWdsEnabled.checked) {
+	 	enableWds();
+	 	wds_txrate.disabled = false;
+	  } else {
+	  	disableWds();
+	  	wds_txrate.disabled = true;
+	  }
+	}
+}
+
+function showApClick(url)
+{
+	if (document.formWlWdsAdd.wlanWdsEnabled.checked){
+		var nWidth = "620";
+		var nHeight = "440";
+		if(window.screenX == undefined) {
+			var curX = window.screenLeft;
+			var curY = window.screenTop;
+		} else {
+			var curX = window.screenX;
+			var curY = window.screenY;
+		}
+		var nLeft = curX + (window.outerWidth-nWidth)/2;
+		var nTop = curY + (window.outerHeight-nHeight)/2;
+		var strOption = "";
+		strOption += "left=" + nLeft + ",top=" + nTop + ",width=" + nWidth + ",height=" + nHeight + ",";
+		strOption += "toolbar=no,menubar=no,location=no,resizable=yes,status=yes";
+		var winObj = window.open(url, "showWdsStatistics", strOption);
+		if (winObj == null) {
+			alert("팝업 차단을 해제해주세요.");
+			return false;
+		}
+		winObj.focus();
+	}
+}
+
+function showWepClick(url)
+{
+  if (document.formWlWdsAdd.wlanWdsEnabled.checked)
+ 	{
+		document.location.href = url;
+	}
+}
+
+function Load_Setting()
+{
+
+	var wlanMode = <% getIndex("wlanMode"); %>;
+	var wlan_idx= <% getIndex("wlan_idx"); %>;
+
+	if (wlanMode == 0) {
+		alert("WDS설정은 무선인터넷 운용모드(무선 설정->기본설정:모드)를 AP+WDS 모드로 변경 후 설정 가능합니다.");
+	}
+
+	if ( <% getIndex("wlanWdsEnabled"); %> ) {
+		document.formWlWdsAdd.wlanWdsEnabled.checked = true;
+		updateState();
+	}
+
+	if(wlan_idx)
+		document.formWlWdsAdd.Wlanintf.options[0].selected = true;
+	else
+		document.formWlWdsAdd.Wlanintf.options[1].selected = true;
+}
+
+function page_change(selectObj)
+{
+	if (selectObj.value == 1)
+		location.href='boafrm/formWlanRedirect?redirect-url=wlwds.htm&wlan_id=1';
+	else
+		location.href='boafrm/formWlanRedirect?redirect-url=wlwds.htm&wlan_id=0';
+}
+</script>
+</head>
+<body onload="Load_Setting(); mouse_r_click();">
+<blockquote>
+<h2>
+	<script type="text/javascript">
+	var wlan_num =  <% getIndex("wlan_num"); %>;
+	if (wlan_num > 1) {
+		var wlan_idx_ = <% getIndex("wlan_idx"); %> + 1;
+		if (wlan_idx_ == 1) {
+			document.write("WDS 설정 - 5G");
+		} else {
+			document.write("WDS 설정 - 2.4G");
+		}
+	}
+	else
+		document.write("WDS 설정");
+	</script>
+</h2>
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<tr>
+	<font size=2>
+	다른 AP들과 무선으로 통신하기 위해 설정하는 페이지 입니다.<br>
+	AP들이 같은 채널에 설정되어져 있어야 하고 테이블에서 통신하기를 원하는 다른 AP의 MAC 주소를 설정해 주어야 합니다.
+	</font>
+</tr>
+
+<form action=/boafrm/formWlWds method=POST name="formWlWdsAdd">
+<tr><hr size=1 noshade align=top><br></tr>
+
+<tr>
+	<font size=2><b><input type="checkbox" name="wlanWdsEnabled" value="ON" onclick="updateState()">&nbsp;&nbsp;WDS 사용</b>
+</tr>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0">
+	<tr>
+		<td align="left" width="15%" class=""><font size=2><b>무선 :</b></td>
+		<td width="85%">
+    		<select name="Wlanintf" id="Wlanintf" onChange="page_change(this)">
+    			<option value=1>2.4 GHz</option>
+    			<option value=0>5 GHz</option>
+    		</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td align="left" width="15%" class=""><font size=2><b>MAC 주소 :</b></td>
+		<td width="85%">
+ 			<input type="text" id="mac" name="mac" size="15" maxlength="12" value="">
+		</td>
+	</tr>
+
+	<tr id="wds_txrate">
+		<td width="15%"><font size=2><b>전송률 :</b></td>
+		<td width="85%"><font size=2>
+			<select size="1" name="txRate" onChange="">
+			<script type="text/javascript">
+				band = <% getIndex("band"); %>;
+				auto = <% getIndex("rateAdaptiveEnabled") %>;
+				txrate = <% getIndex("fixTxRate"); %>;
+				rf_num = <% getIndex("rf_used"); %>;
+				var vht_num;
+
+				var rate_mask = [31,1,1,1,1,2,2,2,2,2,2,2,2,4,4,4,4,4,4,4,4,8,8,8,8,8,8,8,8,16,16,16,16,16,16,16,16];
+				var rate_name=["Auto","1M","2M","5.5M","11M","6M","9M","12M","18M","24M","36M","48M","54M",
+					"MCS0", "MCS1", "MCS2", "MCS3", "MCS4", "MCS5", "MCS6", "MCS7",
+					"MCS8", "MCS9", "MCS10", "MCS11", "MCS12", "MCS13", "MCS14", "MCS15",
+					"MCS16", "MCS17", "MCS18", "MCS19", "MCS20", "MCS21", "MCS22", "MCS23",];
+				var vht_rate_name=["NSS1-MCS0","NSS1-MCS1","NSS1-MCS2","NSS1-MCS3","NSS1-MCS4",
+					"NSS1-MCS5","NSS1-MCS6","NSS1-MCS7","NSS1-MCS8","NSS1-MCS9",
+					"NSS2-MCS0","NSS2-MCS1","NSS2-MCS2","NSS2-MCS3","NSS2-MCS4",
+					"NSS2-MCS5","NSS2-MCS6","NSS2-MCS7","NSS2-MCS8","NSS2-MCS9",
+					"NSS3-MCS0","NSS3-MCS1","NSS3-MCS2","NSS3-MCS3","NSS3-MCS4",
+					"NSS3-MCS5","NSS3-MCS6","NSS3-MCS7","NSS3-MCS8","NSS3-MCS9"];
+
+				mask = 0;
+				var option_num = 0;
+
+				if (auto)
+					txrate = 0;
+				if (band & 1)
+					mask |= 1;
+				if ((band & 2) || (band & 4))
+					mask |= 2;
+				if (band & 8) {
+					if (rf_num == 3)
+					mask |= 28;
+					else if (rf_num == 2)
+						mask |= 12;
+					else
+						mask |= 4;
+				}
+				document.write('<option value="' + 0 + '">' + rate_name[0] + '\n');
+				option_num++;
+				for (idx = 1, i = 1; i <= 36; i++) {
+					if (rate_mask[i] & mask) {
+						rate = (1 << (i-1));
+		 				if (txrate == 0)
+            				defidx = 0;
+		 				else if (txrate == rate)
+							defidx = idx;
+						document.write('<option value="' + i + '">' + rate_name[i] + '\n');
+						idx++;
+						option_num++;
+					}
+				}
+
+				bound = <% getIndex("ChannelBonding"); %>;
+				if(band & 64) {
+
+					if (rf_num == 3)
+						vht_num = 29;
+					else if (rf_num == 2)
+						vht_num = 19;
+					else
+						vht_num = 9;
+
+					for (idx = 40, i = 0; i <= vht_num; i++) {
+						rate = ((1 << 31) + i);
+						if (txrate == rate){
+							defidx = option_num;
+						}
+						if ((i == 9) || (i == 19) || (i==29))
+						{
+							if (bound == 0)//channel width = 20M
+							{
+								idx++;
+								continue;
+							}
+						}
+						document.write('<option value="' + idx + '">' + vht_rate_name[i] + '\n');
+						idx++;
+						option_num++;
+					}
+				}
+				document.formWlWdsAdd.elements["txRate"].selectedIndex=defidx;
+			</script>
+			</select>
+		</td>
+	</tr>
+
+	<tr>
+		<td align="left" width="15%" class=""><font size=2><b>설명 :</b></font></td>
+ 		<td width="85%"><input type="text" id="comment" name="comment" size="16" maxlength="16" value=""></td>
+	</tr>
+</table>
+
+
+<tr>
+	<p>
+		<input type="button" value="적용" name="addWdsMac1" onClick="return addClick()">&nbsp;&nbsp;
+		<input type="hidden" value="적용" name="addWdsMac">
+		<input type="reset" value="취소" name="reset">&nbsp;&nbsp;
+		<input type="hidden" value="/wlwds.htm" name="submit-url">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+		<font size=2><input type="button" value="보안 설정" name="showWep" onClick="showWepClick('/wlwdsenp.htm')">&nbsp;&nbsp
+		<font size=2><input type="button" value="통계 보기" name="showAp" onClick="showApClick('/wlwdstbl.htm')">&nbsp;&nbsp
+	</p>
+</tr>
+</form>
+</table>
+
+<form action=/boafrm/formWlWds method=POST name="formWlWdsDel">
+	<table border=0 width=440>
+	<tr>
+		<font size=2><b>현재 WDS AP 목록:</b></font>
+	</tr>
+	<% wlWdsList(); %>
+	</table>
+<br>
+	<input type="button" value="선택 삭제" name="deleteSelWdsMac1" onClick="return deleteClick()">&nbsp;&nbsp;
+	<input type="hidden" value="선택 삭제" name="deleteSelWdsMac">
+	<input type="button" value="전체 삭제" name="deleteAllWdsMac1" onClick="return deleteAllClick()">&nbsp;&nbsp;&nbsp;
+	<input type="hidden" value="전체 삭제" name="deleteAllWdsMac">
+	<input type="reset" value="취소" name="reset">
+	<input type="hidden" value="/wlwds.htm" name="submit-url">
+<script type="text/javascript">
+	var entryNum = <% getIndex("wlanWdsNum"); %>;
+	if ( entryNum == 0 )
+		disableDelButton();
+
+	updateState();
+</script>
+</form>
+
+</blockquote>
+</body>
+</html>

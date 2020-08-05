@@ -1,0 +1,270 @@
+<html>
+<! Copyright (c) Realtek Semiconductor Corp., 2003. All Rights Reserved. ->
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>자가 진단 기능</title>
+<script type="text/javascript" src="skb_util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+var wan_link='';
+var lan_link='';
+var link_status;
+var stb_connect='';
+var stb_ip='';
+var stb_port='';
+var wlan_num;
+var ssid_drv;
+var channel_drv;
+var wep;
+
+function portStatus()
+{
+	link_status = <% getInfo("wan_linkUp"); %>;
+	if (link_status == 1)
+		wan_link = '케이블 연결됨';
+	else
+		wan_link = '케이블 연결안됨';
+
+	lan_link = '케이블 연결안됨';
+	link_status = <% getInfo("lan1_linkUp"); %>;
+	if (link_status == 1)
+		lan_link = '케이블 연결됨';
+
+	link_status = <% getInfo("lan2_linkUp"); %>;
+	if (link_status == 1)
+		lan_link = '케이블 연결됨';
+
+	link_status = <% getInfo("lan3_linkUp"); %>;
+	if (link_status == 1)
+		lan_link = '케이블 연결됨';
+
+	link_status = <% getInfo("lan4_linkUp"); %>;
+	if (link_status == 1)
+		lan_link = '케이블 연결됨';
+}
+
+function stb_status()
+{
+	var get_status = '<% igmp_stb_info(); %>';
+	var temp = '';
+
+	if(get_status == 'null') {
+		stb_connect = '<font size=2 color=red>IPTV 셋탑박스 연결안됨</font>';
+		stb_ip = '<font size=2 color=red>없음</font>';
+		stb_port = '<font size=2 color=red>연결안됨</font>';
+	}
+	else {
+		temp = get_status.split("|");
+		stb_connect = '<font size=2 color=green>IPTV 셋탑박스 연결됨</font>';
+		stb_ip = '<font size=2 color=green>'+temp[0]+'</font>';
+		stb_port = '<font size=2 color=green>'+temp[1]+'</font>';
+	}
+}
+
+function link_ping_page()
+{
+	frames["ping_test_page"].location.href = "skb_diagnostic_ping.htm";
+}
+
+function resetForm()
+{
+	document.location.assign("skb_diagnostic.htm");
+}
+
+</script>
+</head>
+
+<body onload="link_ping_page();">
+<script language="javascript">
+	alert('자가 진단 작업을 수행중입니다. 잠시 기다려 주시기 바랍니다.');
+</script>
+<blockquote>
+<h2>자가진단 기능</h2>
+
+<table border=0 width="500" cellspacing=4 cellpadding=0>
+<tr><td><font size=2>
+자가진단 기능 페이지입니다.
+</font></td></tr>
+<tr><td><hr size=1 noshade align=top></td></tr>
+</table>
+
+<form name="diagnostic">
+	<table border=0 width="500" cellspacing=4 cellpadding=0>
+	<script>portStatus();</script>
+		<tr class="tbl_head">
+			<td width=100% colspan="2"><font size=2><b>네트워크 상태</b></font></td>
+		</tr>
+		<tr bgcolor="#DDDDDD">
+			<td width=30%><font size=2><b>WAN</b></td>
+			<td width=70%>
+			    <script>
+					if(wan_link == '케이블 연결됨')
+						document.write("<font size='2' color='green'>케이블 연결됨</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+					else
+						document.write("<font size='2' color='red'>케이블 연결안됨</font>&nbsp;&nbsp;&nbsp;&nbsp;");
+    			</script><font size=2>[ <% getInfo("wanDhcp-current"); %> ]</font>
+    		</td>
+		</tr>
+		<tr bgcolor="#EEEEEE">
+			<td width=30%><font size=2><b>LAN</b></td>
+			<td width=70%>
+				<script>
+					if(lan_link == '케이블 연결됨')
+						document.write("<font size='2' color='green'>케이블 연결됨</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+					else
+						document.write("<font size='2' color='red'>케이블 연결안됨</font>&nbsp;&nbsp;&nbsp;&nbsp;");
+
+					var choice = '<% write(getIndex("dhcp-current")); %>';
+					if ( choice == "0" ) document.write("<font size=2>[ DHCP 서버 사용안함 ]</font>");
+					else if ( choice == "2" ) document.write("<font size=2>[ DHCP 서버 사용중 ]</font>");
+				</script>
+    		</td>
+		</tr>
+		<tr bgcolor="#DDDDDD">
+			<td width=30%><font size=2><b>DHCP 남은 IP 수</b></td>
+    		<td width=70%><% dhcpClientList("remnant_dhcpIp"); %></td>
+		</tr>
+		<tr bgcolor="#EEEEEE">
+			<td width=30%><font size=2><b>WAN IP 충돌</b></td>
+    		<td width=70%><% getInfo("ip_conflict"); %></td>
+		</tr>
+
+		<tr class="tbl_head">
+			<td width=100% colspan="2"><font size=2><b>인터넷 서비스 점검 (ping test)</b></font></td>
+		</tr>
+		<tr bgcolor="#DDDDDD">
+			<td width=30%><font size=2><b>게이트웨이</b></td>
+    		<td width=70%>
+			<script>
+				if(wan_link == "케이블 연결안됨")
+					document.write("<font size='2' color='red'>케이블 연결안됨</font>");
+				else
+					document.write("<% get_ping_info("gateway"); %>");
+			</script></td>
+		</tr>
+		<tr bgcolor="#EEEEEE">
+    		<td width=30%><font size=2><b>기본 DNS</b></td>
+    		<td width=70%>
+			<script>
+				if(wan_link == "케이블 연결안됨")
+					document.write("<font size='2' color='red'>케이블 연결안됨</font>");
+				else
+					document.write("<% get_ping_info("wan_dns0"); %>");
+			</script></td>
+		</tr>
+		<tr bgcolor="#DDDDDD">
+			<td width=30%><font size=2><b>보조 DNS</b></td>
+    		<td width=70%>
+				<script>
+					if(wan_link == "케이블 연결안됨")
+						document.write("<font size='2' color='red'>케이블 연결안됨</font>");
+					else
+						document.write("<% get_ping_info("wan_dns1"); %>");
+				</script></td>
+		</tr>
+
+		<tr class="tbl_head">
+			<td width=100% colspan="2"><font size=2><b>접속 단말 점검 (ping test)</b></font></td>
+		</tr>
+			<% dhcpClientList("local_ping_test"); %>
+
+		<tr class="tbl_head">
+			<td width=100% colspan="2"><font size=2><b>IPTV 상태</b></font></td>
+		</tr>
+		<script>stb_status();</script>
+		<tr bgcolor="#EEEEEE">
+			<td width=30%><font size=2><b>셋탑박스 연결</b></td>
+    		<td width=70%><script>document.write(stb_connect);</script></td>
+		</tr>
+		<tr bgcolor="#DDDDDD">
+			<td width=30%><font size=2><b>셋탑박스 IP</b></td>
+    		<td width=70%><script>document.write(stb_ip);</script></td>
+		</tr>
+		<tr bgcolor="#EEEEEE">
+			<td width=30%><font size=2><b>셋탑박스 LAN</b></td>
+    		<td width=70%><script>document.write(stb_port);</script></td>
+		</tr>
+
+		<script language='javascript'>
+			wlan_num = <% getIndex("wlan_num"); %>;
+  			ssid_drv=new Array();
+  			channel_drv=new Array();
+  			wep=new Array();
+
+			if (wlan_num > 0)
+			{
+				<%getInfo("wlan0-status");%>
+				ssid_drv[0] ='<%getInfo("ssid_drv");%>';
+				channel_drv[0] ='<%getInfo("channel_drv");%>';
+				wep[0] ='<%getInfo("wep");%>';
+			} /*if (wlan_num > 0)*/
+
+			if (wlan_num > 1)
+			{
+				<%getInfo("wlan1-status");%>
+				ssid_drv[1] ='<%getInfo("ssid_drv");%>';
+				channel_drv[1] ='<%getInfo("channel_drv");%>';
+				wep[1] ='<%getInfo("wep");%>';
+			}
+
+			document.write('\
+				<tr class="tbl_head">\
+				<td width=100% colspan="2"><font size=2><b>무선 정보 WIFI-5G</b></font></td>\
+				</tr>\
+				<tr bgcolor="#DDDDDD">\
+				<td width=30%><font size=2><b>SSID</b></td>');
+				document.write('\
+					<td width=70%><font size=2>'+ssid_drv[0]+'&nbsp;&nbsp;&nbsp;[ 채널: '+channel_drv[0]+' ]\
+					</td>\
+				</tr>\
+				<tr bgcolor="#EEEEEE">\
+				<td width=30%><font size=2><b>무선 보안 설정</b></td>');
+					document.write('\
+						<td width=70%><font size=2>'+wep[0]+'\
+						</td>\
+    			</tr>');
+
+			document.write('\
+				<tr class="tbl_head">\
+				<td width=100% colspan="2"><font size=2><b>무선 정보 WIFI-2.4G</b></font></td>\
+				</tr>\
+				<tr bgcolor="#DDDDDD">\
+				<td width=30%><font size=2><b>SSID</b></td>');
+					document.write('\
+						<td width=70%><font size=2>'+ssid_drv[1]+'&nbsp;&nbsp;&nbsp;[ 채널: '+channel_drv[1]+' ]\
+						</td>\
+				</tr>\
+			<tr bgcolor="#EEEEEE">\
+			<td width=30%><font size=2><b>무선 보안 설정</b></td>');
+					document.write('\
+						<td width=70%><font size=2>'+wep[1]+'\
+						</td>\
+    		</tr>');
+    		</script>
+    	</table>
+
+   	<table border=0 width="500" cellspacing=0 cellpadding=0>
+   		<tr class="tbl_head">
+			<td width=100%><font size=2><b>PING TEST</b></font></td>
+		</tr>
+		<tr>
+			<td>
+			<iframe  style="width:100%" height="150" id="ping_test_page" name="ping_test_page" marginwidth="0" frameborder="0" marginheight="0" scrolling="no"></iframe>
+			</td>
+		</tr>
+
+   		<tr>
+			<td colspan="2"><input type='button' name='View' value='다시 보기' onClick="resetForm()"></td>
+		</tr>
+	</table>
+	<br><br>
+	<input type="hidden" value="" name="save_ping_info">
+	<input type="hidden" value="0" name="save_ping_info_start">
+	<input type="hidden" value="0" name="save_ping_ip">
+</form>
+</blockquote>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<% getIndex("no-cache"); %>
+<title>SNMP 설정</title>
+<script type="text/javascript" src="util_gw.js"> </script>
+<% getInfo("include_css"); %>
+<script>
+
+
+function updateState()
+{
+	if (document.formSNMP.snmpEnable.checked) {
+		enableTextField(document.formSNMP.getCommunity);
+		enableTextField(document.formSNMP.setCommunity);
+		enableTextField(document.formSNMP.DummyTTL);
+		enableTextField(document.formSNMP.NormalTTL);
+		document.formSNMP.snmpTrapEnable.disabled = false;
+		if (document.formSNMP.snmpTrapEnable.checked){
+			enableTextField(document.formSNMP.trapCommunity);
+			enableTextField(document.formSNMP.trapServer);
+			enableTextField(document.formSNMP.trapServer2);
+		} else {
+			disableTextField(document.formSNMP.trapCommunity);
+			disableTextField(document.formSNMP.trapServer);
+			disableTextField(document.formSNMP.trapServer2);
+		}
+	} else {
+		disableTextField(document.formSNMP.getCommunity);
+		disableTextField(document.formSNMP.setCommunity);
+		disableTextField(document.formSNMP.DummyTTL);
+		disableTextField(document.formSNMP.NormalTTL);
+		document.formSNMP.snmpTrapEnable.disabled = true;
+		disableTextField(document.formSNMP.trapCommunity);
+		disableTextField(document.formSNMP.trapServer);
+		disableTextField(document.formSNMP.trapServer2);
+	}
+}
+
+function do_apply(f)
+{
+	if (IsKorean(f.getCommunity.value) ||
+			IsKorean(f.setCommunity.value) ||
+			IsKorean(f.trapCommunity.value) ) {
+		alert('한글을 제외한 영문, 기호로 입력 해 주세요.!');
+		return false;
+	}
+	if (!IsDigit(document.formSNMP.DummyTTL.value) || !IsDigit(document.formSNMP.NormalTTL.value)) {
+		alert("TTL이 올바르지 않습니다! 10진수를 입력해야 합니다.");
+		return false;
+	}
+	DummyTTL = getDigit(document.formSNMP.DummyTTL.value, 1);
+	if (DummyTTL > 255 || DummyTTL < 1) {
+		alert("TTL이 올바르지 않습니다! 1에서 255 사이의 숫자를 입력해야 합니다.");
+		document.formSNMP.DummyTTL.focus();
+		return false;
+	}
+	NormalTTL = getDigit(document.formSNMP.NormalTTL.value, 1);
+	if (NormalTTL > 255 || NormalTTL < 1) {
+		alert("TTL이 올바르지 않습니다! 1에서 255 사이의 숫자를 입력해야 합니다.");
+		document.formSNMP.NormalTTL.focus();
+		return false;
+	}
+
+	alert('설정이 적용되었습니다');
+}
+
+function Load_Setting()
+{
+	if ( <% getIndex("snmp_enable"); %> )
+		document.formSNMP.snmpEnable.checked = true;
+	else
+		document.formSNMP.snmpEnable.checked = false;
+
+	if ( <% getIndex("snmp_trap_enable"); %> )
+		document.formSNMP.snmpTrapEnable.checked = true;
+	else
+		document.formSNMP.snmpTrapEnable.checked = false;
+
+	updateState();
+}
+</script>
+</head>
+
+<body onload="Load_Setting(); mouse_r_click();">
+<blockquote>
+<h2>SNMP 설정</h2>
+<table border=0 width="500" cellspacing=0 cellpadding=0>
+  <tr><font size=2>
+	 네트워크 관리를 위한 SNMP를 설정하는 페이지입니다.
+  </tr>
+  <tr><hr size=1 noshade align=top></tr>
+</table>
+
+<form action=/boafrm/formSNMP method=POST name="formSNMP">
+<table border=0 width="550" cellspacing=4 cellpadding=0>
+<tr><td colspan="2"><font size=2><b>
+	 <input type='checkbox' name='snmpEnable' value='ON' onclick="updateState()">&nbsp;&nbsp;SNMP 사용
+</td></tr>
+<tr><td>
+     <font size=2><b>Get 커뮤니티: </b>
+	 </td><td>
+	 <input type="password" name="getCommunity" size="22" maxlength="32" value="******"></font>
+</td></tr>
+<tr><td>
+     <font size=2><b>Set 커뮤니티: </b>
+	 </td><td>
+	 <input type="password" name="setCommunity" size="22" maxlength="32" value="******"> </font>
+</td></tr>
+<tr><td>
+     <font size=2><b>Dummy SNMP TTL: </b>
+	 </td><td>
+	 <input type="text" name="DummyTTL" size="22" maxlength="32" value="<% getInfo("dummy_ttl"); %>"> </font>
+</td></tr>
+<tr><td>
+     <font size=2><b>SNMP Trap TTL: </b>
+	 </td><td>
+	 <input type="text" name="NormalTTL" size="22" maxlength="32" value="<% getInfo("normal_ttl"); %>"> </font>
+</td></tr>
+<tr style="display:none"><td colspan="2"><font size=2><b>
+     <input type='checkbox' name='snmpTrapEnable' value='ON' onclick="updateState()">&nbsp;&nbsp;SNMP TRAP 사용
+</td></tr>
+<tr style="display:none"><td>
+     <font size=2><b>Trap 커뮤니티: </b>
+	 </td><td>
+	 <input type="password" name="trapCommunity" size="22" maxlength="32" value="******"  ></font>
+</td></tr>
+<tr style="display:none"><td>
+     <font size=2><b>Trap-1서버: </b>
+	 </td><td>
+	 <input type="password" name="trapServer" size="22" maxlength="64" value="******"  ></font>
+</td></tr>
+<tr style="display:none"><td>
+     <font size=2><b>Trap-2서버: </b>
+	 </td><td>
+	 <input type="password" name="trapServer2" size="22" maxlength="64" value="******"  ></font>
+</td></tr>
+<tr><td>
+   <br>
+     <input type="submit" value="적용" name="save" onClick="return do_apply(this.form)">&nbsp;&nbsp;
+        <input type="hidden" value="/snmp.htm" name="submit-url">
+</td></tr>
+     <script> updateState(); </script>
+</table>
+</form>
+</blockquote>
+</body>
+</html>

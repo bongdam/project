@@ -1,0 +1,1931 @@
+/******************************************************************************
+ *
+ * Copyright(c) 2007 - 2017 Realtek Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * The full GNU General Public License is included in this distribution in the
+ * file called LICENSE.
+ *
+ * Contact Information:
+ * wlanfae <wlanfae@realtek.com>
+ * Realtek Corporation, No. 2, Innovation Road II, Hsinchu Science Park,
+ * Hsinchu 300, Taiwan.
+ *
+ * Larry Finger <Larry.Finger@lwfinger.net>
+ *
+ *****************************************************************************/
+
+/*Image2HeaderVersion: R3 1.5.5*/
+#include "mp_precomp.h"
+
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+#if RT_PLATFORM == PLATFORM_MACOSX
+#include "phydm_precomp.h"
+#else
+#include "../phydm_precomp.h"
+#endif
+#else
+#include "../../phydm_precomp.h"
+#endif
+
+#define D_S_SIZE DELTA_SWINGIDX_SIZE
+#define D_ST_SIZE DELTA_SWINTSSI_SIZE
+
+#if (RTL8721D_SUPPORT == 1)
+static boolean
+check_positive(struct dm_struct *dm,
+	       const u32	condition1,
+	       const u32	condition2,
+	       const u32	condition3,
+	       const u32	condition4
+)
+{
+	u32	cond1 = condition1, cond2 = condition2,
+		cond3 = condition3, cond4 = condition4;
+
+	u8	cut_version_for_para =
+		(dm->cut_version ==  ODM_CUT_A) ? 15 : dm->cut_version;
+
+	u8	pkg_type_for_para =
+		(dm->package_type == 0) ? 15 : dm->package_type;
+
+	u32	driver1 = cut_version_for_para << 24 |
+			(dm->support_interface & 0xF0) << 16 |
+			dm->support_platform << 16 |
+			pkg_type_for_para << 12 |
+			(dm->support_interface & 0x0F) << 8  |
+			dm->rfe_type;
+
+	u32	driver2 = (dm->type_glna & 0xFF) <<  0 |
+			(dm->type_gpa & 0xFF)  <<  8 |
+			(dm->type_alna & 0xFF) << 16 |
+			(dm->type_apa & 0xFF)  << 24;
+
+	u32	driver3 = 0;
+
+	u32	driver4 = (dm->type_glna & 0xFF00) >>  8 |
+			(dm->type_gpa & 0xFF00) |
+			(dm->type_alna & 0xFF00) << 8 |
+			(dm->type_apa & 0xFF00)  << 16;
+
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+		  "===> %s (cond1, cond2, cond3, cond4) = (0x%X 0x%X 0x%X 0x%X)\n",
+		  __func__, cond1, cond2, cond3, cond4);
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+		  "===> %s (driver1, driver2, driver3, driver4) = (0x%X 0x%X 0x%X 0x%X)\n",
+		  __func__, driver1, driver2, driver3, driver4);
+
+	PHYDM_DBG(dm, ODM_COMP_INIT,
+		  "	(Platform, Interface) = (0x%X, 0x%X)\n",
+		  dm->support_platform, dm->support_interface);
+	PHYDM_DBG(dm, ODM_COMP_INIT, "	(RFE, Package) = (0x%X, 0x%X)\n",
+		  dm->rfe_type, dm->package_type);
+
+	/*============== value Defined Check ===============*/
+	/*cut version [27:24] need to do value check*/
+	if (((cond1 & 0x0F000000) != 0) &&
+	    ((cond1 & 0x0F000000) != (driver1 & 0x0F000000)))
+		return false;
+
+	/*pkg type [15:12] need to do value check*/
+	if (((cond1 & 0x0000F000) != 0) &&
+	    ((cond1 & 0x0000F000) != (driver1 & 0x0000F000)))
+		return false;
+
+	/*interface [11:8] need to do value check*/
+	if (((cond1 & 0x00000F00) != 0) &&
+	    ((cond1 & 0x00000F00) != (driver1 & 0x00000F00)))
+		return false;
+	/*=============== Bit Defined Check ================*/
+	/* We don't care [31:28] */
+
+	cond1 &= 0x000000FF;
+	driver1 &= 0x000000FF;
+
+	if (cond1 == driver1)
+		return true;
+	else
+		return false;
+}
+
+
+/******************************************************************************
+ *                           radioa.TXT
+ ******************************************************************************/
+_WEAK const u32 array_mp_8721d_radioa[] = {
+		0x00E, 0x0000001B,
+		0x001, 0x00000018,
+		0x00F, 0x00000029,
+		0x078, 0x000015D5,
+		0x082, 0x000315A2,
+		0x000, 0x00010000,
+		0x0EE, 0x00010000,
+		0x033, 0x00000040,
+		0x03F, 0x00000628,
+		0x033, 0x00000041,
+		0x03F, 0x0000062B,
+		0x033, 0x00000042,
+		0x03F, 0x0000062E,
+		0x033, 0x00000043,
+		0x03F, 0x0000066B,
+		0x033, 0x00000044,
+		0x03F, 0x0000066E,
+		0x033, 0x00000045,
+		0x03F, 0x00000CC9,
+		0x033, 0x00000046,
+		0x03F, 0x00000CCC,
+		0x033, 0x00000047,
+		0x03F, 0x00000CCF,
+		0x033, 0x00000048,
+		0x03F, 0x00000EF0,
+		0x033, 0x00000049,
+		0x03F, 0x00000EF3,
+		0x033, 0x0000004A,
+		0x03F, 0x00000EF6,
+		0x033, 0x00000060,
+		0x03F, 0x00000226,
+		0x033, 0x00000061,
+		0x03F, 0x00000229,
+		0x033, 0x00000062,
+		0x03F, 0x0000022C,
+		0x033, 0x00000063,
+		0x03F, 0x00000664,
+		0x033, 0x00000064,
+		0x03F, 0x00000E29,
+		0x033, 0x00000065,
+		0x03F, 0x00000E2C,
+		0x033, 0x00000066,
+		0x03F, 0x00000EE4,
+		0x033, 0x00000067,
+		0x03F, 0x00000EE7,
+		0x033, 0x00000068,
+		0x03F, 0x00000EEA,
+		0x033, 0x00000069,
+		0x03F, 0x00000EED,
+		0x033, 0x0000006A,
+		0x03F, 0x00000EF0,
+		0x033, 0x00000000,
+		0x03F, 0x00000267,
+		0x033, 0x00000001,
+		0x03F, 0x0000026A,
+		0x033, 0x00000002,
+		0x03F, 0x0000064A,
+		0x033, 0x00000003,
+		0x03F, 0x0000064D,
+		0x033, 0x00000004,
+		0x03F, 0x00000A4D,
+		0x033, 0x00000005,
+		0x03F, 0x00000AC9,
+		0x033, 0x00000006,
+		0x03F, 0x00000ACC,
+		0x033, 0x00000007,
+		0x03F, 0x00000ACF,
+		0x033, 0x00000008,
+		0x03F, 0x00000EEF,
+		0x033, 0x00000009,
+		0x03F, 0x00000EF2,
+		0x033, 0x0000000A,
+		0x03F, 0x00000EF5,
+		0x033, 0x00000020,
+		0x03F, 0x00000607,
+		0x033, 0x00000021,
+		0x03F, 0x00000624,
+		0x033, 0x00000022,
+		0x03F, 0x00000627,
+		0x033, 0x00000023,
+		0x03F, 0x00000664,
+		0x033, 0x00000024,
+		0x03F, 0x00000667,
+		0x033, 0x00000025,
+		0x03F, 0x00000E65,
+		0x033, 0x00000026,
+		0x03F, 0x00000E68,
+		0x033, 0x00000027,
+		0x03F, 0x00000E6B,
+		0x033, 0x00000028,
+		0x03F, 0x00000EE8,
+		0x033, 0x00000029,
+		0x03F, 0x00000EEB,
+		0x033, 0x0000002A,
+		0x03F, 0x00000EEE,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00010000,
+		0x033, 0x00000240,
+		0x03F, 0x00000444,
+		0x033, 0x00000241,
+		0x03F, 0x00000447,
+		0x033, 0x00000242,
+		0x03F, 0x0000044A,
+		0x033, 0x00000243,
+		0x03F, 0x0000044D,
+		0x033, 0x00000244,
+		0x03F, 0x00000CA5,
+		0x033, 0x00000245,
+		0x03F, 0x00000CA8,
+		0x033, 0x00000246,
+		0x03F, 0x00000EE7,
+		0x033, 0x00000247,
+		0x03F, 0x00000EEA,
+		0x033, 0x00000248,
+		0x03F, 0x00000EED,
+		0x033, 0x00000249,
+		0x03F, 0x00000EF0,
+		0x033, 0x0000024A,
+		0x03F, 0x00000EF3,
+		0x033, 0x000002C0,
+		0x03F, 0x0000022C,
+		0x033, 0x000002C1,
+		0x03F, 0x00000627,
+		0x033, 0x000002C2,
+		0x03F, 0x0000062A,
+		0x033, 0x000002C3,
+		0x03F, 0x00000667,
+		0x033, 0x000002C4,
+		0x03F, 0x00000688,
+		0x033, 0x000002C5,
+		0x03F, 0x000006E7,
+		0x033, 0x000002C6,
+		0x03F, 0x00000EE7,
+		0x033, 0x000002C7,
+		0x03F, 0x00000EEA,
+		0x033, 0x000002C8,
+		0x03F, 0x00000EED,
+		0x033, 0x000002C9,
+		0x03F, 0x00000EF0,
+		0x033, 0x000002CA,
+		0x03F, 0x00000EF3,
+		0x033, 0x00000340,
+		0x03F, 0x0000022B,
+		0x033, 0x00000341,
+		0x03F, 0x00000626,
+		0x033, 0x00000342,
+		0x03F, 0x00000629,
+		0x033, 0x00000343,
+		0x03F, 0x00000666,
+		0x033, 0x00000344,
+		0x03F, 0x00000687,
+		0x033, 0x00000345,
+		0x03F, 0x000006E6,
+		0x033, 0x00000346,
+		0x03F, 0x00000EE7,
+		0x033, 0x00000347,
+		0x03F, 0x00000EEA,
+		0x033, 0x00000348,
+		0x03F, 0x00000EED,
+		0x033, 0x00000349,
+		0x03F, 0x00000EF0,
+		0x033, 0x0000034A,
+		0x03F, 0x00000EF3,
+		0x033, 0x00000200,
+		0x03F, 0x00000623,
+		0x033, 0x00000201,
+		0x03F, 0x00000626,
+		0x033, 0x00000202,
+		0x03F, 0x00000629,
+		0x033, 0x00000203,
+		0x03F, 0x00000666,
+		0x033, 0x00000204,
+		0x03F, 0x00000C4A,
+		0x033, 0x00000205,
+		0x03F, 0x00000C4D,
+		0x033, 0x00000206,
+		0x03F, 0x00000EE7,
+		0x033, 0x00000207,
+		0x03F, 0x00000EEA,
+		0x033, 0x00000208,
+		0x03F, 0x00000EED,
+		0x033, 0x00000209,
+		0x03F, 0x00000EF0,
+		0x033, 0x0000020A,
+		0x03F, 0x00000EF3,
+		0x033, 0x00000280,
+		0x03F, 0x00000247,
+		0x033, 0x00000281,
+		0x03F, 0x00000642,
+		0x033, 0x00000282,
+		0x03F, 0x00000645,
+		0x033, 0x00000283,
+		0x03F, 0x00000648,
+		0x033, 0x00000284,
+		0x03F, 0x00000A4B,
+		0x033, 0x00000285,
+		0x03F, 0x00000A4E,
+		0x033, 0x00000286,
+		0x03F, 0x00000EE6,
+		0x033, 0x00000287,
+		0x03F, 0x00000EE9,
+		0x033, 0x00000288,
+		0x03F, 0x00000EEC,
+		0x033, 0x00000289,
+		0x03F, 0x00000EEF,
+		0x033, 0x0000028A,
+		0x03F, 0x00000EF2,
+		0x033, 0x00000300,
+		0x03F, 0x0000022A,
+		0x033, 0x00000301,
+		0x03F, 0x0000022D,
+		0x033, 0x00000302,
+		0x03F, 0x00000645,
+		0x033, 0x00000303,
+		0x03F, 0x00000648,
+		0x033, 0x00000304,
+		0x03F, 0x0000064B,
+		0x033, 0x00000305,
+		0x03F, 0x00000EC5,
+		0x033, 0x00000306,
+		0x03F, 0x00000EE7,
+		0x033, 0x00000307,
+		0x03F, 0x00000EEA,
+		0x033, 0x00000308,
+		0x03F, 0x00000EED,
+		0x033, 0x00000309,
+		0x03F, 0x00000EF0,
+		0x033, 0x0000030A,
+		0x03F, 0x00000EF3,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00020000,
+		0x033, 0x00000011,
+		0x03F, 0x000150F3,
+		0x033, 0x0000001B,
+		0x03F, 0x000150F3,
+		0x033, 0x0000001C,
+		0x03F, 0x000150F3,
+		0x033, 0x00000003,
+		0x03F, 0x000150F3,
+		0x033, 0x00000009,
+		0x03F, 0x000150F3,
+		0x033, 0x0000000A,
+		0x03F, 0x000150F3,
+		0x033, 0x00000091,
+		0x03F, 0x00011785,
+		0x033, 0x0000009B,
+		0x03F, 0x000117F5,
+		0x033, 0x0000009C,
+		0x03F, 0x000117F5,
+		0x033, 0x00000083,
+		0x03F, 0x00011785,
+		0x033, 0x00000089,
+		0x03F, 0x000117F5,
+		0x033, 0x0000008A,
+		0x03F, 0x000117F5,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00008000,
+		0x033, 0x00000000,
+		0x03F, 0x000550F3,
+		0x033, 0x00000001,
+		0x03F, 0x000550F3,
+		0x033, 0x00000002,
+		0x03F, 0x000550F3,
+		0x033, 0x00000003,
+		0x03F, 0x000550F3,
+		0x033, 0x00000004,
+		0x03F, 0x000550F3,
+		0x033, 0x00000005,
+		0x03F, 0x000550F3,
+		0x033, 0x00000006,
+		0x03F, 0x000550F3,
+		0x033, 0x00000007,
+		0x03F, 0x000550F3,
+		0x033, 0x00000008,
+		0x03F, 0x000550F3,
+		0x033, 0x00000009,
+		0x03F, 0x000550F3,
+		0x033, 0x0000000A,
+		0x03F, 0x000550F3,
+		0x033, 0x0000000B,
+		0x03F, 0x000550F3,
+		0x033, 0x0000000C,
+		0x03F, 0x000550F3,
+		0x033, 0x0000000D,
+		0x03F, 0x000550F3,
+		0x033, 0x0000000E,
+		0x03F, 0x000550F3,
+		0x033, 0x0000000F,
+		0x03F, 0x000550F3,
+		0x033, 0x00000010,
+		0x03F, 0x000517C5,
+		0x033, 0x00000011,
+		0x03F, 0x000517C5,
+		0x033, 0x00000012,
+		0x03F, 0x000517C5,
+		0x033, 0x00000013,
+		0x03F, 0x000517C5,
+		0x033, 0x00000014,
+		0x03F, 0x000517C5,
+		0x033, 0x00000015,
+		0x03F, 0x000517C5,
+		0x033, 0x00000016,
+		0x03F, 0x000517C5,
+		0x033, 0x00000017,
+		0x03F, 0x000517C5,
+		0x033, 0x00000018,
+		0x03F, 0x000517C5,
+		0x033, 0x00000019,
+		0x03F, 0x000517C5,
+		0x033, 0x0000001A,
+		0x03F, 0x000517C5,
+		0x033, 0x0000001B,
+		0x03F, 0x000517C5,
+		0x033, 0x0000001C,
+		0x03F, 0x000517C5,
+		0x033, 0x0000001D,
+		0x03F, 0x000517C5,
+		0x033, 0x0000001E,
+		0x03F, 0x000517C5,
+		0x033, 0x0000001F,
+		0x03F, 0x000517C5,
+		0x033, 0x00000020,
+		0x03F, 0x00055077,
+		0x033, 0x00000021,
+		0x03F, 0x00055077,
+		0x033, 0x00000022,
+		0x03F, 0x00055077,
+		0x033, 0x00000023,
+		0x03F, 0x00055077,
+		0x033, 0x00000024,
+		0x03F, 0x00055077,
+		0x033, 0x00000025,
+		0x03F, 0x00055077,
+		0x033, 0x00000026,
+		0x03F, 0x00055077,
+		0x033, 0x00000027,
+		0x03F, 0x00055077,
+		0x033, 0x00000030,
+		0x03F, 0x000550F6,
+		0x033, 0x00000031,
+		0x03F, 0x000550F6,
+		0x033, 0x00000032,
+		0x03F, 0x000550F6,
+		0x033, 0x00000033,
+		0x03F, 0x000550F6,
+		0x033, 0x00000034,
+		0x03F, 0x000550F6,
+		0x033, 0x00000035,
+		0x03F, 0x000550F6,
+		0x033, 0x00000036,
+		0x03F, 0x000550F6,
+		0x033, 0x00000037,
+		0x03F, 0x000550F6,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00000800,
+		0x033, 0x00000000,
+		0x03F, 0x000004F0,
+		0x033, 0x00000001,
+		0x03F, 0x000004F0,
+		0x033, 0x00000002,
+		0x03F, 0x000004F0,
+		0x033, 0x00000003,
+		0x03F, 0x000004F0,
+		0x033, 0x00000004,
+		0x03F, 0x000004F0,
+		0x033, 0x00000005,
+		0x03F, 0x000004F0,
+		0x033, 0x00000006,
+		0x03F, 0x000004F0,
+		0x033, 0x00000007,
+		0x03F, 0x000004F0,
+		0x033, 0x00000008,
+		0x03F, 0x000004F0,
+		0x033, 0x00000009,
+		0x03F, 0x000004F0,
+		0x033, 0x0000000A,
+		0x03F, 0x000004F0,
+		0x033, 0x0000000B,
+		0x03F, 0x000004F0,
+		0x033, 0x0000000C,
+		0x03F, 0x000004F1,
+		0x033, 0x0000000D,
+		0x03F, 0x000004F1,
+		0x033, 0x0000000E,
+		0x03F, 0x000004F1,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00000400,
+		0x033, 0x00000000,
+		0x03F, 0x000004F0,
+		0x033, 0x00000001,
+		0x03F, 0x000004F0,
+		0x033, 0x00000002,
+		0x03F, 0x000004F0,
+		0x033, 0x00000003,
+		0x03F, 0x000004F0,
+		0x033, 0x00000004,
+		0x03F, 0x000004F0,
+		0x033, 0x00000005,
+		0x03F, 0x000004F0,
+		0x033, 0x00000006,
+		0x03F, 0x000004F0,
+		0x033, 0x00000007,
+		0x03F, 0x000004F0,
+		0x033, 0x00000008,
+		0x03F, 0x000004F1,
+		0x033, 0x00000009,
+		0x03F, 0x000004F1,
+		0x033, 0x0000000A,
+		0x03F, 0x000004F1,
+		0x033, 0x0000000B,
+		0x03F, 0x000004F1,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00004000,
+		0x033, 0x00000000,
+		0x03F, 0x00000690,
+		0x033, 0x00000001,
+		0x03F, 0x00000630,
+		0x033, 0x00000002,
+		0x03F, 0x00000334,
+		0x033, 0x00000003,
+		0x03F, 0x00000334,
+		0x0EE, 0x00000000,
+		0x0EF, 0x00001000,
+		0x033, 0x00000009,
+		0x03F, 0x00000855,
+		0x033, 0x0000000A,
+		0x03F, 0x00000855,
+		0x0EF, 0x00000000,
+		0x0EE, 0x00000020,
+		0x030, 0x00000011,
+		0x030, 0x00001011,
+		0x030, 0x00002011,
+		0x0EE, 0x00000000,
+		0x0EE, 0x00000040,
+		0x030, 0x00000009,
+		0x030, 0x00001000,
+		0x030, 0x00002000,
+		0x0EE, 0x00000000,
+		0x0EF, 0x00000080,
+		0x033, 0x00000000,
+		0x03F, 0x00007C06,
+		0x033, 0x00000001,
+		0x03F, 0x00007C06,
+		0x033, 0x00000002,
+		0x03F, 0x00007C06,
+		0x033, 0x00000003,
+		0x03F, 0x00007C06,
+		0x033, 0x00000004,
+		0x03F, 0x00007C06,
+		0x0EF, 0x00000000,
+		0x0EF, 0x00000040,
+		0x033, 0x00000000,
+		0x03E, 0x000EB00F,
+		0x03F, 0x000F3F17,
+		0x033, 0x00000001,
+		0x03E, 0x000EB00F,
+		0x03F, 0x000F3F17,
+		0x033, 0x00000002,
+		0x03E, 0x000EB00F,
+		0x03F, 0x000F3F17,
+		0x033, 0x00000003,
+		0x03E, 0x000EB00F,
+		0x03F, 0x000F3F17,
+		0x033, 0x00000004,
+		0x03E, 0x000EB00F,
+		0x03F, 0x000F3F17,
+		0x033, 0x00000005,
+		0x03E, 0x000EB00F,
+		0x03F, 0x000F3F17,
+		0x0EF, 0x00000000,
+		0x0EF, 0x00000001,
+		0x033, 0x00000000,
+		0x03F, 0x00001000,
+		0x033, 0x00000001,
+		0x03F, 0x00001000,
+		0x033, 0x00000002,
+		0x03F, 0x00000100,
+		0x033, 0x00000003,
+		0x03F, 0x00000000,
+		0x033, 0x00000004,
+		0x03F, 0x00001000,
+		0x033, 0x00000005,
+		0x03F, 0x00002800,
+		0x033, 0x00000006,
+		0x03F, 0x00000000,
+		0x033, 0x00000007,
+		0x03F, 0x00000000,
+		0x033, 0x00000008,
+		0x03F, 0x00001000,
+		0x033, 0x00000009,
+		0x03F, 0x00000000,
+		0x033, 0x0000000A,
+		0x03F, 0x00001C00,
+		0x033, 0x0000000B,
+		0x03F, 0x00002800,
+		0x033, 0x0000000C,
+		0x03F, 0x00004000,
+		0x033, 0x0000000D,
+		0x03F, 0x00000A00,
+		0x033, 0x0000000E,
+		0x03F, 0x00004000,
+		0x0EF, 0x00000000,
+		0x0EF, 0x00000010,
+		0x033, 0x00000001,
+		0x03F, 0x00000045,
+		0x033, 0x00000002,
+		0x03F, 0x00000045,
+		0x033, 0x00000003,
+		0x03F, 0x00000045,
+		0x033, 0x00000004,
+		0x03F, 0x00000045,
+		0x033, 0x00000005,
+		0x03F, 0x000000A5,
+		0x033, 0x00000006,
+		0x03F, 0x000000A5,
+		0x033, 0x00000007,
+		0x03F, 0x000000A5,
+		0x033, 0x00000008,
+		0x03F, 0x000000A5,
+		0x033, 0x00000009,
+		0x03F, 0x000000A5,
+		0x033, 0x0000000A,
+		0x03F, 0x000000A5,
+		0x033, 0x0000000B,
+		0x03F, 0x000000A5,
+		0x033, 0x0000000C,
+		0x03F, 0x000000A5,
+		0x033, 0x0000000D,
+		0x03F, 0x000000A5,
+		0x033, 0x0000000E,
+		0x03F, 0x000000A5,
+		0x033, 0x0000000F,
+		0x03F, 0x000000A5,
+		0x033, 0x00000010,
+		0x03F, 0x000000A5,
+		0x033, 0x00000011,
+		0x03F, 0x000000A5,
+		0x033, 0x00000012,
+		0x03F, 0x000000A5,
+		0x033, 0x00000013,
+		0x03F, 0x000000A5,
+		0x033, 0x00000014,
+		0x03F, 0x000000A5,
+		0x033, 0x00000015,
+		0x03F, 0x000000A5,
+		0x033, 0x00000016,
+		0x03F, 0x000000A5,
+		0x033, 0x00000017,
+		0x03F, 0x000000A5,
+		0x033, 0x00000018,
+		0x03F, 0x000000A5,
+		0x033, 0x00000019,
+		0x03F, 0x000000A5,
+		0x033, 0x0000001A,
+		0x03F, 0x000000A5,
+		0x033, 0x0000001B,
+		0x03F, 0x000000A5,
+		0x033, 0x0000001C,
+		0x03F, 0x000000A5,
+		0x033, 0x0000001D,
+		0x03F, 0x000000A5,
+		0x033, 0x0000001E,
+		0x03F, 0x000000A5,
+		0x033, 0x0000001F,
+		0x03F, 0x000000A5,
+		0x033, 0x00000020,
+		0x03F, 0x000000A5,
+		0x033, 0x00000021,
+		0x03F, 0x000000A5,
+		0x033, 0x00000022,
+		0x03F, 0x000000A5,
+		0x033, 0x00000023,
+		0x03F, 0x000000B5,
+		0x033, 0x00000024,
+		0x03F, 0x000000B5,
+		0x033, 0x00000025,
+		0x03F, 0x000000B5,
+		0x033, 0x00000026,
+		0x03F, 0x000000B5,
+		0x033, 0x00000027,
+		0x03F, 0x000000B5,
+		0x033, 0x00000028,
+		0x03F, 0x000000B5,
+		0x033, 0x00000029,
+		0x03F, 0x000000B5,
+		0x033, 0x0000002A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000002B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000002C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000002D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000002E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000002F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000030,
+		0x03F, 0x000000B5,
+		0x033, 0x00000031,
+		0x03F, 0x000000B5,
+		0x033, 0x00000032,
+		0x03F, 0x000000B5,
+		0x033, 0x00000033,
+		0x03F, 0x000000B5,
+		0x033, 0x00000034,
+		0x03F, 0x000000B5,
+		0x033, 0x00000035,
+		0x03F, 0x000000B5,
+		0x033, 0x00000036,
+		0x03F, 0x000000B5,
+		0x033, 0x00000037,
+		0x03F, 0x000000B5,
+		0x033, 0x00000038,
+		0x03F, 0x000000B5,
+		0x033, 0x00000039,
+		0x03F, 0x000000B5,
+		0x033, 0x0000003A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000003B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000003C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000003D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000003E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000003F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000040,
+		0x03F, 0x000000B5,
+		0x033, 0x00000041,
+		0x03F, 0x000000B5,
+		0x033, 0x00000042,
+		0x03F, 0x000000B5,
+		0x033, 0x00000043,
+		0x03F, 0x000000B5,
+		0x033, 0x00000044,
+		0x03F, 0x000000B5,
+		0x033, 0x00000045,
+		0x03F, 0x000000B5,
+		0x033, 0x00000046,
+		0x03F, 0x000000B5,
+		0x033, 0x00000047,
+		0x03F, 0x000000B5,
+		0x033, 0x00000048,
+		0x03F, 0x000000B5,
+		0x033, 0x00000049,
+		0x03F, 0x000000B5,
+		0x033, 0x0000004A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000004B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000004C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000004D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000004E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000004F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000050,
+		0x03F, 0x000000B5,
+		0x033, 0x00000051,
+		0x03F, 0x000000B5,
+		0x033, 0x00000052,
+		0x03F, 0x000000B5,
+		0x033, 0x00000053,
+		0x03F, 0x000000B5,
+		0x033, 0x00000054,
+		0x03F, 0x000000B5,
+		0x033, 0x00000055,
+		0x03F, 0x000000B5,
+		0x033, 0x00000056,
+		0x03F, 0x000000B5,
+		0x033, 0x00000057,
+		0x03F, 0x000000B5,
+		0x033, 0x00000058,
+		0x03F, 0x000000B5,
+		0x033, 0x00000059,
+		0x03F, 0x000000B5,
+		0x033, 0x0000005A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000005B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000005C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000005D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000005E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000005F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000060,
+		0x03F, 0x000000B5,
+		0x033, 0x00000061,
+		0x03F, 0x000000B5,
+		0x033, 0x00000062,
+		0x03F, 0x000000B5,
+		0x033, 0x00000063,
+		0x03F, 0x000000B5,
+		0x033, 0x00000064,
+		0x03F, 0x000000B5,
+		0x033, 0x00000065,
+		0x03F, 0x000000B5,
+		0x033, 0x00000066,
+		0x03F, 0x000000B5,
+		0x033, 0x00000067,
+		0x03F, 0x000000B5,
+		0x033, 0x00000068,
+		0x03F, 0x000000B5,
+		0x033, 0x00000069,
+		0x03F, 0x000000B5,
+		0x033, 0x0000006A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000006B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000006C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000006D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000006E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000006F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000070,
+		0x03F, 0x000000B5,
+		0x033, 0x00000071,
+		0x03F, 0x000000B5,
+		0x033, 0x00000072,
+		0x03F, 0x000000B5,
+		0x033, 0x00000073,
+		0x03F, 0x000000B5,
+		0x033, 0x00000074,
+		0x03F, 0x000000B5,
+		0x033, 0x00000075,
+		0x03F, 0x000000B5,
+		0x033, 0x00000076,
+		0x03F, 0x000000B5,
+		0x033, 0x00000077,
+		0x03F, 0x000000B5,
+		0x033, 0x00000078,
+		0x03F, 0x000000B5,
+		0x033, 0x00000079,
+		0x03F, 0x000000B5,
+		0x033, 0x0000007A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000007B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000007C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000007D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000007E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000007F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000080,
+		0x03F, 0x000000B5,
+		0x033, 0x00000081,
+		0x03F, 0x000000B5,
+		0x033, 0x00000082,
+		0x03F, 0x000000B5,
+		0x033, 0x00000083,
+		0x03F, 0x000000B5,
+		0x033, 0x00000084,
+		0x03F, 0x000000B5,
+		0x033, 0x00000085,
+		0x03F, 0x000000B5,
+		0x033, 0x00000086,
+		0x03F, 0x000000B5,
+		0x033, 0x00000087,
+		0x03F, 0x000000B5,
+		0x033, 0x00000088,
+		0x03F, 0x000000B5,
+		0x033, 0x00000089,
+		0x03F, 0x000000B5,
+		0x033, 0x0000008A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000008B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000008C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000008D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000008E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000008F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000090,
+		0x03F, 0x000000B5,
+		0x033, 0x00000091,
+		0x03F, 0x000000B5,
+		0x033, 0x00000092,
+		0x03F, 0x000000B5,
+		0x033, 0x00000093,
+		0x03F, 0x000000B5,
+		0x033, 0x00000094,
+		0x03F, 0x000000B5,
+		0x033, 0x00000095,
+		0x03F, 0x000000B5,
+		0x033, 0x00000096,
+		0x03F, 0x000000B5,
+		0x033, 0x00000097,
+		0x03F, 0x000000B5,
+		0x033, 0x00000098,
+		0x03F, 0x000000B5,
+		0x033, 0x00000099,
+		0x03F, 0x000000B5,
+		0x033, 0x0000009A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000009B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000009C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000009D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000009E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000009F,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A0,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A1,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A2,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A3,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A4,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A5,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A6,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A7,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A8,
+		0x03F, 0x000000B5,
+		0x033, 0x000000A9,
+		0x03F, 0x000000B5,
+		0x033, 0x000000AA,
+		0x03F, 0x000000B5,
+		0x033, 0x000000AB,
+		0x03F, 0x000000B5,
+		0x033, 0x000000AC,
+		0x03F, 0x000000B5,
+		0x033, 0x000000AD,
+		0x03F, 0x000000B5,
+		0x033, 0x000000AE,
+		0x03F, 0x000000B5,
+		0x033, 0x000000AF,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B0,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B1,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B2,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B3,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B4,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B5,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B6,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B7,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B8,
+		0x03F, 0x000000B5,
+		0x033, 0x000000B9,
+		0x03F, 0x000000B5,
+		0x033, 0x000000BA,
+		0x03F, 0x000000B5,
+		0x033, 0x000000BB,
+		0x03F, 0x000000B5,
+		0x033, 0x000000BC,
+		0x03F, 0x000000B5,
+		0x033, 0x000000BD,
+		0x03F, 0x000000B5,
+		0x033, 0x000000BE,
+		0x03F, 0x000000B5,
+		0x033, 0x000000BF,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C0,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C1,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C2,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C3,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C4,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C5,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C6,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C7,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C8,
+		0x03F, 0x000000B5,
+		0x033, 0x000000C9,
+		0x03F, 0x000000B5,
+		0x033, 0x000000CA,
+		0x03F, 0x000000B5,
+		0x033, 0x000000CB,
+		0x03F, 0x000000B5,
+		0x033, 0x000000CC,
+		0x03F, 0x000000B5,
+		0x033, 0x000000CD,
+		0x03F, 0x000000B5,
+		0x033, 0x000000CE,
+		0x03F, 0x000000B5,
+		0x033, 0x000000CF,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D0,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D1,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D2,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D3,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D4,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D5,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D6,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D7,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D8,
+		0x03F, 0x000000B5,
+		0x033, 0x000000D9,
+		0x03F, 0x000000B5,
+		0x033, 0x000000DA,
+		0x03F, 0x000000B5,
+		0x033, 0x000000DB,
+		0x03F, 0x000000B5,
+		0x033, 0x000000DC,
+		0x03F, 0x000000B5,
+		0x033, 0x000000DD,
+		0x03F, 0x000000B5,
+		0x033, 0x000000DE,
+		0x03F, 0x000000B5,
+		0x033, 0x000000DF,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E0,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E1,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E2,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E3,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E4,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E5,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E6,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E7,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E8,
+		0x03F, 0x000000B5,
+		0x033, 0x000000E9,
+		0x03F, 0x000000B5,
+		0x033, 0x000000EA,
+		0x03F, 0x000000B5,
+		0x033, 0x000000EB,
+		0x03F, 0x000000B5,
+		0x033, 0x000000EC,
+		0x03F, 0x000000B5,
+		0x033, 0x000000ED,
+		0x03F, 0x000000B5,
+		0x033, 0x000000EE,
+		0x03F, 0x000000B5,
+		0x033, 0x000000EF,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F0,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F1,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F2,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F3,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F4,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F5,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F6,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F7,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F8,
+		0x03F, 0x000000B5,
+		0x033, 0x000000F9,
+		0x03F, 0x000000B5,
+		0x033, 0x000000FA,
+		0x03F, 0x000000B5,
+		0x033, 0x000000FB,
+		0x03F, 0x000000B5,
+		0x033, 0x000000FC,
+		0x03F, 0x000000B5,
+		0x033, 0x000000FD,
+		0x03F, 0x000000B5,
+		0x033, 0x000000FE,
+		0x03F, 0x000000B5,
+		0x033, 0x000000FF,
+		0x03F, 0x000000B5,
+		0x033, 0x00000100,
+		0x03F, 0x000000B5,
+		0x033, 0x00000101,
+		0x03F, 0x000000B5,
+		0x033, 0x00000102,
+		0x03F, 0x000000B5,
+		0x033, 0x00000103,
+		0x03F, 0x000000B5,
+		0x033, 0x00000104,
+		0x03F, 0x000000B5,
+		0x033, 0x00000105,
+		0x03F, 0x000000B5,
+		0x033, 0x00000106,
+		0x03F, 0x000000B5,
+		0x033, 0x00000107,
+		0x03F, 0x000000B5,
+		0x033, 0x00000108,
+		0x03F, 0x000000B5,
+		0x033, 0x00000109,
+		0x03F, 0x000000B5,
+		0x033, 0x0000010A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000010B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000010C,
+		0x03F, 0x000000B5,
+		0x033, 0x0000010D,
+		0x03F, 0x000000B5,
+		0x033, 0x0000010E,
+		0x03F, 0x000000B5,
+		0x033, 0x0000010F,
+		0x03F, 0x000000B5,
+		0x033, 0x00000110,
+		0x03F, 0x000000B5,
+		0x033, 0x00000111,
+		0x03F, 0x000000B5,
+		0x033, 0x00000112,
+		0x03F, 0x000000B5,
+		0x033, 0x00000113,
+		0x03F, 0x000000B5,
+		0x033, 0x00000114,
+		0x03F, 0x000000B5,
+		0x033, 0x00000116,
+		0x03F, 0x000000B5,
+		0x033, 0x00000117,
+		0x03F, 0x000000B5,
+		0x033, 0x00000118,
+		0x03F, 0x000000B5,
+		0x033, 0x00000119,
+		0x03F, 0x000000B5,
+		0x033, 0x0000011A,
+		0x03F, 0x000000B5,
+		0x033, 0x0000011B,
+		0x03F, 0x000000B5,
+		0x033, 0x0000011C,
+		0x03F, 0x000000B5,
+		0x0EF, 0x00000000,
+		0x01B, 0x00073A60,
+
+};
+
+// Extra radioA for 3.3v
+const u32 array_mp_8721d_radioa_33v_ext[] = {
+		// change LUT_TXA_BANDEDGE1 3.3v,
+		0xEE,0x00800,
+		0x33,0x00000,
+		0x3F,0x002F3,
+		0x33,0x00001,
+		0x3F,0x002F3,
+		0x33,0x00002,
+		0x3F,0x002F3,
+		0x33,0x00003,
+		0x3F,0x002F3,
+		0x33,0x00004,
+		0x3F,0x002F3,
+		0x33,0x00005,
+		0x3F,0x002F3,
+		0x33,0x00006,
+		0x3F,0x00324,
+		0x33,0x00007,
+		0x3F,0x00324,
+		0x33,0x00008,
+		0x3F,0x00324,
+		0x33,0x00009,
+		0x3F,0x00324,
+		0x33,0x0000A,
+		0x3F,0x00324,
+		0x33,0x0000B,
+		0x3F,0x00324,
+		0x33,0x0000C,
+		0x3F,0x00324,
+		0x33,0x0000D,
+		0x3F,0x00324,
+		0x33,0x0000E,
+		0x3F,0x00324,
+		0xEE,0x00000,
+		// change LUT_TXA_BIAS1 3.3v,
+		0xEE,0x00400,
+		0x33,0x00000,
+		0x3F,0x004F3,
+		0x33,0x00001,
+		0x3F,0x004F3,
+		0x33,0x00002,
+		0x3F,0x004F3,
+		0x33,0x00003,
+		0x3F,0x004F3,
+		0x33,0x00004,
+		0x3F,0x004F3,
+		0x33,0x00005,
+		0x3F,0x004F3,
+		0x33,0x00006,
+		0x3F,0x004F3,
+		0x33,0x00007,
+		0x3F,0x004F3,
+		0x33,0x00008,
+		0x3F,0x005F2,
+		0x33,0x00009,
+		0x3F,0x005F2,
+		0x33,0x0000A,
+		0x3F,0x005F2,
+		0x33,0x0000B,
+		0x3F,0x005F2,
+		0xEE,0x00000,
+		// change LUT_TXA_TANK [20181212_V21B], 1.8v updated in Ccut, 3.3v needs extra script
+		0xEE,0x04000,
+		0x33,0x00000,
+		0x3F,0x00A93,
+		0x33,0x00001,
+		0x3F,0x00553,
+		0x33,0x00002,
+		0x3F,0x00223,
+		0x33,0x00003,
+		0x3F,0x00223,
+		0xEE,0x00000,
+};
+
+_WEAK u32 arraylength_8721d_radioa =
+	sizeof(array_mp_8721d_radioa) / sizeof(u32);
+void
+odm_read_and_config_mp_8721d_radioa(struct dm_struct *dm)
+{
+	u32	i = 0;
+	u8	c_cond;
+	boolean	is_matched = true, is_skipped = false;
+	u32	array_len = arraylength_8721d_radioa;
+	u32	*array = (u32 *)array_mp_8721d_radioa;
+
+	u32	v1 = 0, v2 = 0, pre_v1 = 0, pre_v2 = 0;
+	u32	a1 = 0, a2 = 0, a3 = 0, a4 = 0;
+	u32 temp_reg = 0;
+
+	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
+
+	while ((i + 1) < array_len) {
+		v1 = array[i];
+		v2 = array[i + 1];
+
+		if (v1 & (BIT(31) | BIT(30))) {/*positive & negative condition*/
+			if (v1 & BIT(31)) {/* positive condition*/
+				c_cond  =
+					(u8)((v1 & (BIT(29) | BIT(28))) >> 28);
+				if (c_cond == COND_ENDIF) {/*end*/
+					is_matched = true;
+					is_skipped = false;
+					PHYDM_DBG(dm, ODM_COMP_INIT, "ENDIF\n");
+				} else if (c_cond == COND_ELSE) { /*else*/
+					is_matched = is_skipped ? false : true;
+					PHYDM_DBG(dm, ODM_COMP_INIT, "ELSE\n");
+				} else {/*if , else if*/
+					pre_v1 = v1;
+					pre_v2 = v2;
+					PHYDM_DBG(dm, ODM_COMP_INIT,
+						  "IF or ELSE IF\n");
+				}
+			} else if (v1 & BIT(30)) { /*negative condition*/
+				if (!is_skipped) {
+					a1 = pre_v1; a2 = pre_v2;
+					a3 = v1; a4 = v2;
+					if (check_positive(dm,
+							   a1, a2, a3, a4)) {
+						is_matched = true;
+						is_skipped = true;
+					} else {
+						is_matched = false;
+						is_skipped = false;
+					}
+				} else {
+					is_matched = false;
+				}
+			}
+		} else {
+			if (is_matched)
+				odm_config_rf_radio_a_8721d(dm, v1, v2);
+		}
+		i = i + 2;
+	}
+	/*Extra radioA for 3.3v*/
+	temp_reg = HAL_READ32((SYSTEM_CTRL_BASE_LP + LP_RW_HSYSON_OFFSET), REG_HS_RFAFE_IND_VIO1833);
+	if(temp_reg & BIT_RFAFE_IND_VIO1833) {
+		array_len = sizeof(array_mp_8721d_radioa_33v_ext) / sizeof(u32);
+		array = (u32 *)array_mp_8721d_radioa_33v_ext;
+		i = 0;
+		while(i < array_len){
+			v1 = array[i];
+			v2 = array[i + 1];
+			odm_config_rf_radio_a_8721d(dm, v1, v2);
+			i = i + 2;
+		}
+	}
+	/*B CUT needs to disable AFC*/
+	if (dm->cut_version == ODM_CUT_B)
+		odm_config_rf_radio_a_8721d(dm, 0xAF, 0x00004);
+}
+
+u32
+odm_get_version_mp_8721d_radioa(void)
+{
+		return 2;
+}
+
+/******************************************************************************
+ *                           txpowertrack.TXT
+ ******************************************************************************/
+
+#ifdef CONFIG_8721D
+const s8 delta_swingidx_mp_5ga_n_txpwrtrk_8721d[][D_S_SIZE] = {
+	{0, 0, 0, 1, 1, 1, 2, 3, 3, 3, 3, 4, 5, 5, 6, 6,
+	 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+	{0, 0, 0, 1, 1, 1, 2, 3, 3, 3, 3, 4, 5, 5, 6, 6,
+	 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+	{0, 0, 0, 1, 1, 1, 2, 3, 3, 3, 3, 4, 5, 5, 6, 6,
+	 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7},
+};
+
+const s8 delta_swingidx_mp_5ga_p_txpwrtrk_8721d[][D_S_SIZE] = {
+	{0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6,
+	 6, 7, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
+	{0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6,
+	 6, 7, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
+	{0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 5, 6, 6,
+	 6, 7, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9},
+};
+
+const s8 delta_swingidx_mp_2ga_n_txpwrtrk_8721d[]    = {
+	0, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 6,
+	 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+const s8 delta_swingidx_mp_2ga_p_txpwrtrk_8721d[]    = {
+	0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 6,
+	 6, 6, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+const s8 delta_swingidx_mp_2g_cck_a_n_txpwrtrk_8721d[] = {
+	0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5,
+	 6, 6, 6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7};
+const s8 delta_swingidx_mp_2g_cck_a_p_txpwrtrk_8721d[] = {
+	0, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 5, 5, 6, 6,
+	 6, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8};
+#endif
+
+void
+odm_read_and_config_mp_8721d_txpowertrack(struct dm_struct *dm)
+{
+#ifdef CONFIG_8721D
+
+struct dm_rf_calibration_struct  *cali_info = &dm->rf_calibrate_info;
+
+PHYDM_DBG(dm, ODM_COMP_INIT, "===> ODM_ReadAndConfig_MP_mp_8721d\n");
+
+odm_move_memory(dm, cali_info->delta_swing_table_idx_2ga_p,
+		(void *)delta_swingidx_mp_2ga_p_txpwrtrk_8721d,
+		DELTA_SWINGIDX_SIZE);
+odm_move_memory(dm, cali_info->delta_swing_table_idx_2ga_n,
+		(void *)delta_swingidx_mp_2ga_n_txpwrtrk_8721d,
+		DELTA_SWINGIDX_SIZE);
+
+odm_move_memory(dm, cali_info->delta_swing_table_idx_2g_cck_a_p,
+		(void *)delta_swingidx_mp_2g_cck_a_p_txpwrtrk_8721d,
+		DELTA_SWINGIDX_SIZE);
+odm_move_memory(dm, cali_info->delta_swing_table_idx_2g_cck_a_n,
+		(void *)delta_swingidx_mp_2g_cck_a_n_txpwrtrk_8721d,
+		DELTA_SWINGIDX_SIZE);
+
+odm_move_memory(dm, cali_info->delta_swing_table_idx_5ga_p,
+		(void *)delta_swingidx_mp_5ga_p_txpwrtrk_8721d,
+		DELTA_SWINGIDX_SIZE * 3);
+odm_move_memory(dm, cali_info->delta_swing_table_idx_5ga_n,
+		(void *)delta_swingidx_mp_5ga_n_txpwrtrk_8721d,
+		DELTA_SWINGIDX_SIZE * 3);
+#endif
+}
+
+/******************************************************************************
+ *                           txpwr_lmt_type0.TXT
+ ******************************************************************************/
+
+#ifdef CONFIG_8721D_TYPE0
+_WEAK const u8 array_mp_8721d_txpwr_lmt_type0[] = {
+	/* regulation, band, bandwidth, rateSection, rfPath, chnl, value */
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	1,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	1,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	1,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	2,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	2,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	2,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	3,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	3,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	3,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	4,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	4,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	4,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	5,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	5,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	5,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	6,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	6,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	6,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	7,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	7,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	7,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	8,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	8,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	8,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	9,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	9,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	9,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	10,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	10,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	10,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	11,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	11,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	11,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	12,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	12,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	13,	10,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	13,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	13,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	14,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	13,	12,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	8,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	28,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	28,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	26,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63
+};
+#endif
+
+_WEAK u32 arraylength_8721d_txpwr_lmt_type0 =
+	sizeof(array_mp_8721d_txpwr_lmt_type0) / sizeof(u8);
+void
+odm_read_and_config_mp_8721d_txpwr_lmt_type0(struct dm_struct *dm)
+{
+#ifdef CONFIG_8721D_TYPE0
+
+	u32	i = 0;
+#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
+	u32	array_len = arraylength_8721d_txpwr_lmt_type0;
+	u8	*array = (u8 *)array_mp_8721d_txpwr_lmt_type0;
+#else
+	u32	array_len =
+			sizeof(array_mp_8721d_txpwr_lmt_type0) / sizeof(u8 *);
+	u8	**array = (u8 **)array_mp_8721d_txpwr_lmt_type0;
+#endif
+
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	void	*adapter = dm->adapter;
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
+
+	odm_memory_set(dm, hal_data->BufOfLinesPwrLmt, 0,
+		       MAX_LINES_HWCONFIG_TXT *
+		       MAX_BYTES_LINE_HWCONFIG_TXT);
+	hal_data->nLinesReadPwrLmt = array_len / 7;
+#endif
+
+	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
+
+	for (i = 0; i < array_len; i += 7) {
+#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
+		u8	regulation = array[i];
+		u8	band = array[i + 1];
+		u8	bandwidth = array[i + 2];
+		u8	rate = array[i + 3];
+		u8	rf_path = array[i + 4];
+		u8	chnl = array[i + 5];
+		u8	val = array[i + 6];
+#else
+		u8	*regulation = array[i];
+		u8	*band = array[i + 1];
+		u8	*bandwidth = array[i + 2];
+		u8	*rate = array[i + 3];
+		u8	*rf_path = array[i + 4];
+		u8	*chnl = array[i + 5];
+		u8	*val = array[i + 6];
+#endif
+
+		odm_config_bb_txpwr_lmt_8721d(dm, (u8 *)regulation, (u8 *)band,
+					      (u8 *)bandwidth, (u8 *)rate,
+					      (u8 *)rf_path, (u8 *)chnl,
+					      (u8 *)val);
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+		rsprintf((char *)hal_data->BufOfLinesPwrLmt[i / 7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
+			 regulation, band, bandwidth, rate, rf_path, chnl, val);
+#endif
+	}
+
+#endif
+}
+
+/******************************************************************************
+ *                           txpwr_lmt_type1.TXT
+ ******************************************************************************/
+
+#ifdef CONFIG_8721D_TYPE1
+_WEAK const u8 array_mp_8721d_txpwr_lmt_type1[] = {
+	/* regulation, band, bandwidth, rateSection, rfPath, chnl, value */
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	1,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	1,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	1,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	2,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	2,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	2,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	3,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	3,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	3,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	4,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	4,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	4,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	5,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	5,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	5,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	6,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	6,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	6,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	7,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	7,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	7,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	8,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	8,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	8,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	9,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	9,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	9,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	10,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	10,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	10,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	11,	32,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	11,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	11,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	12,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	12,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	13,	10,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	13,	28,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	13,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_CCK,	PW_LMT_PH_1T,	14,	32,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	13,	12,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_OFDM,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	8,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	30,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_20M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	1,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	2,	63,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	28,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	3,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	4,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	5,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	6,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	7,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	8,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	30,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	9,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	28,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	10,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	26,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	11,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	12,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	26,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	13,	26,
+	PW_LMT_REGU_FCC,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_ETSI,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63,
+	PW_LMT_REGU_MKK,	PW_LMT_BAND_2_4G,	PW_LMT_BW_40M,	PW_LMT_RS_HT,	PW_LMT_PH_1T,	14,	63
+};
+#endif
+
+_WEAK u32 arraylength_8721d_txpwr_lmt_type1 =
+	sizeof(array_mp_8721d_txpwr_lmt_type1) / sizeof(u8);
+void
+odm_read_and_config_mp_8721d_txpwr_lmt_type1(struct dm_struct *dm)
+{
+#ifdef CONFIG_8721D_TYPE1
+
+	u32	i = 0;
+#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
+	u32	array_len = arraylength_8721d_txpwr_lmt_type1;
+	u8	*array = (u8 *)array_mp_8721d_txpwr_lmt_type1;
+#else
+	u32	array_len =
+			sizeof(array_mp_8721d_txpwr_lmt_type1) / sizeof(u8 *);
+	u8	**array = (u8 **)array_mp_8721d_txpwr_lmt_type1;
+#endif
+
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+	void	*adapter = dm->adapter;
+	HAL_DATA_TYPE	*hal_data = GET_HAL_DATA(((PADAPTER)adapter));
+
+	odm_memory_set(dm, hal_data->BufOfLinesPwrLmt, 0,
+		       MAX_LINES_HWCONFIG_TXT *
+		       MAX_BYTES_LINE_HWCONFIG_TXT);
+	hal_data->nLinesReadPwrLmt = array_len / 7;
+#endif
+
+	PHYDM_DBG(dm, ODM_COMP_INIT, "===> %s\n", __func__);
+
+	for (i = 0; i < array_len; i += 7) {
+#if (DM_ODM_SUPPORT_TYPE == ODM_IOT)
+		u8	regulation = array[i];
+		u8	band = array[i + 1];
+		u8	bandwidth = array[i + 2];
+		u8	rate = array[i + 3];
+		u8	rf_path = array[i + 4];
+		u8	chnl = array[i + 5];
+		u8	val = array[i + 6];
+#else
+		u8	*regulation = array[i];
+		u8	*band = array[i + 1];
+		u8	*bandwidth = array[i + 2];
+		u8	*rate = array[i + 3];
+		u8	*rf_path = array[i + 4];
+		u8	*chnl = array[i + 5];
+		u8	*val = array[i + 6];
+#endif
+
+		odm_config_bb_txpwr_lmt_8721d(dm, (u8 *)regulation, (u8 *)band,
+					      (u8 *)bandwidth, (u8 *)rate,
+					      (u8 *)rf_path, (u8 *)chnl,
+					      (u8 *)val);
+#if (DM_ODM_SUPPORT_TYPE == ODM_WIN)
+		rsprintf((char *)hal_data->BufOfLinesPwrLmt[i / 7], 100, "\"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\",",
+			 regulation, band, bandwidth, rate, rf_path, chnl, val);
+#endif
+	}
+
+#endif
+}
+
+/******************************************************************************
+ *                           txxtaltrack.TXT
+ ******************************************************************************/
+
+const s8 delta_swing_xtal_mp_n_txxtaltrack_8721d[]    = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+	 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const s8 delta_swing_xtal_mp_p_txxtaltrack_8721d[]    = {
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -6, -6, -6, -6,
+	 -6, -12, -16, -16, -16, -20, -20, -20, -20, -20, -20};
+
+void
+odm_read_and_config_mp_8721d_txxtaltrack(struct dm_struct *dm)
+{
+	struct dm_rf_calibration_struct	*cali_info = &dm->rf_calibrate_info;
+
+	PHYDM_DBG(dm, ODM_COMP_INIT, "===> ODM_ReadAndConfig_MP_mp_8721d\n");
+
+	odm_move_memory(dm, cali_info->delta_swing_table_xtal_p,
+			(void *)delta_swing_xtal_mp_p_txxtaltrack_8721d,
+			DELTA_SWINGIDX_SIZE);
+	odm_move_memory(dm, cali_info->delta_swing_table_xtal_n,
+			(void *)delta_swing_xtal_mp_n_txxtaltrack_8721d,
+			DELTA_SWINGIDX_SIZE);
+}
+
+#endif /* end of HWIMG_SUPPORT*/
+

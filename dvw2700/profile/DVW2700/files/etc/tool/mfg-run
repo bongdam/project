@@ -1,0 +1,12 @@
+#!/bin/sh
+
+mfgsetup() {
+	iptables -D INPUT -i br0 -p tcp --dport 2323 -j ACCEPT 2>/dev/null
+	iptables -D INPUT -i br0 -p tcp --dport 2323 -j DROP 2>/dev/null
+	iptables -I INPUT -i br0 -p tcp --dport 2323 -j ACCEPT
+	ps | grep -E "[[:alpha:]][[:space:]]+telnetd" >/dev/null || telnetd &
+	ps | grep -E "[[:alpha:]][[:space:]]+UDPserver" >/dev/null || UDPserver &
+	killall tms 2>/dev/null
+}
+
+({ waitflag WANBOUND 1 5000; sleep 2; mfgsetup; }) &

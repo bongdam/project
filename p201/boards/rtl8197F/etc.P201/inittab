@@ -1,0 +1,7 @@
+# Boot-time system configuration/initialization script.
+::sysinit:/etc/init.d/rcS
+
+# Start an "askfirst" shell on the console (whatever that may be)
+::respawn:-/bin/sh
+
+::shutdown:/bin/dvflag -s 4 REBOOTING 1
