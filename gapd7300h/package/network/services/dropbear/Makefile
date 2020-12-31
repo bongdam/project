@@ -1,0 +1,154 @@
+#
+# Copyright (C) 2006-2018 OpenWrt.org
+#
+# This is free software, licensed under the GNU General Public License v2.
+# See /LICENSE for more information.
+#
+
+include $(TOPDIR)/rules.mk
+
+PKG_NAME:=dropbear
+PKG_VERSION:=2019.78
+PKG_RELEASE:=1
+
+PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
+PKG_SOURCE_URL:= \
+	http://matt.ucc.asn.au/dropbear/releases/ \
+	https://dropbear.nl/mirror/releases/
+PKG_HASH:=f2fb9167eca8cf93456a5fc1d4faf709902a3ab70dd44e352f3acbc3ffdaea65
+
+PKG_LICENSE:=MIT
+PKG_LICENSE_FILES:=LICENSE libtomcrypt/LICENSE libtommath/LICENSE
+
+PKG_BUILD_PARALLEL:=1
+PKG_USE_MIPS16:=0
+
+PKG_CONFIG_DEPENDS:= \
+	CONFIG_TARGET_INIT_PATH CONFIG_DROPBEAR_ECC \
+	CONFIG_DROPBEAR_CURVE25519
+
+include $(INCLUDE_DIR)/package.mk
+
+ifneq ($(DUMP),1)
+  STAMP_CONFIGURED:=$(strip $(STAMP_CONFIGURED))_$(shell echo $(CONFIG_TARGET_INIT_PATH) | mkhash md5)
+endif
+
+define Package/dropbear/Default
+  URL:=http://matt.ucc.asn.au/dropbear/
+endef
+
+define Package/dropbear/config
+	source "$(SOURCE)/Config.in"
+endef
+
+define Package/dropbear
+  $(call Package/dropbear/Default)
+  SECTION:=net
+  CATEGORY:=Base system
+  TITLE:=Small SSH2 client/server
+  DEPENDS:= +DROPBEAR_ZLIB:zlib
+  DEPENDS:=+liblgap
+  DEPENDS+=+liblgap_pub
+  DEPENDS+=+libcrypto
+endef
+
+define Package/dropbear/description
+ A small SSH2 server/client designed for small memory environments.
+endef
+
+define Package/dropbear/conffiles
+/etc/dropbear/dropbear_rsa_host_key
+/etc/config/dropbear 
+endef
+
+define Package/dropbearconvert
+  $(call Package/dropbear/Default)
+  SECTION:=utils
+  CATEGORY:=Utilities
+  TITLE:=Utility for converting SSH keys
+endef
+
+CONFIGURE_ARGS += \
+	--disable-pam \
+	--enable-openpty \
+	--enable-syslog \
+	$(if $(CONFIG_SHADOW_PASSWORDS),,--disable-shadow) \
+	--disable-lastlog \
+	--disable-utmp \
+	--disable-utmpx \
+	--disable-wtmp \
+	--disable-wtmpx \
+	--disable-loginfunc \
+	--disable-pututline \
+	--disable-pututxline \
+	--disable-zlib \
+	--disable-harden \
+	--enable-bundled-libtom
+
+TARGET_CFLAGS += -DARGTYPE=3 -ffunction-sections -fdata-sections
+TARGET_LDFLAGS += -Wl,--gc-sections
+
+define Build/Configure
+	$(Build/Configure/Default)
+
+
+	echo '#define DEFAULT_PATH "$(TARGET_INIT_PATH)"' >> \
+		$(PKG_BUILD_DIR)/localoptions.h
+
+	echo '#define DROPBEAR_CURVE25519 $(if $(CONFIG_DROPBEAR_CURVE25519),1,0)' >> \
+		$(PKG_BUILD_DIR)/localoptions.h
+
+	for OPTION in DROPBEAR_ECDSA DROPBEAR_ECDH; do \
+		echo "#define $$$$OPTION $(if $(CONFIG_DROPBEAR_ECC),1,0)" >> \
+			$(PKG_BUILD_DIR)/localoptions.h; \
+	done
+
+	# remove protocol idented software version number
+	# $(ESED) 's,^(#define LOCAL_IDENT) .*$$$$,\1 "SSH-2.0-dropbear",g' \
+	#	$(PKG_BUILD_DIR)/sysoptions.h
+
+	# disable legacy/unsafe methods and unused functionality
+	for OPTION in INETD_MODE DROPBEAR_CLI_NETCAT \
+	DROPBEAR_3DES DROPBEAR_DSS DROPBEAR_ENABLE_CBC_MODE \
+	DROPBEAR_SHA1_96_HMAC DROPBEAR_USE_PASSWORD_ENV; do \
+		echo "#define $$$$OPTION 0" >> \
+			$(PKG_BUILD_DIR)/localoptions.h; \
+	done
+
+	# Enforce rebuild of svr-chansession.c
+	rm -f $(PKG_BUILD_DIR)/svr-chansession.o
+endef
+
+# DAVO : remove dropbearkey, scp
+define Build/Compile
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+		$(TARGET_CONFIGURE_OPTS) \
+		PROGRAMS="dropbear dbclient" \
+		MULTI=1 SCPPROGRESS=1
+	+$(MAKE) $(PKG_JOBS) -C $(PKG_BUILD_DIR) \
+		$(TARGET_CONFIGURE_OPTS) \
+		PROGRAMS="dropbearconvert"
+endef
+
+# DAVO : remove dropbearkey, scp, dbclient
+define Package/dropbear/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dropbearmulti $(1)/usr/sbin/dropbear
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(LN) ../sbin/dropbear $(1)/usr/bin/ssh
+	$(INSTALL_DIR) $(1)/etc/config
+	$(INSTALL_CONF) ./files/dropbear.config $(1)/etc/config/dropbear
+	$(INSTALL_DIR) $(1)/etc/init.d
+	$(INSTALL_BIN) ./files/dropbear.init $(1)/etc/init.d/dropbear
+	$(INSTALL_DIR) $(1)/usr/lib/opkg/info
+	$(INSTALL_DIR) $(1)/etc/dropbear
+	touch $(1)/etc/dropbear/dropbear_rsa_host_key
+endef
+
+define Package/dropbearconvert/install
+	$(INSTALL_DIR) $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/dropbearconvert $(1)/usr/bin/dropbearconvert
+endef
+
+$(eval $(call BuildPackage,dropbear))
+$(eval $(call BuildPackage,dropbearconvert))

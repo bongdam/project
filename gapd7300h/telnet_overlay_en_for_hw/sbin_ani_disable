@@ -1,0 +1,10 @@
+#!/bin/sh
+iwpriv wifi0 ani_ofdm_level 1
+iwpriv wifi0 ani_cck_level 1
+iwpriv wifi0 ani_enable 0
+iwpriv wifi0 ani_enable 1
+
+iwpriv wifi1 ani_ofdm_level 1
+iwpriv wifi1 ani_enable 0
+iwpriv wifi1 ani_enable 1
+

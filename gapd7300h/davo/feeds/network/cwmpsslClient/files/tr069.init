@@ -1,0 +1,45 @@
+#!/bin/sh /etc/rc.common
+
+START=46
+
+PROG=/usr/sbin/cwmpsslClient
+
+start() {
+	/usr/sbin/secd try
+
+	if [ -f /tmp/.img_lock ]; then
+		return 0;
+	fi
+
+	dir1=/var/tmp/cwmp
+	dir2=/var/tmp/autoupgrade
+	if [ ! -e $dir1 ]; then
+		mkdir -p /var/tmp/cwmp
+	fi
+	if [ ! -e $dir2 ]; then
+		mkdir -p /var/tmp/autoupgrade
+	fi
+	
+	aup_mode=$(uci -q get tr069.config.dv_aup_enabled)
+	if [ "$aup_mode" = "0" ];
+	then
+		rm -f /tmp/pchk_cwmpsslClient
+	else
+		echo "1" > /tmp/pchk_cwmpsslClient
+	fi
+
+	service_start ${PROG}
+}
+
+stop() {
+	if [ ! -f /tmp/.img_lock ]; then
+		rm -f /tmp/pchk_cwmpsslClient
+		service_stop ${PROG}
+	fi
+}
+
+restart()
+{
+	stop
+	start
+}

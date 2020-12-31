@@ -1,0 +1,26 @@
+#!/bin/sh /etc/rc.common
+
+START=87
+
+USE_PROCD=1
+PROG=/usr/sbin/lgu_apdm_svr
+
+start_service() {
+	procd_open_instance
+	procd_set_param command ${PROG} 1 f
+	procd_set_param respawn
+	procd_close_instance
+}
+
+reload_service()
+{
+	rc_procd stop_service "$@"
+	rc_procd start_service "$@"
+	return 0
+}
+
+
+stop_service() {
+	service_stop ${PROG}
+}
+

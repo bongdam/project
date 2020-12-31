@@ -1,0 +1,17 @@
+config system 'system'
+	option enc_key '^&*()@#53412asdfZXCVQWERYHNUJMio'
+	option version 'v00.00.01'
+	option debug '1'
+	option ses_timeout '600000'
+	option ses_checktime '10000'
+	option upload_path '/tmp'
+	option uci_rev '0'
+
+config network 'network'
+	option opmode 'nat'
+	option repeater '0'
+	option repeater_radio '1'
+
+config nas 'nas'
+	option port '8090'
+	option allow_wan '0'

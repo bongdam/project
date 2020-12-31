@@ -1,0 +1,16 @@
+#!/bin/sh /etc/rc.common
+# Copyright (C) 2006-2011 OpenWrt.org
+
+START=10
+STOP=98
+
+
+boot() {
+	sys_boot $FAILSAFE
+	nice -n 10 /usr/sbin/boot_prefetch &
+	/sbin/wifi detect >> /etc/config/wireless &
+}
+
+shutdown() {
+	echo reset 0 > /proc/rtl8367r/control
+}

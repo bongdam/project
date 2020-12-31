@@ -1,0 +1,54 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+USE_PROCD=1
+PROG=/usr/sbin/ddns_client
+CONF=/etc/ddns_client.conf
+UCICONF=ddns_client
+
+start_service() {
+	ddns_enabled=$(uci -q get ddns_client.config.ddns_enabled)	
+	ddns_type=$(uci -q get ddns_client.config.ddns_type)
+	ddns_domain_name=$(uci -q get ddns_client.config.ddns_domain_name)
+	ddns_user_name=$(uci -q get ddns_client.config.ddns_user_name)
+	ddns_password=$(uci -q get ddns_client.config.ddns_password)
+	ddns_wildcard=$(uci -q get ddns_client.config.ddns_wildcard)
+	
+	if [ "$ddns_enabled" = "1" ]; then
+		procd_open_instance
+		procd_set_param command ${PROG}
+		#ddns_type  0:dyndns  1:no-ip
+		if [ "$ddns_type" = "0" ]; then
+			procd_append_param command "dyndns"
+			#ddns_wildcard(dyndns only)  0:off  1:on
+			if [ "$ddns_wildcard" = "0" ]; then
+				procd_append_param command "OFF"
+			elif [ "$ddns_wildcard" = "1" ]; then
+				procd_append_param command "ON"
+			fi
+		else
+			procd_append_param command "noip"
+		fi
+		procd_append_param command "$ddns_user_name:$ddns_password"
+		procd_append_param command "$ddns_domain_name"
+		procd_close_instance
+	fi
+}
+
+reload_service()
+{
+	rc_procd stop_service "$@"
+	rc_procd start_service "$@"
+	return 0
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger "${UCICONF}"
+}
+
+stop_service() {
+	service_stop ${PROG}
+}
+

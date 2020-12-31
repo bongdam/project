@@ -1,0 +1,58 @@
+#!/bin/sh /etc/rc.common
+
+START=50
+STOP=50
+
+USE_PROCD=1
+PROG=/usr/sbin/snmp
+CONF=/etc/snmp.conf
+UCICONF=snmp
+
+make_snmp_conf() {
+	net_mode=$(uci -q get dvui.network.opmode)
+    if [ "$net_mode" = "bridge" ]; then
+		ipaddr="0.0.0.0"
+    else
+        ipaddr=$(uci get network.lan.ipaddr)
+    	if [ -z $ipaddr ]; then
+			ipaddr="192.168.35.1"
+		fi
+    fi
+	port=$(uci get snmp.config.snmp_port)
+    if [ -z $port ]; then
+		port=161
+	fi
+
+    cat <<EOF
+listen=${ipaddr}
+port=${port}
+EOF
+
+}
+
+start_service() {
+	make_snmp_conf > ${CONF}
+
+	procd_open_instance
+	procd_set_param command ${PROG} -a s
+	procd_set_param respawn
+	procd_set_param file ${CONF}
+	procd_close_instance
+}
+
+reload_service()
+{
+	rc_procd stop_service "$@"
+	rc_procd start_service "$@"
+	return 0
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger "${UCICONF}"
+}
+
+stop_service() {
+	service_stop ${PROG}
+}
+

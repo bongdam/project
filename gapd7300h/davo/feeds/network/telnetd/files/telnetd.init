@@ -1,0 +1,68 @@
+#!/bin/sh /etc/rc.common
+
+START=50
+STOP=50
+
+USE_PROCD=1
+PROG=/usr/sbin/telnetd
+CONF=/etc/telnetd.conf
+UCICONF=telnetd
+
+make_telnetd_conf() {
+	net_mode=$(uci -q get dvui.network.opmode)
+    if [ "$net_mode" = "bridge" ]; then
+		ipaddr="0.0.0.0"
+    else
+        ipaddr=$(uci get network.lan.ipaddr)
+    	if [ -z $ipaddr ]; then
+			ipaddr="192.168.35.1"
+		fi
+    fi
+	port=$(uci get telnetd.opts.port)
+    if [ -z $port ]; then
+		port=6000
+	fi
+	max_session=$(uci get telnetd.opts.session)
+    if [ -z $max_session ]; then
+		max_session=2
+	fi
+	timeout=$(uci get telnetd.opts.timeout)
+    if [ -z $timeout ]; then
+		timeout=300
+	fi
+
+    cat <<EOF
+listen=${ipaddr}
+port=${port}
+max_session=${max_session}
+timeout=${timeout}
+EOF
+
+}
+
+start_service() {
+	make_telnetd_conf > ${CONF}
+
+	procd_open_instance
+	procd_set_param command ${PROG} -F
+	procd_set_param respawn
+	procd_set_param file ${CONF}
+	procd_close_instance
+}
+
+reload_service()
+{
+	rc_procd stop_service "$@"
+	rc_procd start_service "$@"
+	return 0
+}
+
+service_triggers()
+{
+	procd_add_reload_trigger "${UCICONF}"
+}
+
+stop_service() {
+	service_stop ${PROG}
+}
+

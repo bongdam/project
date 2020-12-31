@@ -1,0 +1,4 @@
+config telnetd 'opts'
+	option timeout '300'
+	option session '2'
+	option port '6000'

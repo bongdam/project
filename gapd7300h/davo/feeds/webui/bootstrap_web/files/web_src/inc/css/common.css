@@ -1,0 +1,69 @@
+html,body {
+	padding:0px;
+	background-color: #fff;
+}
+.container-fixed {
+	margin: 0 auto;
+/*  max-width: 1280px;*/
+}
+.navbar-toggle {
+	margin-left: 15px;
+	float: left;
+}
+blockquote {
+  margin-left: 0px;
+  margin-right: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top:0px;
+  border-left: 10px solid #337ab7;
+  background-color:#f1f1f1;
+  border-radius:5px;
+  height:45px;
+  line-height:45px;
+}
+blockquote div:nth-child(1){
+	float:left;
+}
+blockquote div:nth-child(2){
+	float:right;
+}
+.table th{
+	text-align: center;
+}
+.table td{
+	text-align: center;
+}
+.navbar-custom {
+    background-color:#244db7;
+    color:#ffffff;
+    border-radius:0;
+}
+
+.navbar-custom .sidebar > li > a {
+    color:#fff;
+}
+
+.navbar-custom .sidebar-nav > .active > a {
+    color: #ffffff;
+    background-color:transparent;
+}
+
+.navbar-custom .sidebar-nav > li > a:hover,
+.navbar-custom .sidebar-nav > li > a:focus,
+.navbar-custom .sidebar-nav > .active > a:hover,
+.navbar-custom .sidebar-nav > .active > a:focus,
+.navbar-custom .sidebar-nav > .open >a {
+    text-decoration: none;
+    background-color: #33aa33;
+}
+
+.navbar-custom .navbar-brand {
+    color:#eeeeee;
+}
+.navbar-custom .navbar-toggle {
+    background-color:#eeeeee;
+}
+.navbar-custom .icon-bar {
+    background-color:#33aa33;
+}

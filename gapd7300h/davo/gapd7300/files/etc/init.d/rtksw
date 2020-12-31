@@ -1,0 +1,20 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+
+rtl8367r_apply_one_igrfilter()
+{
+	local CMD="add $1"
+	echo $CMD > /proc/rtl8367r/sw_acl_83xx
+	rule_cnt=$((rule_cnt+1))
+}
+
+boot() {
+	rule_cnt=0
+	config_load network_rtksw
+	config_list_foreach "rtksw" "igrfilter" rtl8367r_apply_one_igrfilter
+	if [ ! "$rule_cnt" = "0" ]; then
+		echo to_asic > /proc/rtl8367r/sw_acl_83xx
+	fi
+}
+

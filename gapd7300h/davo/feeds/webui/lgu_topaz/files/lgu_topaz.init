@@ -1,0 +1,21 @@
+#!/bin/sh /etc/rc.common
+
+START=85
+
+LGU_TOPAZ_PATH=/usr/sbin/lgu_topaz
+
+start() {
+	service_start $LGU_TOPAZ_PATH
+	if [ ! -f /tmp/pchk_lgu_topaz ]; then
+		echo "1" > /tmp/pchk_lgu_topaz
+	fi
+}
+
+stop() {
+	service_stop $LGU_TOPAZ_PATH
+}
+
+restart() {
+	stop
+	start
+}

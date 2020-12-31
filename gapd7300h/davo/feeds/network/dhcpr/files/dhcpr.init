@@ -1,0 +1,28 @@
+#!/bin/sh /etc/rc.common
+
+START=18
+
+start() {
+	local verbose simple_relaying
+
+	[ "$(uci -q get dvui.network.opmode)" != "bridge" ] && return
+	[ "$(uci -q get dvui.network.repeater)" = "1" ] && return
+
+	config_load dhcpr
+	config_get enabled ipv4 enabled 0
+	[ "$enabled" -ne 1 ] && simple_relaying=1
+	config_get in_interface ipv4 in_interface br-wan
+	config_get out_interface ipv4 out_interface
+	config_get down_interface ipv4 down_interface eth0.3
+	config_get debug ipv4 debug 0
+	while [ "$debug" -gt 0 -a ${#verbose} -lt 3 ]; do
+		verbose="v$verbose"
+		debug=$((debug - 1))
+	done
+        service_start /usr/sbin/dhcpr -i $in_interface \
+		${out_interface:+-u $out_interface} ${down_interface:+-d $down_interface} ${verbose:+-${verbose}} ${simple_relaying:+-s}
+}
+
+stop() {
+        service_stop /usr/sbin/dhcpr
+}

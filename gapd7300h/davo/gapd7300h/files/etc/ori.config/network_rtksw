@@ -1,0 +1,3 @@
+config rtksw "rtksw"
+	#list igrfilter "add 1f 3 0 dip 1 c0a87b01 ffffffff action 5 5"
+

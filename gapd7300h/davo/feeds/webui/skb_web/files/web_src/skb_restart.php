@@ -1,0 +1,140 @@
+<?php
+	require_once($_SERVER['DOCUMENT_ROOT']."/inc/default_ssi.php");
+	require_once($_SERVER['DOCUMENT_ROOT']."/skb_common.php");
+	$lastUrl = dv_post("submit-url");
+	$action_ = dv_post("act");
+	$cnt = 50;
+	$uci = new uci();
+	$uci->mode("get");
+	$uci->get("system.reboot");
+	$uci->run();
+	$reboot = json_decode($uci->result(),true);
+	if(get_array_val($reboot,"system.reboot.status") == "1"){
+		if($action_ != "system_factory"){
+			$action_ = "system_restart";
+		}
+	}
+	switch($action_){
+		case "network_restart":
+			$act = "network_restart";
+			$proc = "/proc/skb_network_restart.php";
+			$cnt = 20;
+			break;
+		case "system_restart":
+			$act = "system_restart";
+			$proc = "/proc/skb_network_restart.php";
+			$cnt = 60;
+			break;
+		case "system_factory":
+			$act = "system_factory";
+			$proc = "/proc/skb_network_restart.php";
+			$cnt = 120;
+			break;
+	}
+?>
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<script type="text/javascript" src="js/skb_util_gw.js"></script>
+<script type="text/javascript" src="inc/js/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="inc/js/common.js"></script>
+<link href="style.css" rel="stylesheet" type="text/css">
+<style>
+	.on {display:on}
+	.off {display:none}
+</style>
+<script type="text/javascript">
+	var act = "<?=$act?>";
+	var proc = "<?=$proc?>";
+	var count = <?=$cnt?>*1;
+
+	function get_by_id(id)
+	{
+		with(document)
+		{
+			return getElementById(id);
+		}
+	}
+
+	function change_state(istate)
+	{
+		if(count == 3)
+			get_by_id("show_msg").className = "off";
+
+		if(1)
+			return;
+		if(parent.frames[1])
+		{
+		parent.frames[1].state = istate;
+		MTMDisplayMenu();
+		}
+
+	}
+	function do_count_down()
+	{
+		get_by_id("show_sec").innerHTML = count;
+
+		if(count == 0)
+		{
+			var browser=eval ( '"' + top.location + '"' );
+			var domainName = "";
+			var connect_url;
+			change_state('normal');
+			var lastUrl="<?=$lastUrl?>";
+			if(lastUrl == "/skb_home.php")
+			{
+				parent.location.href = 'http://'+connect_url;
+			}
+			else
+			{
+				parent.frames[4].location.assign(lastUrl);
+			}
+
+			return false;
+		}
+
+		if (count > 0)
+		{
+
+			count--;
+			setTimeout('do_count_down()',1000);
+		}
+	}
+	var network_restart = function(){
+		dummyVal = CreateDummy();
+		var lastUrl="<?=$lastUrl?>";
+		var sobj = new Object();
+		sobj['dummyVal'] = dummyVal;
+		sobj['act'] = act;
+		sobj['submit-url'] = lastUrl;
+	//		alert(JSON.stringify(sobj));
+		$.ajax({
+			"data":sobj,
+			url:proc,
+			"dataType":"text",
+			"type":"POST",
+			success:function(d){
+				
+			}
+		});
+		do_count_down();
+	}
+$(document).ready(function(){
+	change_state('normal');
+	network_restart();
+});
+</script>
+</head>
+<body>
+	<blockquote>
+		<h4>설정 변경 성공<BR><BR>
+			<SPAN id="show_msg">재부팅중이니 장치의 전원을 끄지말고 잠시 기다려주시기 바랍니다.</span>
+		</h4>
+		<P align=left>
+			<h4><B><SPAN id="show_sec" class="on"></SPAN></B>&nbsp;<SPAN id=show_seconds>초 남았습니다 ...</SPAN></h4>
+		</P>
+	</blockquote>
+</body>
+</html>

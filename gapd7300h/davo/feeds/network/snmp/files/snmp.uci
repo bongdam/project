@@ -1,0 +1,2 @@
+config snmp 'opts'
+	option port '161'

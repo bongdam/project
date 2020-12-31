@@ -1,0 +1,28 @@
+<?php
+	require_once($_SERVER['DOCUMENT_ROOT']."/inc/default_ssi.php");
+?>
+<!DOCTYPE html>
+<html>
+<head>
+<meta HTTP-EQUIV='Pragma' CONTENT='no-cache'>
+<meta HTTP-equiv="Cache-Control" content="no-cache">
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<title>H824G</title>
+</head>
+<frameset cols="*,1024,*" framespacing="0" frameborder="0" border="false">
+	<frame src="about:blank" noresize>
+	<frameset ROWS="124,*"  BORDER="0" FRAMESPACING="0" FRAMEBORDER="NO" noresize>
+		<frame src="skb_title.php" NAME="title" FRAMEBORDER="NO" SCROLLING="NO" MARGINWIDTH="0" MARGINHEIGHT="0" noresize>
+		<frameset cols="180,844" BORDER="0" FRAMESPACING="0" FRAMEBORDER="NO">
+			<frame name="sub_menu" src="skb_sub_menu_setup.php" FRAMEBORDER="NO" SCROLLING="YES" MARGINWIDTH="0" MARGINHEIGHT="0" noresize>
+			<frameset ROWS="34,*"  BORDER="0" FRAMESPACING="0" FRAMEBORDER="NO">
+				<frame name="top_menu" src="skb_top_menu.php"  FRAMEBORDER="NO" SCROLLING="NO" MARGINWIDTH="0" MARGINHEIGHT="0" noresize>
+				<frame name="content" src="skb_status.php" SCROLLING="AUTO" MARGINWIDTH="0" TOPMARGIN="0" MARGINHEIGHT="0" FRAMEBORDER="NO" noresize>
+			</frameset>
+		</frameset>
+	  </frameset>
+	<frame src="about:blank" noresize>
+</frameset>
+<body>
+</body>
+</html>

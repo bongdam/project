@@ -1,0 +1,67 @@
+body {font-family: "lucida grande","Segoe UI",Arial, sans-serif; font-size: 14px;width:95%;padding:1em;margin:0;}
+th {font-weight: normal; color: #1F75CC; background-color: #F0F9FF; padding:.5em 1em .5em .2em; 
+	text-align: left;cursor:pointer;user-select: none;}
+th .indicator {margin-left: 6px }
+thead {border-top: 1px solid #82CFFA; border-bottom: 1px solid #96C4EA;border-left: 1px solid #E7F2FB;
+	border-right: 1px solid #E7F2FB; }
+#top {height:52px;}
+#mkdir_div{
+	display:none;
+	width:250px;
+	height:70px;
+	background-color:#e1e1e1;
+	border:1px dashed #333;
+	position:absolute;top:46%;left:45%;
+}
+#mkdir {display:inline-block;padding-top:16px;}
+label { display:block; font-size:11px; color:#555;}
+#file_drop_target {width:500px; padding:12px 0; border: 4px dashed #ccc;font-size:12px;color:#ccc;
+	text-align: center;float:right;margin-right:20px;}
+#file_drop_target.drag_over {border: 4px dashed #96C4EA; color: #96C4EA;}
+#upload_progress {padding: 4px 0;}
+#upload_progress .error {color:#a00;}
+#upload_progress > div { padding:3px 0;}
+.no_write #mkdir, .no_write #file_drop_target {display: none}
+.progress_track {display:inline-block;width:200px;height:10px;border:1px solid #333;margin: 0 4px 0 10px;}
+.progress {background-color: #82CFFA;height:10px; }
+footer {font-size:11px; color:#bbbbc5; padding:4em 0 0;text-align: left;}
+footer a, footer a:visited {color:#bbbbc5;}
+#breadcrumb { padding-top:34px; font-size:15px; color:#aaa;display:inline-block;float:left;}
+#breadcrumb a{
+	color:#002b80;
+	font-weight:bold;
+}
+#folder_actions {width: 50%;float:right;}
+a, a:visited { color:#00c; text-decoration: none}
+a:hover {text-decoration: underline}
+.sort_hide{ display:none;}
+table {border-collapse: collapse;width:100%;}
+thead {max-width: 1024px}
+td { padding:.2em 1em .2em .2em; border-bottom:1px solid #def;height:30px; font-size:12px;white-space: nowrap;}
+td.first {font-size:14px;white-space: normal;}
+td.empty { color:#777; font-style: italic; text-align: center;padding:3em 0;}
+.is_dir .size {color:transparent;font-size:0;}
+.is_dir .size:before {content: "--"; font-size:14px;color:#333;}
+.is_dir .download{visibility: hidden}
+
+.is_dir .name {
+	color:#333;
+	font-weight:bold;
+}
+.name {
+	color:#666;
+}
+.download {
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB2klEQVR4nJ2ST2sTQRiHn5mdmj92t9XmUJIWJGq9NHrRgxQiCtqbl97FqxgaL34CP0FD8Qv07EHEU0Ew6EXEk6ci8Q9JtcXEkHR3k+zujIdUqMkmiANzmJdnHn7vzCuIWbe291tSkvhz1pr+q1L2bBwrRgvFrcZKKinfP9zI2EoKmm7Azstf3V7fXK2Wc3ujvIqzAhglwRJoS2ImQZMEBjgyoDS4hv8QGHA1WICvp9yelsA7ITBTIkwWhGBZ0Iv+MUF+c/cB8PTHt08snb+AGAACZDj8qIN6bSe/uWsBb2qV24/GBLn8yl0plY9AJ9NKeL5ICyEIQkkiZenF5XwBDAZzWItLIIR6LGfk26VVxzltJ2gFw2a0FmQLZ+bcbo/DPbcd+PrDyRb+GqRipbGlZtX92UvzjmUpEGC0JgpC3M9dL+qGz16XsvcmCgCK2/vPtTNzJ1x2kkZIRBSivh8Z2Q4+VkvZy6O8HHvWyGyITvA1qndNpxfguQNkc2CIzM0xNk5QLedCEZm1VKsf2XrAXMNrA2vVcq4ZJ4DhvCSAeSALXASuLBTW129U6oPrT969AK4Bq0AeWARs4BRgieMUEkgDmeO9ANipzDnH//nFB0KgAxwATaAFeID5DQNatLGdaXOWAAAAAElFTkSuQmCC) no-repeat scroll 0px 5px;
+	padding:4px 0 4px 20px;
+}
+#movie_div{
+	display:none;
+	width:320px;
+	height:270px;
+	position:absolute;
+	top:50%;
+	left:50%;
+	margin-left:-160px;
+	margin-top:-120px;
+}

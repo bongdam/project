@@ -1,0 +1,16 @@
+config system 'system'
+	option hostname	GAPD-7300
+	option timezone	KST-9
+	option zonename Asia/Seoul
+	option log_size	2048
+	option log_file /var/log/messages
+	option auto_nat 1
+	option hw_nat 1
+
+config timeserver 'ntp'
+	option server1 time.bora.net
+	option server2 time-b.nist.gov
+	option primary 0
+	option enabled 1
+	option enable_server 0
+
